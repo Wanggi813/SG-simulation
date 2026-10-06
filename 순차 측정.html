@@ -825,27 +825,6 @@
 			margin-right: 4px;
 		}
 
-		/* ── 핵심 추론(z↑ 입자는 x+ 입자일까? → 중첩) ── */
-		.deep-dive {
-			border: 1px solid #f5d27a;
-			background: #fffbeb;
-			border-radius: 14px;
-			padding: 11px 12px;
-			margin: 14px 0 4px;
-		}
-
-		.deep-head {
-			font-size: 11px;
-			font-weight: 800;
-			letter-spacing: 0.06em;
-			color: #b45309;
-			margin-bottom: 6px;
-		}
-
-		.deep-dive .mini-row {
-			grid-template-columns: 52px 1fr 58px;
-		}
-
 		.save-reminder {
 			margin-top: 12px;
 			padding: 9px 11px;
@@ -857,16 +836,7 @@
 			color: #9a3412;
 		}
 
-		.principle-aside {
-			background: #fff;
-			border: 1px dashed #cbd5e1;
-			border-radius: 10px;
-			padding: 8px 10px;
-			font-size: 12px;
-			color: #475569;
-		}
-
-		/* ── ⑤ 맨 끝 · 다음 시간 예고(양자컴퓨터·큐비트) ── */
+		/* ── 맨 끝 · 다음 시간 예고(양자컴퓨터·큐비트) ── */
 		.next-lesson {
 			margin-top: 14px;
 			padding: 12px;
@@ -2514,8 +2484,7 @@
 					<div class="ctrl-head">① 문제 인식</div>
 					<label class="writing-prompt" for="studentName">보고서 작성자 · 학번 / 이름</label>
 					<input id="studentName" type="text" maxlength="80" placeholder="예: 30305 김민수" />
-					<p class="key-question"><span>탐구 질문</span>z↑로 측정된 입자를 다른 축(x)으로 재면, 그 결과는 재기 전에 이미 정해져 있을까?
-						측정은 입자의 상태를 바꿀까?</p>
+					<p class="key-question"><span>탐구 질문</span>z↑로 측정된 입자를 다른 축(x)으로 재면, 그 결과는 재기 전에 이미 정해져 있을까?</p>
 					<p class="sb-note">지난 시간에 분석기(자석)를 지난 입자는 위(z↑)·아래(z↓) 두 곳에만 검출되었고, 마지막에
 						<strong>z↑ 입자만 골라 다시 측정하면 어떻게 될까?</strong>를 예측했습니다. 오늘은 분석기를 이어 붙여 직접 확인합니다.
 						분석기를 90° 돌린 <strong>x축 분석기</strong>는 입자를 오른쪽(x+)·왼쪽(x−) 두 갈래로 나눕니다.</p>
@@ -2547,10 +2516,9 @@
 						<div id="predBasisChange"></div>
 					</div>
 					<p class="sb-note pred-lock-note" id="predLockNote" hidden>측정을 시작한 실험의 예측은 고정되어 바꿀 수 없습니다.</p>
-					<label class="writing-prompt" for="hypothesisNote">두 결과를 그렇게 예상한 까닭은 무엇인가요? ① 문제 인식에서 고른 가설(A 또는 B)과
-						연결해 적어 보세요.</label>
+					<label class="writing-prompt" for="hypothesisNote">왜 그렇게 예상했나요?</label>
 					<textarea id="hypothesisNote"
-						placeholder="예시 형식: 가설 ○가 맞다면 실험 ①은 ~, 실험 ②는 ~일 것이다. 왜냐하면 ~이기 때문이다."></textarea>
+						placeholder="예시 형식: 가설 ○가 맞다면 ~이기 때문에 ~일 것이라고 예상했다."></textarea>
 					<div class="btn-row btn-stack">
 						<button class="btn-sub" id="previewSameAxisBtn" disabled>실험 ① 배치 미리보기 · z → z</button>
 						<button class="btn-sub" id="previewDiffAxisBtn" disabled>실험 ② 배치 미리보기 · z → x</button>
@@ -2566,14 +2534,13 @@
 					</select>
 					<div class="ctrl-head">③ 자료 수집 · 비교 실험</div>
 					<p class="key-question"><span>핵심 발문</span>z↑로 측정된 입자는 언제나 z↑일까? 다른 축으로 재거나, 중간에 다른 축 측정을 거치면 어떻게 될까?</p>
-					<p class="sb-note">아래 큰 버튼을 따라 실험 ①→④를 차례로 진행한 뒤, ⑤ 자유 탐구에서 궁금한 조건을 직접 만들어 확인해 보세요.</p>
+					<p class="sb-note">아래 큰 버튼을 따라 실험 ①→③을 차례로 진행한 뒤, ④ 자유 탐구에서 궁금한 조건을 직접 만들어 확인해 보세요.</p>
 					<label class="writing-prompt" for="experimentPlan">실험 선택</label>
 					<select id="experimentPlan">
 						<option value="sameAxis">① 같은 축 · z↑ → z</option>
 						<option value="basisChange">② 다른 축 · z↑ → x</option>
 						<option value="collapse">③ 중간 측정 추가 · z↑ → x+ → z</option>
-						<option value="recombine">④ 두 경로 합치기 · z↑ → x(합침) → z</option>
-						<option value="free">⑤ 자유 탐구</option>
+						<option value="free">④ 자유 탐구</option>
 					</select>
 					<p class="sb-note" id="experimentQuestion"></p>
 					<p class="sb-note" id="experimentProgress" role="status"></p>
@@ -2590,7 +2557,7 @@
 					</div>
 					<details class="collection-fold" id="analyzerSettingsFold" hidden>
 						<summary>분석기 설정 확인·변경</summary>
-						<p class="sb-note" id="filterRuleNote">A → B → C 순서로 측정합니다. 중간 분석기는 한쪽 경로만 통과시키거나, 두 경로를 모두 열고 다시 합칠 수 있어요.</p>
+						<p class="sb-note" id="filterRuleNote">A → B → C 순서로 측정합니다. 중간 분석기는 한쪽 경로만 통과시킬 수 있어요.</p>
 						<div class="ctrl-block" style="margin:10px 0">
 							<div class="ctrl-head">분석기 설정<span>A → B → C</span></div>
 							<div class="ctrl-row"><label for="axisA">A · 축</label>
@@ -2604,7 +2571,6 @@
 									<option value="both">전체 통과</option>
 									<option value="plus">↑ 경로만</option>
 									<option value="minus">↓ 경로만</option>
-									<option value="merge">두 경로 다시 합침</option>
 								</select>
 							</div>
 							<div class="ctrl-row"><label for="axisB">B · 축</label>
@@ -2619,7 +2585,6 @@
 									<option value="both">전체 통과</option>
 									<option value="plus">↑ 경로만</option>
 									<option value="minus">↓ 경로만</option>
-									<option value="merge">두 경로 다시 합침</option>
 								</select>
 							</div>
 							<div class="ctrl-row"><label for="axisC">C · 축</label>
@@ -2634,7 +2599,6 @@
 									<option value="both">전체 통과</option>
 									<option value="plus">↑ 경로만</option>
 									<option value="minus">↓ 경로만</option>
-									<option value="merge">두 경로 다시 합침</option>
 								</select>
 							</div>
 						</div>
@@ -2657,10 +2621,9 @@
 					<details class="collection-fold" id="observationNotesFold" open>
 						<summary>✎ 관찰 내용 작성하기</summary>
 						<div id="observationNotesHome">
-							<label class="writing-prompt" for="detectedRatioNote">실험 ①(z↑ → z)과 실험 ②(z↑ → x)의 결과를
-								비교해 보세요. 실험 ①에서 z↑·z↓는, 실험 ②에서 x+·x−는 각각 몇 %였나요? 두 결과는 왜 다르게 나왔을까요?</label>
+							<label class="writing-prompt" for="detectedRatioNote">실험 ①(z↑ → z)과 ②(z↑ → x)는 두 번째 분석기의 축만 다릅니다. 결과가 왜 다르게 나왔을까요?</label>
 							<textarea id="detectedRatioNote"
-								placeholder="예시 형식: ①은 z↑ OO%·z↓ OO%, ②는 x+ OO%·x− OO%였다. 같은 축으로 재면 ~하고, 다른 축으로 재면 ~하기 때문이다."></textarea>
+								placeholder="예시 형식: 같은 축으로 다시 재면 ~하지만, 다른 축으로 재면 ~하기 때문이다."></textarea>
 							<details class="hint-fold">
 								<summary>도움이 필요하면 · 단계별 힌트</summary>
 								<p><b>힌트 1</b> 결과 그래프에서 ①과 ②의 색 막대 길이를 비교해 보세요.</p>
@@ -2674,52 +2637,35 @@
 				<!-- ④ 자료 분석 (전개2) -->
 				<section class="ctrl-block" data-step="4" hidden>
 					<div class="ctrl-head">④ 자료 분석 · 결과 비교와 토의</div>
-					<p class="key-question"><span>핵심 발문</span>중간에 x를 재면(③) 상태가 바뀌었다. 그렇다면 x 분석기를 지나되 어느 길로 갔는지 확인하지 않으면(④) 어떻게 될까?</p>
+					<p class="key-question"><span>핵심 발문</span>마지막 분석기가 똑같이 z축인데, 중간에 x를 재면(③) 결과가 달라졌다. 측정은 입자의 상태에 어떤 영향을 줄까?</p>
 					<p class="sb-note">③ 단계에서 측정한 결과가 조건별로 합산되어 있습니다. 옅은 빗금 막대가 <strong>내 예측</strong>, 진한 막대가
 						<strong>실제 결과</strong>입니다. (모두 검출기에 도달한 입자 기준)</p>
 					<div id="runLogEmpty" class="sb-note">아직 기록된 실행이 없습니다. ③ 단계로 돌아가 실행해 보세요.</div>
 					<div id="runLogTable"></div>
 					<button class="btn-sub" id="runLogExpandBtn" style="width:100%" hidden>▦ 조건별 측정 결과 크게 보기</button>
 
-					<label class="writing-prompt" for="stateExplanationNote">실험 ①·②·③·④의 예측과 실제 결과를 비교해 보세요. 예측과 맞은 것과
-						어긋난 것은 무엇인가요?</label>
+					<label class="writing-prompt" for="stateExplanationNote">예측과 가장 크게 어긋난 실험은 무엇이고, 왜 그랬을까요?</label>
 					<textarea id="stateExplanationNote"
-						placeholder="예시 형식: ①은 예측 OO%, 실제 OO%로 (맞았다/어긋났다). ②는 ... ③은 ... ④는 ..."></textarea>
+						placeholder="예시 형식: 실험 ○이 예측과 가장 크게 어긋났다. 왜냐하면 ~"></textarea>
 
-					<label class="writing-prompt" for="changedConditionNote">실험 ①(z↑ → z)과 실험 ③(z↑ → x+ → z)은 마지막
-						분석기가 모두 z축입니다. ①은 중간에 아무것도 재지 않았고, ③은 중간에 x를 쟀습니다. 마지막 z 측정 결과는 어떻게 달랐고, 그 까닭은 무엇일까요?</label>
+					<label class="writing-prompt" for="changedConditionNote">실험 ①(z↑ → z)과 ③(z↑ → x+ → z)은 중간에 x를 쟀는지만 다릅니다. 마지막 z 결과가 왜 달라졌을까요?</label>
 					<textarea id="changedConditionNote"
-						placeholder="예시 형식: ①의 마지막 z 측정은 z↑ OO%, ③은 z↑ OO%였다. 그 까닭은 ~이다."></textarea>
+						placeholder="예시 형식: ③에서는 중간의 x 측정이 ~했기 때문이다."></textarea>
 					<details class="hint-fold">
 						<summary>도움이 필요하면 · 단계별 힌트</summary>
-						<p><b>힌트 1</b> 실험 ①과 ③의 분석기 배치에서 다른 점을 먼저 찾아보세요.</p>
-						<p><b>힌트 2</b> 그 차이(중간의 x축 측정)가 마지막 z 측정 결과와 어떻게 연결될까요?</p>
-						<p><b>힌트 3</b> 중간 측정이 입자의 이전 상태(z↑)를 바꿨다고 할 수 있을까요? 아래 핵심 추론과 연결해 생각해 보세요.</p>
+						<p><b>힌트 1</b> 결과 그래프에서 ①과 ③의 마지막 z 막대를 비교해 보세요.</p>
+						<p><b>힌트 2</b> 중간에 x를 잰 뒤, 입자의 상태는 어느 방향으로 정해졌을까요?</p>
+						<p><b>힌트 3</b> 측정이 값을 확인만 한다면, ③의 마지막 z 결과는 어떻게 나와야 할까요?</p>
 					</details>
 
-					<div class="deep-dive" id="mixtureTest">
-						<div class="deep-head">핵심 추론 · 입자는 x 분석기를 어떻게 지났을까?</div>
-						<p class="sb-note" style="margin-top:0">③과 ④는 똑같이 x 분석기를 지나요. 다른 점은 <b>한 길을 막았는지</b>(③: 어느 길로 갔는지 확인)
-							<b>두 길을 다 열고 합쳤는지</b>(④: 확인하지 않음)뿐이에요.</p>
-						<fieldset class="model-options" id="mixtureTestChoices">
-							<legend>입자가 x+나 x− 중 한 길로만 지났다면, ④의 z↑는 몇 %여야 할까요?</legend>
-							<label><input type="radio" name="mixtureTestChoice" value="50" />50% — 어느 길이든 z로 재면 반반이니까(③)</label>
-							<label><input type="radio" name="mixtureTestChoice" value="100" />100%</label>
-						</fieldset>
-						<div id="mixtureTestResult"></div>
-						<p class="sb-note" id="mixtureFollowUp" hidden></p>
-						<label class="writing-prompt" for="mixtureTestNote">입자는 x 분석기를 어떻게 지났을까요? 길을 막았을 때(③)와 막지 않았을 때(④)는 무엇이 다를까요?</label>
-						<textarea id="mixtureTestNote" placeholder="예시 형식: 한 길로만 지났다면 ④는 ~%여야 하는데 실제로는 ~%였다. 그러므로 입자는 ~. 길을 막으면 ~."></textarea>
-						<p class="sb-note" id="mixtureGateNote">예상을 골라야 ⑤ 결론 도출로 넘어갈 수 있어요.</p>
-					</div>
 				</section>
 
 				<!-- ⑤ 결론 도출 (정리) -->
 				<section class="ctrl-block" data-step="5" hidden id="conclusionPanel">
 					<div class="ctrl-head">⑤ 결론 도출</div>
-					<label class="writing-prompt" for="conclusion">① 결론 정리 — 같은 축으로 다시 잴 때, 다른 축으로 잴 때, 중간에 다른 축 측정을 거칠 때 각각 어떤 결과가 나왔나요? 측정은 입자의 상태에 어떤 영향을 주나요?</label>
+					<label class="writing-prompt" for="conclusion">① 결론 정리 — 측정은 입자의 상태에 어떤 영향을 주나요?</label>
 					<textarea id="conclusion"
-						placeholder="힌트: 같은 축으로 다시 잴 때, 다른 축으로 잴 때, 중간에 다른 축 측정을 거쳤을 때를 나눠서 실험 결과를 근거로 정리해 보세요."></textarea>
+						placeholder="힌트: 실험 ①과 ③의 차이를 근거로 적어 보세요."></textarea>
 
 					<div class="question-label">② z↑ 입자의 x 결과는 재기 전에 정해져 있었을까?</div>
 
@@ -2750,21 +2696,20 @@
 								<label><input type="radio" name="conclusionChoice" value="A" /><span><strong>가설 A</strong> · 재기 전에 이미 정해져 있다<small>측정은 확인만 한다</small></span></label>
 								<label><input type="radio" name="conclusionChoice" value="B" /><span><strong>가설 B</strong> · 재는 순간 정해진다<small>측정이 상태를 바꾼다</small></span></label>
 							</fieldset>
-							<label class="writing-prompt" for="reflectionNote">그렇게 고른 근거는 무엇인가요? 첫 예상과 비교하면 생각이 바뀌었나요,
-								그대로인가요?</label>
+							<label class="writing-prompt" for="reflectionNote">그렇게 고른 근거는 무엇인가요?</label>
 							<textarea id="reflectionNote"
-								placeholder="힌트: 원리 보기를 열기 전에, 위 증거(특히 실험 ③과 ④, 핵심 추론 결과)만 근거로 먼저 적어 보세요."></textarea>
+								placeholder="힌트: 원리 보기를 열기 전에, 위 증거(특히 실험 ①과 ③의 차이)만 근거로 먼저 적어 보세요."></textarea>
 						</div>
 					</div>
 
-					<div class="sec-label">③ 원리 보기 — 측정과 중첩</div>
+					<div class="sec-label">③ 원리 보기 — 측정에 의한 상태 변화</div>
 					<button class="btn-sub" id="principleBtn" style="width:100%" disabled>원리 보기</button>
 					<p class="sb-note" id="principleLockNote">②의 판단과 근거를 먼저 적으면 열립니다.</p>
 					<div id="afterPrincipleBlock" hidden>
-						<label class="writing-prompt" for="afterPrincipleNote">원리를 보고 새로 알게 되거나 달라진 생각을 적어 보세요. (‘중첩’과
-							‘측정에 의한 상태 붕괴’라는 말을 넣어서)</label>
+						<label class="writing-prompt" for="afterPrincipleNote">원리를 보고 새로 알게 되거나 달라진 생각을 적어 보세요. (‘측정은 상태를
+							바꾼다’는 내용을 넣어서)</label>
 						<textarea id="afterPrincipleNote"
-							placeholder="예시 형식: 입자가 한 길로만 지났다면 ④는 ~였을 텐데, 실제로는 ~였으므로 입자는 ~(중첩)였다. 길을 막아 확인하면 ~(붕괴)."></textarea>
+							placeholder="예시 형식: 측정이 값을 확인만 한다면 ③은 ~였을 텐데, 실제로는 ~였다. 그러므로 측정은 ~."></textarea>
 					</div>
 
 					<div class="self-check" id="selfCheck">
@@ -2773,13 +2718,12 @@
 						<label><input type="checkbox" id="selfCheck2" /> 측정 후 상태가 측정한 축 방향으로 정해진다는 것을 근거로 두 결과의 차이를 설명할 수
 							있다</label>
 						<label><input type="checkbox" id="selfCheck3" /> 실험 ①과 ③의 결과 차이를, 측정하지 않으면 상태가 그대로이고 다른 축으로 측정하면 상태가 바뀐다는 것과 연결해 설명할 수 있다</label>
-						<label><input type="checkbox" id="selfCheck4" /> 두 길을 합치면(④) z↑가 그대로이고 한 길을 막으면(③) 반반이 되는 까닭을 중첩과 측정으로 설명할 수 있다</label>
 					</div>
 
 					<!-- 다음 차시(양자컴퓨터·큐비트)로 이어지는 예고: 결론을 모두 마친 뒤 맨 마지막에만 둡니다. -->
 					<div class="next-lesson" id="nextLesson">
 						<div class="sec-label">④ 다음 시간 예고 — 양자컴퓨터와 큐비트</div>
-						<p class="sb-note">오늘 확인한 <strong>두 결과, 중첩, 측정에 의한 상태 붕괴</strong>는 양자컴퓨터의 정보 단위인
+						<p class="sb-note">오늘 확인한 <strong>두 결과, 확률적인 측정 결과, 측정에 의한 상태 변화</strong>는 양자컴퓨터의 정보 단위인
 							<strong>큐비트</strong>에서도 그대로 나타납니다.</p>
 						<table class="qubit-table">
 							<thead>
@@ -2791,14 +2735,14 @@
 							<tbody>
 								<tr>
 									<td>두 결과: z↑ / z↓</td>
-									<td>두 상태: |0⟩ / |1⟩</td>
+									<td>두 상태: 0 / 1</td>
 								</tr>
 								<tr>
-									<td>z↑ 입자는 x+와 x−의 중첩</td>
-									<td>큐비트도 |0⟩과 |1⟩의 중첩에 있을 수 있음</td>
+									<td>z↑ 입자를 x로 재면 x+·x−가 확률로 정해짐</td>
+									<td>큐비트도 측정하면 0·1이 확률로 정해질 수 있음</td>
 								</tr>
 								<tr>
-									<td>측정하면 하나로 정해짐 (상태 붕괴)</td>
+									<td>측정하면 상태가 그 결과로 바뀜</td>
 									<td>측정하면 0 또는 1 하나로 정해짐</td>
 								</tr>
 							</tbody>
@@ -2891,7 +2835,7 @@
 		<div class="modal-card">
 			<button class="modal-close" id="principleClose">✕</button>
 			<div class="modal-title">원리 보기</div>
-			<div class="modal-sub">슈테른-겔라흐 연속 측정으로 보는 중첩과 측정에 의한 상태 붕괴</div>
+			<div class="modal-sub">슈테른-겔라흐 연속 측정으로 보는 측정에 의한 상태 변화</div>
 
 			<!-- 1. 빔 분리 -->
 			<div class="help-sec">
@@ -3034,65 +2978,6 @@
 				</figure>
 			</div>
 
-			<!-- 5. 두 경로 합치기 → 중첩 -->
-			<div class="help-sec">
-				<div class="help-sec-label">⑤ 두 경로를 다시 합치면? — 중첩</div>
-				<figure class="principle-card">
-					<svg viewBox="0 0 420 176" width="100%" style="display:block;margin-bottom:10px" role="img"
-						aria-label="z↑ 입자가 x 분석기를 지날 때 한 길을 막으면 마지막 z 측정이 반반이지만, 두 길을 모두 열고 다시 합치면 z↑가 100% 그대로 나온다">
-						<defs>
-							<marker id="mergeArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
-								orient="auto-start-reverse">
-								<path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8" />
-							</marker>
-						</defs>
-						<!-- ③ 한 길 막기 -->
-						<text x="0" y="14" font-size="10.5" font-weight="700" fill="#475569">실험 ③ · 한 길을 막음 (어느 길로 갔는지 확인)</text>
-						<circle cx="18" cy="50" r="12" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
-						<text x="18" y="54" font-size="9.5" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
-						<rect x="40" y="34" width="44" height="32" rx="7" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5" />
-						<text x="62" y="54" font-size="9.5" fill="#15803d" text-anchor="middle" font-weight="700">x축</text>
-						<path d="M84 50 C104 50 112 30 134 30" fill="none" stroke="#22c55e" stroke-width="2.4" />
-						<path d="M84 50 C104 50 112 70 126 70" fill="none" stroke="#a855f7" stroke-width="2.4" stroke-dasharray="3 3" />
-						<rect x="127" y="62" width="10" height="16" fill="#f97316" />
-						<line x1="134" y1="30" x2="196" y2="30" stroke="#22c55e" stroke-width="2.4" marker-end="url(#mergeArrow)" />
-						<rect x="200" y="14" width="44" height="32" rx="7" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
-						<text x="222" y="34" font-size="9.5" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축</text>
-						<line x1="246" y1="30" x2="266" y2="30" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#mergeArrow)" />
-						<rect x="270" y="18" width="75" height="24" fill="#d9485f" />
-						<rect x="345" y="18" width="75" height="24" fill="#3c82f6" />
-						<text x="307" y="34" font-size="10" fill="white" text-anchor="middle" font-weight="800">z↑ 50%</text>
-						<text x="382" y="34" font-size="10" fill="white" text-anchor="middle" font-weight="800">z↓ 50%</text>
-
-						<!-- ④ 두 길 합치기 -->
-						<text x="0" y="104" font-size="10.5" font-weight="700" fill="#475569">실험 ④ · 두 길을 다 열고 다시 합침 (확인하지 않음)</text>
-						<circle cx="18" cy="140" r="12" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
-						<text x="18" y="144" font-size="9.5" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
-						<rect x="40" y="124" width="44" height="32" rx="7" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5" />
-						<text x="62" y="144" font-size="9.5" fill="#15803d" text-anchor="middle" font-weight="700">x축</text>
-						<path d="M84 140 C110 140 120 118 146 118 C172 118 182 140 196 140" fill="none" stroke="#94a3b8" stroke-width="2.4" />
-						<path d="M84 140 C110 140 120 162 146 162 C172 162 182 140 196 140" fill="none" stroke="#94a3b8" stroke-width="2.4" />
-						<rect x="200" y="124" width="44" height="32" rx="7" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
-						<text x="222" y="144" font-size="9.5" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축</text>
-						<line x1="246" y1="140" x2="266" y2="140" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#mergeArrow)" />
-						<rect x="270" y="128" width="150" height="24" fill="#d9485f" />
-						<text x="345" y="144" font-size="10" fill="white" text-anchor="middle" font-weight="800">z↑ 100%</text>
-						<text x="146" y="174" font-size="9.5" fill="#b45309" text-anchor="middle" font-weight="700">두 길을 함께 지남</text>
-					</svg>
-					<figcaption>
-						<p>입자가 x+나 x− 중 <strong>한 길로만</strong> 지났다면, 어느 길이든 z로 재면 반반이니(실험 ③) 두 길을 합쳐도 z↑는 50%여야
-							해요. 하지만 실험 ④에서는 <strong>z↑가 100% 그대로</strong> 나왔어요. 그러니 입자는 한 길로만 지난 것이 아니라, 두 길을
-							<strong>함께</strong> 지난 상태였어요.</p>
-						<p>이처럼 <strong>둘 이상의 서로 다른 상태(여기서는 x+와 x−)가 하나의 상태 안에 겹쳐 있는 것</strong>을 <strong>중첩</strong>이라고
-							해요. z↑ 입자는 x에 대해 x+와 x−의 중첩이에요.</p>
-						<p>그런데 한 길을 막아 <strong>어느 길로 갔는지 확인하면</strong>(실험 ③), 그 순간 입자는 한 길로 정해지고 z 결과는 다시 반반이 돼요.
-							이것이 <strong>측정에 의한 상태 붕괴</strong>예요. 반대로 확인하지 않으면(실험 ④) 중첩이 그대로 유지되어 붕괴하지 않아요.</p>
-						<p class="principle-aside">생각 더하기 · 실제 장치에서 두 경로를 흐트러짐 없이 다시 합치기는 매우 어려워서, 실험 ④는
-							물리학자들이 생각으로 해 보는 <em>사고실험</em>이에요. 빛이나 전자의 간섭 실험에서는 같은 원리가 실제로 확인됩니다.</p>
-					</figcaption>
-				</figure>
-			</div>
-
 			<div class="modal-footer">
 				<button class="btn-modal-sub" id="principleCancel">닫기</button>
 			</div>
@@ -3129,17 +3014,17 @@
 
 		// ── Constants ──
 		const axisLabels = { none: "꺼짐", z: "z축", x: "x축" };
-		const filterLabels = { both: "전체 통과", plus: "↑ 경로만", minus: "↓ 경로만", merge: "두 경로 다시 합침" };
+		const filterLabels = { both: "전체 통과", plus: "↑ 경로만", minus: "↓ 경로만" };
 		// 결과 표기: z축은 위·아래(↑·↓), x축은 오른쪽·왼쪽(+·−). 실험 이름에 →를 순서 표시로 쓰므로
 		// x 결과까지 화살표로 쓰면 "z↑ → x→ → z"처럼 헷갈려 +·−로 씁니다.
 		const SIGN_MARK = { z: { plus: "↑", minus: "↓" }, x: { plus: "+", minus: "−" } };
 		const signMark = (axis, sign) => (SIGN_MARK[axis] || SIGN_MARK.z)[sign] || "";
 		const outcomeLabel = (axis, sign) => axis + signMark(axis, sign);
-		const filterLabel = (axis, filter) => filter === "both" || filter === "merge" ? filterLabels[filter] : signMark(axis, filter) + " 경로만";
+		const filterLabel = (axis, filter) => filter === "both" ? filterLabels[filter] : signMark(axis, filter) + " 경로만";
 		// 결과표/그래프에서 각 조건이 ③ 자료 수집의 몇 번 실험이었는지 표시하기 위한 라벨.
 		const experimentLabels = {
 			sameAxis: "① 같은 축", basisChange: "② 다른 축",
-			collapse: "③ 중간 측정 추가", recombine: "④ 두 경로 합치기", free: "⑤ 자유 탐구"
+			collapse: "③ 중간 측정 추가", free: "④ 자유 탐구"
 		};
 		const SPIN_COLORS = {
 			z: {
@@ -3154,15 +3039,13 @@
 		const LOST_COLOR = { hex: 0xd97706, cssHex: "#d97706" };
 		const GRAY_COLOR = { hex: 0x909090, cssHex: "#909090" };
 
-		// ③ 자료 수집의 정해진 실험 ①~④. 예측·결과는 분석기 배치(signature) 단위로 기록하므로,
+		// ③ 자료 수집의 정해진 실험 ①~③. 예측·결과는 분석기 배치(signature) 단위로 기록하므로,
 		// 2단계에서 적은 ②·③ 예측도 같은 signature로 저장해 ③ 단계 측정에 그대로 이어 씁니다.
 		const PRESETS = {
 			sameAxis: { src: "mixed", aA: "z", fA: "plus", aB: "z", fB: "both", aC: "none", fC: "both" },
 			basisChange: { src: "mixed", aA: "z", fA: "plus", aB: "x", fB: "both", aC: "none", fC: "both" },
 			// B는 마지막 활성 분석기가 아니므로(C가 마지막) +만 통과하도록 설정합니다.
 			collapse: { src: "mixed", aA: "z", fA: "plus", aB: "x", fB: "plus", aC: "z", fC: "both" },
-			// ④ 사고실험: x 분석기에서 두 경로를 모두 열어 두고, 어느 길로 갔는지 확인하지 않은 채 다시 합칩니다.
-			recombine: { src: "mixed", aA: "z", fA: "plus", aB: "x", fB: "merge", aC: "z", fC: "both" },
 		};
 		const presetAnalyzers = p => [{ axis: p.aA, filter: p.fA }, { axis: p.aB, filter: p.fB }, { axis: p.aC, filter: p.fC }];
 		const sigOf = analyzers => JSON.stringify(analyzers.map(a => [a.axis, a.axis === "none" ? "both" : a.filter]));
@@ -3180,8 +3063,6 @@
 			ySpread: 1.4,
 			xSpread: 1.4,
 			approachDist: 1.0,
-			// 두 경로 합침 장치가 경로를 다시 모으는 지점(분석기 중심으로부터의 거리)
-			mergeDist: 2.6,
 		};
 
 		// 1000개를 5초 안에 다 쏘도록: 1000 / 5 = 초당 200개.
@@ -3224,8 +3105,6 @@
 			reviewedResults: {},
 			// 측정을 시작한 배치의 예측은 고정합니다(결과를 본 뒤 예측을 고치지 못하도록).
 			lockedSigs: new Set(),
-			// 핵심 추론: 학생의 예상과, 비교에 쓴 내 측정값(x+ 입자·z↑ 입자를 z로 잰 결과)
-			mixtureTest: null,
 			// 원리 보기를 처음 열 때의 판단(원리를 보기 전 판단을 보고서에 남기기 위함)
 			judgmentSnapshot: null,
 			// 저장하지 않은 기록이 있는지 (창을 닫을 때 경고)
@@ -3262,8 +3141,6 @@
 					// 측정하지 않고 그대로(차단된 상태로) 넘깁니다 — 그렇지 않으면 이미 없어진
 					// 입자가 다음 분석기에서 되살아난 것처럼 확률이 잘못 계산됩니다.
 					if (br.lost) { next.push(br); return; }
-					// 두 경로를 합치면 어느 길로 갔는지 측정하지 않으므로 상태가 그대로 유지됩니다.
-					if (filter === "merge") { next.push(br); return; }
 					const axA = angleForAxis(axis);
 					const pP = br.stateAngle === null ? 0.5 : cosSqHalfDiff(br.stateAngle, axA);
 					[{ sign: "plus", p: pP, angle: axA }, { sign: "minus", p: 1 - pP, angle: axA + 180 }].forEach(o => {
@@ -3349,10 +3226,6 @@
 				const bothOption = sel.querySelector('option[value="both"]');
 				if (bothOption) bothOption.disabled = isIntermediate;
 				if (isIntermediate && sel.value === "both") sel.value = "plus";
-				// '두 경로 합침'은 뒤에 분석기가 있어야 의미가 있으므로 마지막 분석기에서는 전체 통과로 되돌립니다.
-				const mergeOption = sel.querySelector('option[value="merge"]');
-				if (mergeOption) mergeOption.disabled = !isIntermediate;
-				if (!isIntermediate && sel.value === "merge") sel.value = "both";
 			});
 		}
 
@@ -3599,7 +3472,6 @@
 			ui.runLogTable.innerHTML = resultsMiniHTML();
 			document.getElementById("expandedResults").innerHTML = resultsChartHTML();
 			updateExperimentGuide();
-			renderMixtureTest();
 			renderEvidence();
 			updateReadouts();
 		}
@@ -3972,30 +3844,6 @@
 
 			}
 
-			// 두 경로 합침(사고실험 장치): 두 경로를 모두 열어 두고, 어느 길로 갔는지 확인하지 않은 채
-			// 분석기 뒤에서 다시 하나로 모읍니다. 두 경로를 가는 관으로, 모이는 지점을 반투명 블록으로 그립니다.
-			if (filterSetting === "merge") {
-				const spread = axis === "z" ? GEO.ySpread : GEO.xSpread;
-				const guideMat = new THREE.MeshBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.45 });
-				[1, -1].forEach(sign => {
-					const pts = [];
-					for (let k = 0; k <= 24; k++) {
-						const u = k / 24;
-						pts.push(new THREE.Vector3(0, sign * Math.sin(Math.PI * u) * spread, u * GEO.mergeDist));
-					}
-					group.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 32, 0.04, 6, false), guideMat));
-				});
-				const merger = new THREE.Mesh(
-					new THREE.BoxGeometry(1.4, 0.9, 0.35),
-					new THREE.MeshStandardMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.5, roughness: 0.5 })
-				);
-				merger.position.set(0, 0, GEO.mergeDist);
-				group.add(merger);
-				const mergeLbl = makeTextSprite("두 경로 다시 합침", 0x475569, 0.42);
-				mergeLbl.position.set(0, -spread - 0.9, GEO.mergeDist);
-				group.add(mergeLbl);
-			}
-
 			// If X-axis: rotate entire group 90° around Z (poles, field lines, blocker all together)
 			if (axis === "x") {
 				group.rotation.z = Math.PI / 2;
@@ -4019,7 +3867,6 @@
 				if (a.axis === "none") continue;
 				// filter가 "both"인 경우는 항상 마지막 활성 분석기에서만 허용되므로(뒤에 분석기가 없음)
 				// 여기서 어떤 부호를 골라도 이후 분석기 위치 계산에는 영향이 없습니다.
-				if (a.filter === "merge") continue; // 두 경로가 다시 합쳐져 중앙으로 돌아옵니다.
 				const sign = a.filter === "minus" ? -1 : 1;
 				if (a.axis === "z") y += sign * GEO.ySpread; else x += sign * GEO.xSpread;
 			}
@@ -4093,29 +3940,10 @@
 			let lastSign = null;
 			const stateSeqRaw = [{ lenAtStop: 0, angle: stateAngle }];
 			const measurementEvents = [];
-			const mergeSegments = [];
 
 			settings.analyzers.forEach(({ axis, filter }, idx) => {
 				if (ended || axis === "none") return;
 				const az = GEO.analyzerZs[idx];
-
-				// 두 경로 합침: 측정하지 않으므로 상태·색·방향이 그대로입니다. 입자 본체는 중앙선을 따라가고,
-				// 화면에는 두 경로를 동시에 지나는 반투명 '유령' 두 개를 그렸다가(updateParticles) 다시 합칩니다.
-				if (filter === "merge") {
-					pushPt(curX, curY, az - GEO.approachDist);
-					pushPt(curX, curY, az);
-					const lenStart = cumLen;
-					pushPt(curX, curY, az + GEO.approachDist);
-					pushPt(curX, curY, az + GEO.mergeDist);
-					const lenEnd = cumLen;
-					mergeSegments.push({ lenStart, lenEnd, axis, x: curX, y: curY });
-					const prev = colorStops[colorStops.length - 1], prevSpin = spinStops[spinStops.length - 1];
-					colorStops.push({ lenAtStop: lenStart, hexColor: prev.hexColor, threeColor: prev.threeColor });
-					spinStops.push({ lenAtStop: lenStart, direction: prevSpin.direction.clone() });
-					stateSeqRaw.push({ lenAtStop: lenStart, angle: stateAngle });
-					measurementEvents.push({ idx, sign: null, passed: true, measurePoint: rawPoints.findIndex(pt => pt.z === az), exitPoint: rawPoints.length - 1 });
-					return;
-				}
 
 				// Approach
 				pushPt(curX, curY, az - GEO.approachDist);
@@ -4187,7 +4015,6 @@
 			const normalizedColorStops = colorStops.map(cs => ({ frac: cs.lenAtStop / totalLen, threeColor: cs.threeColor, hexColor: cs.hexColor }));
 			const normalizedSpinStops = spinStops.map(ss => ({ frac: ss.lenAtStop / totalLen, direction: ss.direction }));
 			const normalizedStateSeq = stateSeqRaw.map(s => ({ frac: s.lenAtStop / totalLen, angle: s.angle }));
-			const normalizedMerges = mergeSegments.map(m => ({ ...m, fracStart: m.lenStart / totalLen, fracEnd: m.lenEnd / totalLen }));
 
 			// Build curve
 			const curve = new THREE.CatmullRomCurve3(rawPoints, false, "catmullrom", 0.2);
@@ -4222,8 +4049,6 @@
 				normalizedSpinStops,
 				normalizedStateSeq,
 				measurementEvents,
-				merges: normalizedMerges,
-				ghosts: null,
 				result,
 				resultAxis,
 				puffPos,
@@ -4308,7 +4133,6 @@
 			// 따로 만들었으므로 그대로 정리합니다.
 			if (p.sphere) { scene.remove(p.sphere); p.sphere.material.dispose(); }
 			if (p.spinArrow) scene.remove(p.spinArrow);
-			if (p.ghosts) p.ghosts.forEach(g => { scene.remove(g); g.material.dispose(); });
 		}
 
 		function spawnPuff3D(position, color) {
@@ -4333,7 +4157,7 @@
 					if (!event.measured && cl >= event.measureFrac) {
 						event.measured = true;
 						counts.entered++;
-						if (event.sign) counts[event.sign]++;
+						counts[event.sign]++;
 					}
 					if (!event.exited && cl >= event.exitFrac) {
 						event.exited = true;
@@ -4366,28 +4190,9 @@
 				p.sphere.material.emissive.setHex(col);
 				p.spinArrow.setColor(col);
 
-				// 두 경로 합침 구간: 두 경로를 동시에 지나는 반투명 유령 두 개(벌어졌다가 다시 모임)
-				const inMerge = p.merges.find(m => cl >= m.fracStart && cl <= m.fracEnd);
-				if (inMerge && !p.ghosts) {
-					p.ghosts = [0, 1].map(() => new THREE.Mesh(PARTICLE_SPHERE_GEO, new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.6, transparent: true, opacity: 0.55 })));
-					p.ghosts.forEach(g => scene.add(g));
-				}
-				if (p.ghosts) {
-					p.ghosts.forEach((g, i) => {
-						g.visible = !!inMerge;
-						if (!inMerge) return;
-						const u = (cl - inMerge.fracStart) / Math.max(1e-6, inMerge.fracEnd - inMerge.fracStart);
-						const spread = Math.sin(Math.PI * u) * (inMerge.axis === "x" ? GEO.xSpread : GEO.ySpread);
-						const sign = i === 0 ? 1 : -1;
-						g.position.set(pos.x + (inMerge.axis === "x" ? sign * spread : 0), pos.y + (inMerge.axis === "z" ? sign * spread : 0), pos.z);
-					});
-				}
-				p.sphere.visible = !inMerge;
-				p.spinArrow.position.copy(pos);
-
 				// Spin direction update
 				const spinDir = getSpinDirAtFrac(p.normalizedSpinStops, cl);
-				p.spinArrow.visible = !!spinDir && !inMerge;
+				p.spinArrow.visible = !!spinDir;
 				if (spinDir) p.spinArrow.setDirection(spinDir.normalize());
 
 				if (t > 1.1) toRemove.push(p);
@@ -4505,9 +4310,7 @@
 			const ready2 = step2Ready();
 
 			document.getElementById("nextStepBtn").disabled =
-				stepState.step === 5 || (stepState.step === 1 && !firstFilled) || (stepState.step === 2 && !ready2)
-				// 중첩으로 이어지는 핵심 추론이므로, 비교를 해 봐야 결론 도출로 넘어갈 수 있습니다.
-				|| (stepState.step === 4 && !state.mixtureTest);
+				stepState.step === 5 || (stepState.step === 1 && !firstFilled) || (stepState.step === 2 && !ready2);
 
 			const locked = !state.runSettled;
 			document.getElementById("previewSameAxisBtn").disabled = locked || !ready2;
@@ -4540,7 +4343,6 @@
 			document.getElementById("nextStepBtn").classList.toggle("btn-sub", stepState.step === 3);
 			if (stepState.step === 3 && prevStep !== 3) startCollectionFromFirst();
 			if (stepState.step === 2) syncStep2Widgets();
-			if (stepState.step === 4) renderMixtureTest();
 
 			if (stepState.step === 5) {
 				const choice = document.querySelector('input[name="firstHypothesis"]:checked')?.value;
@@ -4629,65 +4431,6 @@
 			feedbackToastTimer = setTimeout(close, 6000);
 		}
 
-		// ── 핵심 추론: '입자가 x+나 x− 한 길로만 지났다면 ④는?' ──
-		// 학생이 직접 측정한 두 값을 나란히 놓습니다.
-		//   · 한 길(x+)만 열고 z로 잰 결과 = 실험 ③(z↑ → x+ → z) — 어느 길로 갔는지 확인한 경우
-		//   · 두 길을 다 열고 합친 뒤 z로 잰 결과 = 실험 ④(z↑ → x(합침) → z) — 확인하지 않은 경우
-		// 한 길로만 지났다면 ④는 ③처럼 반반이어야 하지만 실제로는 100%이므로, 입자는 두 길을 함께 지났고(중첩)
-		// 어느 길인지 확인하면(③) 그 순간 한 길로 정해진다(붕괴)는 결론으로 이어집니다.
-		function inferenceData() {
-			const oneWay = summarizeSig(PRESET_SIGS.collapse);
-			const merged = summarizeSig(PRESET_SIGS.recombine);
-			return oneWay && merged ? { oneWay: oneWay.plusPct, merged: merged.plusPct } : null;
-		}
-
-		function runMixtureTest() {
-			const choice = document.querySelector('input[name="mixtureTestChoice"]:checked')?.value;
-			const data = inferenceData();
-			if (!data || !choice) return;
-			const first = !state.mixtureTest;
-			state.mixtureTest = { choice, ...data };
-			state.dirty = true;
-			renderMixtureTest(first);
-			renderEvidence();
-			updateGates();
-		}
-
-		function showMixtureFeedback() {
-			const right = state.mixtureTest?.choice === "50";
-			showFeedbackToast(right ? "hit" : "discover", {
-				msg: right
-					? "맞아요! 한 길로만 지났다면 ④도 반반이어야 해요. 그런데 실제 ④는 어땠나요?"
-					: "한 길로만 지났다면, 어느 길이든 z로 재면 반반이에요(③). 그러니 ④도 50%여야 해요. 실제 ④와 비교해 보세요."
-			});
-		}
-
-		function renderMixtureTest(animateFeedback = false) {
-			const data = inferenceData();
-			const done = !!state.mixtureTest;
-			document.getElementById("mixtureGateNote").hidden = done;
-			document.querySelectorAll('input[name="mixtureTestChoice"]').forEach(el => { el.disabled = !data || done; });
-			const el = document.getElementById("mixtureTestResult");
-			if (!data) {
-				el.innerHTML = '<p class="sb-note">③ 자료 수집에서 실험 ③과 ④를 먼저 측정해 주세요.</p>';
-			} else if (!done) {
-				el.innerHTML = "";
-			} else {
-				const bar = (label, p) => '<div class="mini-row"><span>' + label + '</span><div class="mini-track"><div style="width:' + p + '%;background:var(--plus)"></div><div style="width:' + (100 - p) + '%;background:var(--minus)"></div></div><span class="mini-nums">z↑ ' + Math.round(p) + '%</span></div>';
-				el.innerHTML = '<div class="mini-group" style="margin-top:8px">' +
-					bar("③ 한 길만", data.oneWay) +
-					bar("④ 두 길 합침", data.merged) + '</div>';
-			}
-			const follow = document.getElementById("mixtureFollowUp");
-			follow.hidden = !done;
-			if (done) {
-				follow.innerHTML = "한 길로만 지났다면 ④도 50%여야 하지만, 실제 ④는 <strong>100%</strong>예요. " +
-					"그러니 입자는 한 길로만 지난 것이 아니에요. 그런데 한 길을 막아 어느 길로 갔는지 확인하면(③) <strong>다시 반반</strong>이 돼요.";
-			}
-			// 변경 이벤트로 불릴 때는 이벤트 객체가 넘어오므로, 팝업은 처음 고를 때(true)만 띄웁니다.
-			if (animateFeedback === true) showMixtureFeedback();
-		}
-
 		// ⑤ 결론 도출: 내가 측정한 수치로 증거 카드를 만듭니다(결론 문장을 미리 알려 주지 않음).
 		function renderEvidence() {
 			const el = document.getElementById("evidenceCards");
@@ -4696,8 +4439,7 @@
 			const items = [
 				["sameAxis", "① 같은 축으로 다시 측정 (z↑ → z) · 중간 측정 없음"],
 				["basisChange", "② 다른 축으로 측정 (z↑ → x)"],
-				["collapse", "③ 중간에 x 측정을 거침 (z↑ → x+ → z) · 한 길만"],
-				["recombine", "④ 두 길을 다 열고 합침 (z↑ → x(합침) → z) · 확인 안 함"],
+				["collapse", "③ 중간에 x 측정을 거침 (z↑ → x+ → z)"],
 			];
 			const cards = items.map(([key, label]) => {
 				const s = summarizeSig(PRESET_SIGS[key]);
@@ -4706,10 +4448,6 @@
 					? '검출된 입자 중 <strong>' + outcomeLabel(a, "plus") + ' ' + Math.round(s.plusPct) + '%</strong> · ' + outcomeLabel(a, "minus") + ' ' + Math.round(s.minusPct) + '%'
 					: '아직 측정하지 않음 — ③ 단계에서 측정해 보세요');
 			});
-			const m = state.mixtureTest;
-			cards.push(card("핵심 추론 · 한 길로만 지났다면 ④는?", m
-				? '한 길 가정 <strong>z↑ 50%</strong> ↔ 실제 ④ <strong>z↑ ' + Math.round(m.merged) + '%</strong>'
-				: '④ 자료 분석의 핵심 추론에서 확인해 보세요'));
 			el.innerHTML = cards.join("");
 		}
 
@@ -4751,7 +4489,6 @@
 				["selfCheck1", "같은 축은 결과 유지, 다른 축은 반반이 되는 규칙 찾기"],
 				["selfCheck2", "측정 후 상태가 측정 축 방향으로 정해진다는 근거로 설명하기"],
 				["selfCheck3", "실험 ①·③의 차이를 중간 측정 유무에 의한 상태 변화와 연결하기"],
-				["selfCheck4", "실험 ③·④의 차이를 중첩과 측정으로 설명하기"],
 			].map(([id, label]) => `<li class="${document.getElementById(id).checked ? "checked" : ""}">${label}</li>`).join("");
 			const groups = groupRunLog();
 			const chart = reportChartSVG(groups);
@@ -4773,13 +4510,6 @@
 				const p = state.predictions[PRESET_SIGS[key]], a = FINAL_AXIS[key];
 				return p ? `${outcomeLabel(a, "plus")} ${p.plus}% · ${outcomeLabel(a, "minus")} ${p.minus}%` : "미작성";
 			};
-			const mixChoiceVal = document.querySelector('input[name="mixtureTestChoice"]:checked')?.value;
-			const mixChoice = { "50": "50% — 어느 길이든 z로 재면 반반이니까", "100": "100%" }[mixChoiceVal] || "미선택";
-			const m = state.mixtureTest;
-			const mixResult = m
-				? `z↑ 비율 · ③ 한 길만 ${m.oneWay.toFixed(1)}% ↔ ④ 두 길 합침 ${m.merged.toFixed(1)}%`
-				: "비교하지 않음";
-
 			return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>순차 측정 실험 보고서</title>
 <style>
 :root{--ink:#17212f;--sub:#52657c;--line:#dce4ef;--panel:#f4f7fb;--accent:#2157d5}
@@ -4843,12 +4573,11 @@ ${section("그렇게 예상한 까닭", "hypothesisNote")}
 <h2><span class="num">Ⅲ.</span> 실험 방법</h2>
 <div class="theory-box">
 	<p>원자 오븐에서 나온 입자 1,000개를 분석기에 통과시키고, 검출기에 도달한 입자의 두 결과(z는 ↑/↓, x는 +/−) 수와 중간에 차단된 입자 수를 셉니다.
-	같은 조건에서 3회 반복 측정해 합산합니다. 모든 실험은 검출될 입자의 비율을 먼저 예측한 뒤 측정했고, 실험 ⑤ 자유 탐구에서는 궁금한 조건을 직접 만들어 확인했습니다.</p>
+	같은 조건에서 3회 반복 측정해 합산합니다. 모든 실험은 검출될 입자의 비율을 먼저 예측한 뒤 측정했고, 실험 ④ 자유 탐구에서는 궁금한 조건을 직접 만들어 확인했습니다.</p>
 	<ul>
 		<li>① 같은 축 재측정 — z↑ 입자를 z축으로 다시 측정</li>
 		<li>② 다른 축 측정 — z↑ 입자를 x축으로 측정</li>
 		<li>③ 중간 측정 추가 — z↑ 입자를 x축(x+만 통과)으로 측정한 뒤 z축으로 측정</li>
-		<li>④ 두 경로 합치기(사고실험) — z↑ 입자를 x축 분석기에 통과시키되 두 경로를 모두 열고 다시 합친 뒤 z축으로 측정</li>
 	</ul>
 </div>
 
@@ -4863,10 +4592,6 @@ ${resultsHTML()}
 ${section("실험 ①·② 비교", "detectedRatioNote")}
 ${section("예측과 실제 결과 비교", "stateExplanationNote")}
 ${section("실험 ①·③ 비교 — 중간 측정 유무에 따라 결과가 다른 까닭", "changedConditionNote")}
-<h3>핵심 추론 — 입자는 x 분석기를 어떻게 지났을까?</h3>
-<p><strong>한 길로만 지났다면 ④의 z↑는? 나의 예상:</strong> ${escape(mixChoice)}</p>
-<p class="meta">내 측정값: ${escape(mixResult)}</p>
-${section("입자는 x 분석기를 어떻게 지났을까? 길을 막았을 때와 막지 않았을 때의 차이는?", "mixtureTestNote")}
 
 <h2><span class="num">Ⅵ.</span> 결론</h2>
 ${section("결론 정리", "conclusion")}
@@ -4881,7 +4606,6 @@ ${section("원리를 본 뒤 새로 알게 되거나 달라진 생각", "afterPr
 		<li>측정하면 입자의 상태는 측정한 축 방향으로 정해집니다. 그래서 z↑로 측정된 입자를 같은 축으로 곧바로 다시 재면 항상 z↑가 나옵니다(실험 ①). 중간에 다른 축을 재지 않으면 상태는 그대로입니다.</li>
 		<li>z↑ 상태를 x축으로 재면 x+와 x−가 반반 나옵니다(실험 ②).</li>
 		<li>중간에 x축 측정을 거치면 입자의 상태가 x+로 바뀌어, 마지막 z 측정이 다시 반반이 됩니다(실험 ③). 측정이 이미 정해진 값을 확인하기만 한다면 ③에서도 z↑만 나와야 하므로, <strong>측정은 상태를 바꿉니다</strong>.</li>
-		<li>x 분석기에서 두 길을 모두 열고 다시 합치면(실험 ④) z↑가 100% 그대로 나옵니다. 입자가 x+나 x− 한 길로만 지났다면 ③처럼 반반이어야 하므로, 입자는 두 길을 함께 지난 <strong>중첩</strong> 상태였습니다. 한 길을 막아 어느 길로 갔는지 확인하면(실험 ③) 그 순간 한 길로 정해져 상태가 바뀝니다(<strong>측정에 의한 상태 붕괴</strong>). 측정하지 않으면 붕괴하지 않습니다.</li>
 	</ul>
 </div>
 
@@ -4889,7 +4613,7 @@ ${section("원리를 본 뒤 새로 알게 되거나 달라진 생각", "afterPr
 <ul class="selfcheck-list">${selfCheckSummary}</ul>
 
 <h2><span class="num">Ⅸ.</span> 다음 시간 예고 — 양자컴퓨터와 큐비트</h2>
-<p>z↑/z↓는 큐비트의 |0⟩/|1⟩에 대응합니다. 큐비트도 측정 전에는 두 상태의 중첩에 있을 수 있고, 측정하면 0 또는 1 하나로 정해집니다.</p>
+<p>z↑/z↓는 큐비트의 0/1에 대응합니다. 큐비트도 측정하면 0 또는 1 하나로 정해지고, 그 결과는 확률적으로 나올 수 있습니다.</p>
 ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까?", "qcPredictionNote")}
 
 <p class="meta" style="margin-top:32px;padding-top:14px;border-top:1px solid var(--line)">보고서 저장 시각: ${escape(new Date().toLocaleString("ko-KR"))}</p>
@@ -4950,7 +4674,7 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 			const filters = [ui.filterA.value, ui.filterB.value, ui.filterC.value];
 			analyzerCards.forEach(({ card, key, fields }, idx) => {
 				card.hidden = axes[idx] === "none";
-				card.querySelector("summary").textContent = key + " · " + axes[idx] + "축" + (filters[idx] === "merge" ? " · 합침(측정 안 함)" : "") + (state.runKind === "observe" ? " · 관찰" : "");
+				card.querySelector("summary").textContent = key + " · " + axes[idx] + "축" + (state.runKind === "observe" ? " · 관찰" : "");
 				card.querySelectorAll("[data-mark]").forEach(el => { el.textContent = signMark(axes[idx], el.dataset.mark); });
 				for (const [name, el] of Object.entries(fields)) {
 					const value = String((state.runKind === "observe" ? state.observationStats : state.analyzerStats)[idx][name]);
@@ -4994,8 +4718,7 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 				sameAxis: "z↑로 검출된 입자만 골라 z축으로 다시 측정합니다.",
 				basisChange: "①과 비교: 두 번째 분석기만 z축 → x축으로 바꿉니다.",
 				collapse: "①과 비교: 사이에 x축 측정(x+만 통과)을 하나 끼워 넣고, 마지막은 ①처럼 z축으로 측정합니다.",
-				recombine: "③과 비교: x 분석기의 두 경로를 모두 열어 두고, 어느 길로 갔는지 확인하지 않은 채 다시 합친 뒤 z축으로 측정합니다. (실제로 만들기는 매우 어려운 사고실험 장치예요)",
-				free: "아래 ‘분석기 설정’에서 궁금한 조건을 직접 만들어 측정해 보세요. 예: 중간 측정을 두 번 넣기, ↓ 경로만 통과시키기, x축 분석기 뒤에 두 경로 다시 합치기",
+				free: "아래 ‘분석기 설정’에서 궁금한 조건을 직접 만들어 측정해 보세요. 예: 중간 측정을 두 번 넣기, ↓ 경로만 통과시키기, 처음부터 x축으로 측정하기",
 			};
 			document.getElementById("experimentQuestion").textContent = questions[key];
 			const fold = document.getElementById("analyzerSettingsFold");
@@ -5065,7 +4788,7 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 		}
 		// "z↑ → x" 처럼 켜진 분석기만 짧게 표기 (↑/↓ 경로만 통과시키면 화살표를 붙임)
 		function conditionShort(rows) {
-			return rows[0].settings.filter(a => a.axis !== "none").map(a => a.axis + (a.filter === "merge" ? "(합침)" : a.filter === "both" ? "" : signMark(a.axis, a.filter))).join(" → ") || "분석기 없음";
+			return rows[0].settings.filter(a => a.axis !== "none").map(a => a.axis + (a.filter === "both" ? "" : signMark(a.axis, a.filter))).join(" → ") || "분석기 없음";
 		}
 
 		// 보고서(별도 독립 HTML 문서)용 막대그래프. 메인 페이지의 CSS 변수(var(--plus) 등)에
@@ -5202,7 +4925,7 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 			const repeat = REPEAT_COUNT;
 			const sig = settingsSignature();
 			const pred = state.predictions[sig];
-			const toFree = plan === "recombine";
+			const toFree = plan === "collapse";
 			let label, hint, phase;
 			if (action === "observe") {
 				label = "관찰 마치고 측정하기 →";
@@ -5218,7 +4941,7 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 				phase = "results";
 			} else if (action === "next") {
 				label = plan === "free" ? "자료 분석으로 이동 →" : toFree ? "자유 탐구 해보기 →" : "다음 실험으로 이동 →";
-				hint = toFree ? "실험 ①~④를 모두 마쳤습니다! 이번에는 궁금한 조건을 직접 만들어 예측하고 확인해 보세요."
+				hint = toFree ? "실험 ①~③을 모두 마쳤습니다! 이번에는 궁금한 조건을 직접 만들어 예측하고 확인해 보세요."
 					: plan === "free" ? "자유 탐구 결과를 확인했습니다. 다른 조건을 더 해 봐도 좋고, 준비되면 자료 분석으로 넘어가세요."
 						: "결과를 확인했습니다. 다음 조건으로 바꿔 비교해 보세요.";
 				phase = "results";
@@ -5404,7 +5127,6 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 			document.getElementById("hypothesisNote").addEventListener("input", updateGates);
 			document.getElementById("reflectionNote").addEventListener("input", updatePrincipleLock);
 			document.querySelectorAll('input[name="conclusionChoice"]').forEach(el => el.addEventListener("change", updatePrincipleLock));
-			document.querySelectorAll('input[name="mixtureTestChoice"]').forEach(el => el.addEventListener("change", runMixtureTest));
 
 			["principleModal", "resultsModal"].forEach(id => {
 				document.getElementById(id).addEventListener("click", e => {
