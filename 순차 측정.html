@@ -1,0 +1,5425 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+
+	<meta charset="UTF-8" />
+	<meta http-equiv="Content-Security-Policy"
+		content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; media-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
+	<meta name="referrer" content="strict-origin-when-cross-origin">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<title>순차 측정</title>
+	<meta name="description" content="슈테른-겔라흐 실험을 3D로 시각화한 순차 측정 시뮬레이션입니다." />
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+			}
+		}
+	</script>
+	<style>
+		:root {
+			--plus: #d9485f;
+			--minus: #3c82f6;
+			--lost: #d97706;
+			--text: #0f1f33;
+			--muted: #5d7087;
+			--border: rgba(15, 23, 42, 0.09);
+			--panel: rgba(255, 255, 255, 0.92);
+			--panel-strong: rgba(255, 255, 255, 0.97);
+			--shadow: 0 22px 52px rgba(15, 23, 42, 0.12);
+			--soft-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			background: #07111f;
+			color: var(--text);
+			font-family: "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+		}
+
+		.app {
+			display: flex;
+			height: 100dvh;
+			padding: 0;
+			gap: 0;
+			background: #07111f;
+		}
+
+		/* ── Sidebar ── */
+		.sidebar {
+			width: 330px;
+			flex-shrink: 0;
+			position: fixed;
+			left: 18px;
+			top: 18px;
+			bottom: 18px;
+			z-index: 30;
+			height: auto;
+			max-height: calc(100dvh - 36px);
+			overflow-y: auto;
+			background: linear-gradient(180deg, var(--panel-strong) 0%, rgba(247, 250, 255, 0.95) 100%);
+			border: 1px solid rgba(148, 163, 184, 0.22);
+			border-radius: 22px;
+			padding: 18px 18px 16px;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			box-shadow: var(--shadow);
+			backdrop-filter: blur(18px);
+			-webkit-backdrop-filter: blur(18px);
+		}
+
+		.sidebar::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		.sidebar::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 999px;
+		}
+
+		.sb-title {
+			font-size: 21px;
+			font-weight: 900;
+			letter-spacing: -0.04em;
+			color: var(--text);
+			line-height: 1.05;
+		}
+
+		.sb-sub {
+			font-size: 12px;
+			color: var(--muted);
+			margin-top: 6px;
+			line-height: 1.5;
+		}
+
+		.sec-label {
+			font-size: 10px;
+			font-weight: 800;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: #8ea1b7;
+			margin-bottom: 6px;
+		}
+
+		/* Compact select row */
+		.ctrl-block {
+			border: 1px solid rgba(148, 163, 184, 0.16);
+			border-radius: 18px;
+			padding: 11px 12px;
+			background:
+				linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.88) 100%);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+		}
+
+		.ctrl-head {
+			font-size: 12px;
+			font-weight: 800;
+			color: var(--text);
+			margin-bottom: 8px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.ctrl-head span {
+			font-size: 10px;
+			color: var(--muted);
+			font-weight: 500;
+		}
+
+		.ctrl-row {
+			display: grid;
+			grid-template-columns: 60px 1fr;
+			gap: 6px;
+			align-items: center;
+			margin-bottom: 5px;
+		}
+
+		.ctrl-row:last-child {
+			margin-bottom: 0;
+		}
+
+		.ctrl-row label {
+			font-size: 11px;
+			color: var(--muted);
+			font-weight: 600;
+		}
+
+		select {
+			width: 100%;
+			border: 1px solid #d8e1ec;
+			border-radius: 11px;
+			padding: 8px 10px;
+			font-size: 12px;
+			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+			color: var(--text);
+			outline: none;
+			font-family: inherit;
+			cursor: pointer;
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+		}
+
+		select:focus {
+			border-color: rgba(21, 101, 192, 0.4);
+		}
+
+		/* Buttons */
+		.btn-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 6px;
+		}
+
+		button {
+			border: 1px solid transparent;
+			border-radius: 12px;
+			padding: 10px 9px;
+			font-weight: 700;
+			font-size: 12px;
+			cursor: pointer;
+			font-family: inherit;
+			transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
+			white-space: nowrap;
+		}
+
+		button:hover {
+			filter: brightness(0.98);
+			transform: translateY(-1px);
+		}
+
+		.btn-main {
+			background: linear-gradient(135deg, #2157d5 0%, #1d79d9 100%);
+			color: #fff;
+			box-shadow: 0 10px 18px rgba(29, 121, 217, 0.24);
+		}
+
+		.btn-sub {
+			background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+			color: var(--text);
+			border-color: rgba(148, 163, 184, 0.18);
+		}
+
+		button:disabled {
+			opacity: 0.55;
+			cursor: not-allowed;
+			filter: none;
+		}
+
+		/* Stats */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 6px;
+		}
+
+		.stat-item {
+			border: 1px solid rgba(148, 163, 184, 0.16);
+			border-radius: 14px;
+			padding: 10px 11px;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(243, 247, 252, 0.9) 100%);
+		}
+
+		.stat-item .s-label {
+			font-size: 10px;
+			color: var(--muted);
+			font-weight: 600;
+		}
+
+		.stat-item .s-num {
+			font-size: 21px;
+			font-weight: 900;
+			letter-spacing: -0.03em;
+		}
+
+		.stat-item .s-sub {
+			font-size: 10px;
+			color: var(--muted);
+		}
+
+		.stat-item input[type="number"] {
+			width: 100%;
+			border: 1px solid #d8e1ec;
+			border-radius: 9px;
+			padding: 7px 8px;
+			margin-top: 4px;
+			font: inherit;
+			font-size: 16px;
+			font-weight: 800;
+			color: var(--text);
+			background: #fff;
+		}
+
+		.stat-item input[type="number"]:focus {
+			outline: none;
+			border-color: rgba(21, 101, 192, 0.4);
+		}
+
+		.run-log-item {
+			border: 1px solid rgba(148, 163, 184, 0.16);
+			border-radius: 14px;
+			padding: 10px 11px;
+			margin-bottom: 8px;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(243, 247, 252, 0.9) 100%);
+			font-size: 12px;
+		}
+
+		.run-log-item .rl-config {
+			font-weight: 800;
+			color: var(--text);
+			margin-bottom: 6px;
+		}
+
+		.run-log-item table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.run-log-item th,
+		.run-log-item td {
+			text-align: center;
+			font-size: 11.5px;
+			padding: 3px 4px;
+			color: var(--text);
+		}
+
+		.run-log-item th {
+			color: var(--muted);
+			font-weight: 600;
+		}
+
+		.run-log-item td.rl-pred {
+			color: var(--muted);
+		}
+
+		.run-log-item td.rl-diff {
+			font-size: 10.5px;
+			color: var(--muted);
+		}
+
+		/* Legend */
+		.legend {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+			border: 1px solid rgba(148, 163, 184, 0.16);
+			border-radius: 15px;
+			padding: 10px 12px;
+			background: rgba(248, 250, 252, 0.72);
+		}
+
+		.legend span {
+			font-size: 11px;
+			color: var(--muted);
+			display: flex;
+			align-items: center;
+			gap: 5px;
+		}
+
+		.leg-dot {
+			width: 9px;
+			height: 9px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		/* ── 5-step inquiry flow ── */
+		.step-progress {
+			display: flex;
+			gap: 5px;
+			margin: 10px 0 4px;
+		}
+
+		.step-progress span {
+			flex: 1;
+			height: 4px;
+			border-radius: 999px;
+			background: #dbe4f0;
+		}
+
+		.step-progress span.past {
+			background: #93b6f5;
+		}
+
+		.step-progress span.current {
+			background: #1d79d9;
+		}
+
+		.step-content {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		.sb-note {
+			font-size: 12px;
+			line-height: 1.6;
+			color: var(--muted);
+			margin: 6px 0;
+		}
+
+		.writing-prompt,
+		.question-label {
+			display: block;
+			font-size: 12px;
+			font-weight: 700;
+			color: var(--text);
+			line-height: 1.55;
+			margin: 10px 0 6px;
+		}
+
+		#studentName {
+			width: 100%;
+			border: 1px solid #d8e1ec;
+			border-radius: 11px;
+			padding: 9px 10px;
+			font-size: 13px;
+			font-family: inherit;
+			background: #fff;
+			color: var(--text);
+			margin-bottom: 4px;
+		}
+
+		.ctrl-block textarea {
+			width: 100%;
+			min-height: 92px;
+			padding: 10px;
+			border: 1px solid #d8e1ec;
+			border-radius: 11px;
+			font: inherit;
+			font-size: 12.5px;
+			line-height: 1.6;
+			resize: vertical;
+			color: var(--text);
+			background: #fff;
+		}
+
+		.ctrl-block textarea:focus {
+			outline: none;
+			border-color: rgba(21, 101, 192, 0.4);
+		}
+
+		.self-check {
+			border: 1px solid rgba(148, 163, 184, 0.16);
+			border-radius: 14px;
+			padding: 11px 12px;
+			margin-top: 10px;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(243, 247, 252, 0.9) 100%);
+		}
+
+		.self-check>p {
+			font-size: 12px;
+			font-weight: 800;
+			color: var(--text);
+			margin-bottom: 6px;
+		}
+
+		.self-check label {
+			display: flex;
+			align-items: flex-start;
+			gap: 7px;
+			font-size: 12px;
+			color: var(--muted);
+			margin: 6px 0;
+			cursor: pointer;
+			line-height: 1.5;
+		}
+
+		.self-check input {
+			margin-top: 2px;
+		}
+
+		/* ── 1단계 예상 vs 지금 생각 비교 ── */
+		.recap-box {
+			padding: 11px 12px;
+			margin: 8px 0;
+			background: rgba(248, 250, 252, 0.9);
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			border-radius: 14px;
+			font-size: 12.5px;
+			color: var(--muted);
+			line-height: 1.6;
+		}
+
+		.recap-box p {
+			margin: 3px 0;
+		}
+
+		.recap-box strong {
+			color: var(--text);
+		}
+
+		/* ── 가설 선택(fieldset) ── */
+		.model-options {
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			border-radius: 14px;
+			padding: 10px 12px;
+			margin: 8px 0;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(243, 247, 252, 0.9) 100%);
+		}
+
+		.model-options legend {
+			font-size: 11px;
+			font-weight: 800;
+			color: var(--muted);
+			padding: 0 4px;
+		}
+
+		.model-options label {
+			display: flex;
+			align-items: flex-start;
+			gap: 7px;
+			font-size: 12.5px;
+			color: var(--text);
+			line-height: 1.5;
+			margin: 7px 0;
+			cursor: pointer;
+		}
+
+		.model-options input {
+			margin-top: 3px;
+		}
+
+		.model-options label small {
+			display: block;
+			font-size: 11.5px;
+			color: var(--muted);
+			margin-top: 2px;
+		}
+
+		.model-options input:disabled+span,
+		.model-options input:disabled {
+			cursor: not-allowed;
+		}
+
+		/* ── 예측 피드백 (은은하게) ── */
+		.pf {
+			position: relative;
+			display: flex;
+			gap: 10px;
+			align-items: flex-start;
+			padding: 10px 12px;
+			margin: 8px 0;
+			border: 1px solid;
+			border-radius: 12px;
+			text-align: left;
+			animation: pf-in 0.28s ease-out both;
+		}
+
+		.pf-icon {
+			font-size: 20px;
+			line-height: 1.1;
+			position: relative;
+			z-index: 1;
+		}
+
+		.pf-title {
+			font-size: 13.5px;
+			font-weight: 800;
+		}
+
+		.pf-msg {
+			margin-top: 2px;
+			font-size: 12.5px;
+			line-height: 1.55;
+		}
+
+		.pf-detail {
+			margin-top: 4px;
+			font-size: 12px;
+			font-weight: 700;
+			opacity: 0.85;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.pf-hit {
+			background: #f0fdf4;
+			border-color: #bbf7d0;
+			color: #14532d;
+		}
+
+		.pf-near {
+			background: #eff6ff;
+			border-color: #bfdbfe;
+			color: #1e3a8a;
+		}
+
+		.pf-discover {
+			background: #fffbeb;
+			border-color: #fde68a;
+			color: #78350f;
+		}
+
+		.pf-discover.pf-play .pf-icon {
+			animation: pf-glow 1.2s ease-out 2;
+		}
+
+		.pf-dot {
+			position: absolute;
+			left: 20px;
+			top: 18px;
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			pointer-events: none;
+			animation: pf-burst 0.8s ease-out forwards;
+		}
+
+		@keyframes pf-in {
+			from {
+				opacity: 0;
+				transform: translateY(4px);
+			}
+
+			to {
+				opacity: 1;
+				transform: none;
+			}
+		}
+
+		@keyframes pf-glow {
+			0% {
+				filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0));
+			}
+
+			40% {
+				filter: drop-shadow(0 0 7px rgba(251, 191, 36, 0.9));
+			}
+
+			100% {
+				filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0));
+			}
+		}
+
+		@keyframes pf-burst {
+			from {
+				transform: translate(0, 0) scale(1);
+				opacity: 1;
+			}
+
+			to {
+				transform: translate(var(--dx), var(--dy)) scale(0.4);
+				opacity: 0;
+			}
+		}
+
+		/* 팝업: 장치 화면(사이드바 오른쪽) 위쪽 가운데에 잠깐 떴다가 사라짐 */
+		.pf-toast-layer {
+			position: fixed;
+			top: 20px;
+			left: 376px;
+			right: 0;
+			z-index: 300;
+			display: flex;
+			justify-content: center;
+			padding: 0 16px;
+			pointer-events: none;
+		}
+
+		.pf.pf-toast {
+			width: 100%;
+			max-width: 420px;
+			margin: 0;
+			box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
+			cursor: pointer;
+			pointer-events: auto;
+			animation: pf-toast-in 0.32s ease-out both;
+		}
+
+		.pf.pf-toast.pf-out {
+			animation: pf-toast-out 0.35s ease-in forwards;
+		}
+
+		@keyframes pf-toast-in {
+			from {
+				opacity: 0;
+				transform: translateY(-10px);
+			}
+
+			to {
+				opacity: 1;
+				transform: none;
+			}
+		}
+
+		@keyframes pf-toast-out {
+			to {
+				opacity: 0;
+				transform: translateY(-8px);
+			}
+		}
+
+		@media (max-width: 980px) and (orientation: portrait) {
+			.pf-toast-layer {
+				left: 0;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+
+			.pf,
+			.pf-icon {
+				animation: none !important;
+			}
+
+			.pf-dot {
+				display: none;
+			}
+		}
+
+		/* ── 탐구 질문·핵심 발문 ── */
+		.key-question {
+			background: #eef4ff;
+			border-left: 3px solid #2157d5;
+			border-radius: 8px;
+			padding: 8px 10px;
+			margin: 8px 0;
+			font-size: 12.5px;
+			font-weight: 700;
+			line-height: 1.5;
+			color: var(--text);
+		}
+
+		.key-question span {
+			display: block;
+			font-size: 10px;
+			font-weight: 800;
+			letter-spacing: 0.06em;
+			color: #2157d5;
+			margin-bottom: 2px;
+		}
+
+		/* ── 예측 막대 위젯 ── */
+		.pred-card {
+			border: 1px solid rgba(148, 163, 184, 0.2);
+			border-radius: 14px;
+			padding: 10px 11px;
+			margin: 8px 0;
+			background: #fff;
+		}
+
+		.pred-title {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 12.5px;
+			font-weight: 700;
+			color: var(--text);
+			margin-bottom: 8px;
+		}
+
+		.pred-title .mini-exp-tag {
+			margin: 0;
+		}
+
+		.pw {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.pw-bar {
+			display: flex;
+			height: 24px;
+			border-radius: 7px;
+			overflow: hidden;
+			background: repeating-linear-gradient(45deg, #eef2f7 0 6px, #e2e8f0 6px 12px);
+		}
+
+		.pw-bar div {
+			transition: width 0.15s;
+		}
+
+		.pw-read {
+			display: flex;
+			justify-content: space-between;
+			font-size: 12.5px;
+			font-weight: 800;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.pw input[type="range"] {
+			width: 100%;
+			accent-color: #2157d5;
+			cursor: pointer;
+		}
+
+		.pw[data-set="false"] input[type="range"] {
+			opacity: 0.45;
+		}
+
+		.pw-chips {
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 4px;
+		}
+
+		.pw-chips button {
+			padding: 5px 0;
+			font-size: 11px;
+			border-radius: 8px;
+			background: #fff;
+			border: 1px solid #d8e1ec;
+			color: var(--text);
+		}
+
+		.pw-chips button[aria-pressed="true"] {
+			background: #2157d5;
+			border-color: #2157d5;
+			color: #fff;
+		}
+
+		.pw.locked .pw-chips,
+		.pw.locked input[type="range"] {
+			display: none;
+		}
+
+		.pred-lock-note {
+			color: #2157d5;
+		}
+
+		.text-input {
+			width: 100%;
+			border: 1px solid #d8e1ec;
+			border-radius: 11px;
+			padding: 9px 10px;
+			font: inherit;
+			font-size: 13px;
+			color: var(--text);
+			background: #fff;
+		}
+
+		/* ── 단계별 힌트 ── */
+		.hint-fold {
+			margin: 6px 0 4px;
+			font-size: 11.5px;
+			line-height: 1.55;
+			color: var(--muted);
+		}
+
+		.hint-fold summary {
+			cursor: pointer;
+			font-weight: 700;
+			color: #2157d5;
+		}
+
+		.hint-fold p {
+			margin: 5px 0 0;
+			padding-left: 8px;
+			border-left: 2px solid #dbe4f0;
+		}
+
+		.hint-fold b {
+			color: var(--text);
+			margin-right: 4px;
+		}
+
+		/* ── 핵심 추론(z↑ 입자는 x+ 입자일까? → 중첩) ── */
+		.deep-dive {
+			border: 1px solid #f5d27a;
+			background: #fffbeb;
+			border-radius: 14px;
+			padding: 11px 12px;
+			margin: 14px 0 4px;
+		}
+
+		.deep-head {
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: 0.06em;
+			color: #b45309;
+			margin-bottom: 6px;
+		}
+
+		.deep-dive .mini-row {
+			grid-template-columns: 52px 1fr 58px;
+		}
+
+		.save-reminder {
+			margin-top: 12px;
+			padding: 9px 11px;
+			border-radius: 10px;
+			background: #fff7ed;
+			border: 1px solid #fed7aa;
+			font-size: 12px;
+			line-height: 1.5;
+			color: #9a3412;
+		}
+
+		.principle-aside {
+			background: #fff;
+			border: 1px dashed #cbd5e1;
+			border-radius: 10px;
+			padding: 8px 10px;
+			font-size: 12px;
+			color: #475569;
+		}
+
+		/* ── ⑤ 맨 끝 · 다음 시간 예고(양자컴퓨터·큐비트) ── */
+		.next-lesson {
+			margin-top: 14px;
+			padding: 12px;
+			border-radius: 14px;
+			background: #eef4ff;
+			border: 1px solid #c9d9fb;
+		}
+
+		.qubit-table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 12px;
+			margin: 8px 0;
+			background: #fff;
+		}
+
+		.qubit-table th,
+		.qubit-table td {
+			border: 1px solid #dce4ef;
+			padding: 5px 7px;
+			text-align: left;
+		}
+
+		.qubit-table th {
+			background: #edf3fa;
+		}
+
+		/* ── Stage (Three.js area) ── */
+		.stage {
+			flex: 1;
+			position: fixed;
+			inset: 0;
+			width: 100vw;
+			height: 100dvh;
+			z-index: 0;
+			overflow: hidden;
+		}
+
+		#threeCanvas {
+			display: block;
+			width: 100%;
+			height: 100%;
+		}
+
+		/* Stage HUD */
+		.stage-hud {
+			position: fixed;
+			top: 18px;
+			left: 376px;
+			right: 18px;
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+			gap: 12px;
+			z-index: 12;
+			pointer-events: none;
+		}
+
+		.hud-card,
+		.hud-mini {
+			border-radius: 18px;
+			border: 1px solid rgba(255, 255, 255, 0.36);
+			background: rgba(10, 20, 35, 0.48);
+			color: #eff6ff;
+			backdrop-filter: blur(14px);
+			-webkit-backdrop-filter: blur(14px);
+			box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
+		}
+
+		.hud-card {
+			padding: 12px 14px;
+			min-width: 220px;
+			max-width: min(400px, 50%);
+		}
+
+		.hud-eyebrow {
+			font-size: 10px;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: rgba(224, 238, 255, 0.62);
+			margin-bottom: 4px;
+			font-weight: 800;
+		}
+
+		.hud-title {
+			font-size: 18px;
+			line-height: 1.05;
+			letter-spacing: -0.04em;
+			font-weight: 900;
+			margin-bottom: 4px;
+		}
+
+		.hud-sub {
+			font-size: 12px;
+			line-height: 1.5;
+			color: rgba(239, 246, 255, 0.82);
+		}
+
+		.hud-stack {
+			display: grid;
+			gap: 10px;
+			width: 200px;
+		}
+
+		.hud-mini {
+			padding: 11px 12px;
+		}
+
+		.hud-mini .label {
+			display: block;
+			font-size: 10px;
+			color: rgba(224, 238, 255, 0.62);
+			margin-bottom: 4px;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+
+		.hud-mini .value {
+			display: block;
+			font-size: 16px;
+			font-weight: 900;
+			letter-spacing: -0.03em;
+			color: #fff;
+		}
+
+		/* Caption area */
+		.caption {
+			position: fixed;
+			left: 376px;
+			right: 18px;
+			bottom: 18px;
+			display: grid;
+			grid-template-columns: 1fr auto;
+			gap: 10px;
+			pointer-events: none;
+			z-index: 10;
+		}
+
+		.cap-box,
+		.status-box {
+			border-radius: 18px;
+			backdrop-filter: blur(14px);
+			-webkit-backdrop-filter: blur(14px);
+			border: 1px solid rgba(255, 255, 255, 0.3);
+			background: rgba(10, 20, 35, 0.56);
+			color: #eef5ff;
+			box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+		}
+
+		.cap-box {
+			padding: 12px 14px;
+			font-size: 12.5px;
+			line-height: 1.65;
+		}
+
+		.status-box {
+			padding: 12px 14px;
+			min-width: 182px;
+			text-align: right;
+		}
+
+		.status-box .top {
+			display: block;
+			font-size: 10px;
+			color: rgba(238, 245, 255, 0.65);
+			margin-bottom: 2px;
+		}
+
+		.status-box .big {
+			font-size: 20px;
+			font-weight: 900;
+			letter-spacing: -0.03em;
+		}
+
+		/* 3D overlay controls */
+		.overlay-controls {
+			position: fixed;
+			right: 18px;
+			bottom: 84px;
+			z-index: 16;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			pointer-events: auto;
+		}
+
+		.overlay-btn {
+			padding: 10px 13px;
+			border-radius: 999px;
+			border: 1px solid rgba(255, 255, 255, 0.28);
+			color: #eff6ff;
+			background: rgba(10, 20, 35, 0.52);
+			backdrop-filter: blur(14px);
+			-webkit-backdrop-filter: blur(14px);
+			box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+			cursor: pointer;
+			font-size: 12px;
+			font-family: inherit;
+			font-weight: 700;
+			white-space: nowrap;
+		}
+
+		.overlay-btn:hover {
+			background: rgba(20, 40, 65, 0.70);
+		}
+
+		.view-hint {
+			position: fixed;
+			right: 18px;
+			top: 18px;
+			z-index: 16;
+			padding: 8px 13px;
+			border-radius: 14px;
+			border: 1px solid rgba(255, 255, 255, 0.18);
+			color: rgba(200, 220, 255, 0.75);
+			background: rgba(10, 20, 35, 0.40);
+			backdrop-filter: blur(10px);
+			font-size: 11px;
+			font-weight: 600;
+			pointer-events: none;
+		}
+
+		/* ── Modals ── */
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			z-index: 100;
+			background: rgba(7, 17, 31, 0.68);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+			animation: mFadeIn 0.2s ease;
+		}
+
+		.modal-overlay.hidden {
+			display: none;
+		}
+
+		/* 결과 팝업·원리 보기 팝업은 사이드바를 가리지 않도록 오른쪽 영역에만 뜨고,
+		   배경도 어둡게 덮지 않습니다 — 팝업을 보면서 동시에 사이드바 질문에 답을 적을 수
+		   있어야 합니다. */
+		.modal-overlay#resultsModal,
+		.modal-overlay#principleModal {
+			left: 376px;
+			background: transparent;
+			backdrop-filter: none;
+			-webkit-backdrop-filter: none;
+			justify-content: flex-end;
+			align-items: flex-start;
+			padding: 18px;
+			pointer-events: none;
+		}
+
+		.modal-overlay#resultsModal .modal-card,
+		.modal-overlay#principleModal .modal-card {
+			pointer-events: auto;
+			max-height: calc(100dvh - 36px);
+		}
+
+		@keyframes mFadeIn {
+			from {
+				opacity: 0;
+			}
+
+			to {
+				opacity: 1;
+			}
+		}
+
+		.modal-card {
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 249, 255, 0.96) 100%);
+			border: 1px solid rgba(148, 163, 184, 0.22);
+			border-radius: 24px;
+			box-shadow: 0 32px 64px rgba(15, 23, 42, 0.24);
+			max-width: 500px;
+			width: 100%;
+			max-height: 88vh;
+			overflow-y: auto;
+			padding: 26px 24px 22px;
+			position: relative;
+			animation: mSlideUp 0.22s ease;
+		}
+
+		@keyframes mSlideUp {
+			from {
+				transform: translateY(14px);
+				opacity: 0;
+			}
+
+			to {
+				transform: translateY(0);
+				opacity: 1;
+			}
+		}
+
+		.modal-card::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		.modal-card::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 999px;
+		}
+
+		.modal-title {
+			font-size: 20px;
+			font-weight: 900;
+			letter-spacing: -0.04em;
+			color: #0f172a;
+			margin-bottom: 3px;
+		}
+
+		.modal-sub {
+			font-size: 12px;
+			color: #64748b;
+			margin-bottom: 20px;
+			line-height: 1.5;
+		}
+
+		.modal-close {
+			position: absolute;
+			right: 16px;
+			top: 16px;
+			width: 30px;
+			height: 30px;
+			border-radius: 999px;
+			border: 1px solid rgba(148, 163, 184, 0.24);
+			background: rgba(241, 245, 249, 0.9);
+			color: #64748b;
+			font-size: 14px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-family: inherit;
+			font-weight: 700;
+			transition: background 0.12s;
+		}
+
+		.modal-close:hover {
+			background: #e2e8f0;
+		}
+
+		.modal-footer {
+			margin-top: 20px;
+			display: flex;
+			justify-content: flex-end;
+			gap: 8px;
+		}
+
+		.btn-modal-primary {
+			padding: 10px 22px;
+			border-radius: 12px;
+			border: none;
+			background: linear-gradient(135deg, #2157d5 0%, #1d79d9 100%);
+			color: #fff;
+			font-weight: 800;
+			font-size: 13px;
+			cursor: pointer;
+			font-family: inherit;
+			box-shadow: 0 8px 18px rgba(29, 121, 217, 0.22);
+			transition: filter 0.12s, transform 0.12s;
+		}
+
+		.btn-modal-primary:hover {
+			filter: brightness(1.06);
+			transform: translateY(-1px);
+		}
+
+		.btn-modal-sub {
+			padding: 10px 18px;
+			border-radius: 12px;
+			border: 1px solid rgba(148, 163, 184, 0.22);
+			background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+			color: #334155;
+			font-weight: 700;
+			font-size: 13px;
+			cursor: pointer;
+			font-family: inherit;
+			transition: filter 0.12s, transform 0.12s;
+		}
+
+		.btn-modal-sub:hover {
+			filter: brightness(0.97);
+			transform: translateY(-1px);
+		}
+
+		/* Principle modal */
+		.principle-card {
+			background: #f8faff;
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			border-radius: 14px;
+			padding: 12px 14px;
+			font-size: 13px;
+			line-height: 1.65;
+			color: #334155;
+			margin: 0;
+		}
+
+		.principle-card p,
+		.principle-card figcaption {
+			margin: 0 0 8px;
+		}
+
+		.principle-card p:last-child,
+		.principle-card figcaption:last-child {
+			margin-bottom: 0;
+		}
+
+		.prob-table {
+			margin-top: 10px;
+			display: flex;
+			flex-direction: column;
+			gap: 5px;
+		}
+
+		.prob-row {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: #fff;
+			border: 1px solid rgba(148, 163, 184, 0.15);
+			border-radius: 9px;
+			padding: 6px 10px;
+			font-size: 12px;
+		}
+
+		.prob-case {
+			color: #475569;
+		}
+
+		.prob-val {
+			font-weight: 800;
+			color: #1d4ed8;
+		}
+
+		/* Help modal */
+		.help-sec {
+			margin-bottom: 18px;
+		}
+
+		.help-sec-label {
+			font-size: 10px;
+			font-weight: 800;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: #8ea1b7;
+			margin-bottom: 9px;
+		}
+
+		.help-row {
+			display: flex;
+			gap: 10px;
+			align-items: flex-start;
+			margin-bottom: 9px;
+		}
+
+		.help-row:last-child {
+			margin-bottom: 0;
+		}
+
+		.help-icon {
+			width: 34px;
+			height: 34px;
+			border-radius: 10px;
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 16px;
+			background: linear-gradient(180deg, #f0f6ff 0%, #e2eeff 100%);
+			border: 1px solid rgba(59, 130, 246, 0.13);
+		}
+
+		.help-text {
+			font-size: 12px;
+			line-height: 1.6;
+			color: #334155;
+			padding-top: 6px;
+		}
+
+		.help-text strong {
+			color: #0f172a;
+			font-weight: 800;
+		}
+
+		/* Experiment cards */
+		.exp-card {
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			border-radius: 16px;
+			padding: 13px 14px;
+			margin-bottom: 8px;
+			cursor: pointer;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
+			transition: border-color 0.14s, box-shadow 0.14s, transform 0.14s;
+			display: flex;
+			gap: 12px;
+			align-items: flex-start;
+		}
+
+		.exp-card:hover {
+			border-color: rgba(37, 99, 235, 0.3);
+			box-shadow: 0 8px 22px rgba(59, 130, 246, 0.10);
+			transform: translateY(-1px);
+		}
+
+		.exp-card:last-child {
+			margin-bottom: 0;
+		}
+
+		.exp-num {
+			width: 28px;
+			height: 28px;
+			border-radius: 50%;
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 11px;
+			font-weight: 900;
+			color: #1d4ed8;
+			background: #dbeafe;
+			margin-top: 1px;
+		}
+
+		.exp-body {
+			flex: 1;
+		}
+
+		/* ⑤ 결론 도출: 줄글 대신 단계별 카드로 증거→판단 흐름을 보여줍니다 */
+		.evidence-step {
+			display: flex;
+			gap: 12px;
+			align-items: flex-start;
+			margin: 12px 0;
+		}
+
+		.evidence-num {
+			width: 26px;
+			height: 26px;
+			border-radius: 50%;
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 12px;
+			font-weight: 900;
+			color: #1d4ed8;
+			background: #dbeafe;
+			margin-top: 1px;
+		}
+
+		.evidence-body {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.evidence-title {
+			font-size: 12.5px;
+			font-weight: 800;
+			color: var(--text);
+			margin-bottom: 6px;
+		}
+
+		.evidence-card-row {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.evidence-card {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+			border: 1px solid rgba(148, 163, 184, 0.18);
+			border-radius: 12px;
+			padding: 8px 11px;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
+		}
+
+		.evidence-card-label {
+			font-size: 11px;
+			color: var(--muted);
+			font-weight: 600;
+		}
+
+		.evidence-card-fact {
+			font-size: 12.5px;
+			color: var(--text);
+		}
+
+		.evidence-card-fact strong {
+			color: #1d4ed8;
+		}
+
+		.exp-title {
+			font-size: 13px;
+			font-weight: 800;
+			color: #0f172a;
+			margin-bottom: 3px;
+		}
+
+		.exp-desc {
+			font-size: 11px;
+			color: #64748b;
+			line-height: 1.5;
+		}
+
+		.exp-setup {
+			display: inline-flex;
+			margin-top: 6px;
+			gap: 4px;
+			flex-wrap: wrap;
+		}
+
+		.exp-tag {
+			font-size: 10px;
+			font-weight: 700;
+			padding: 2px 7px;
+			border-radius: 999px;
+			background: #eff6ff;
+			color: #2563eb;
+			border: 1px solid rgba(37, 99, 235, 0.12);
+		}
+
+		@media (max-width: 980px) and (orientation: portrait) {
+			.sidebar {
+				left: 12px;
+				right: 12px;
+				top: auto;
+				bottom: 12px;
+				width: auto;
+				height: 45vh;
+				max-height: 45vh;
+				border-radius: 24px;
+			}
+
+			.stage-hud {
+				flex-direction: column;
+				left: 12px;
+				right: 12px;
+			}
+
+			.caption {
+				grid-template-columns: 1fr;
+				left: 12px;
+				right: 12px;
+				bottom: calc(45vh + 24px);
+			}
+
+			.status-box {
+				min-width: 0;
+				text-align: left;
+			}
+
+			.hud-stack {
+				width: 100%;
+				grid-template-columns: 1fr 1fr;
+				display: grid;
+			}
+
+			.overlay-controls {
+				bottom: calc(45vh + 60px);
+			}
+		}
+
+		@media (max-width: 720px) and (orientation: portrait) {
+			.sidebar {
+				left: 0;
+				right: 0;
+				bottom: 0;
+				height: 48vh;
+				max-height: 48vh;
+				border-radius: 22px 22px 0 0;
+				border-left: 0;
+				border-right: 0;
+				border-bottom: 0;
+				box-shadow: 0 -12px 36px rgba(15, 23, 42, 0.12);
+			}
+
+			.caption {
+				left: 12px;
+				right: 12px;
+				bottom: calc(48vh + 12px);
+			}
+		}
+
+		.analyzer-stats-layer {
+			position: fixed;
+			inset: 0;
+			z-index: 15;
+			pointer-events: none;
+		}
+
+		.analyzer-stat-card {
+			position: absolute;
+			width: 154px;
+			padding: 9px 11px;
+			border-radius: 12px;
+			background: rgba(255, 255, 255, .94);
+			border: 1px solid #b9cce0;
+			box-shadow: 0 4px 16px #0f172a18;
+			color: var(--text);
+			font-size: 11px;
+			line-height: 1.65;
+			pointer-events: auto;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.analyzer-stat-card i {
+			font-style: normal;
+		}
+
+		.analyzer-stat-card summary {
+			cursor: pointer;
+			font-weight: 800;
+			font-size: 12px;
+		}
+
+		.analyzer-stat-card .stat-signs {
+			display: flex;
+			justify-content: space-between;
+			gap: 8px;
+		}
+
+		.analyzer-stat-card [data-stat="blocked"] {
+			color: #b45309;
+		}
+
+		#rateReadout {
+			font-size: 12px;
+			line-height: 1.7;
+			margin-top: 6px;
+		}
+
+		#sessionNote {
+			font-size: 10px;
+			color: var(--muted);
+			margin-top: 5px;
+		}
+
+		@media (max-width: 980px) and (orientation: portrait) {
+			.analyzer-stats-layer {
+				inset: auto 8px calc(45vh + 24px);
+				display: flex;
+				gap: 5px;
+				justify-content: center;
+			}
+
+			.analyzer-stat-card {
+				position: static;
+				flex: 1;
+				min-width: 0;
+				max-width: 180px;
+				width: auto;
+				padding: 6px 8px;
+				font-size: 10px;
+			}
+
+			.analyzer-stat-card summary {
+				font-size: 11px;
+			}
+
+			.analyzer-stat-card .stat-signs {
+				gap: 3px;
+			}
+
+			.caption {
+				top: 110px;
+				bottom: auto;
+				gap: 4px;
+			}
+
+			.cap-box,
+			.status-box {
+				padding: 7px 10px;
+			}
+
+			.overlay-controls {
+				top: 220px;
+				bottom: auto;
+			}
+		}
+
+		@media (max-width: 720px) and (orientation: portrait) {
+			.analyzer-stats-layer {
+				bottom: calc(48vh + 10px);
+			}
+		}
+
+		.result-group {
+			margin: 10px 0;
+			padding: 10px;
+			border: 1px solid #d8e1ec;
+			border-radius: 10px;
+			font-size: 11px;
+			line-height: 1.6;
+		}
+
+		.result-group p {
+			margin: 5px 0;
+		}
+
+		.results-scroll {
+			overflow-x: auto;
+			margin: 8px 0;
+		}
+
+		.results-table {
+			border-collapse: collapse;
+			width: 100%;
+			min-width: 540px;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.results-table th,
+		.results-table td {
+			border: 1px solid #d8e1ec;
+			padding: 5px;
+			text-align: center;
+		}
+
+		.results-table th {
+			background: #edf3fa;
+		}
+
+		.result-group summary {
+			cursor: pointer;
+			margin-top: 5px;
+		}
+
+		.btn-stack {
+			grid-template-columns: 1fr;
+		}
+
+		.btn-stack button {
+			text-align: left;
+			padding: 11px 14px;
+			font-size: 13px;
+		}
+
+		/* 자료 분석 미니 그래프 */
+		.mini-focus {
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--text);
+			background: #eef4ff;
+			border-left: 3px solid #2157d5;
+			border-radius: 6px;
+			padding: 7px 10px;
+			margin: 6px 0 8px;
+			line-height: 1.5;
+		}
+
+		.mini-legend {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 4px 10px;
+			font-size: 10px;
+			font-weight: 600;
+			color: var(--muted);
+			margin-bottom: 6px;
+		}
+
+		.mini-legend i {
+			display: inline-block;
+			width: 9px;
+			height: 9px;
+			border-radius: 2px;
+			margin-right: 3px;
+			vertical-align: -1px;
+		}
+
+		.mini-group {
+			background: #fff;
+			border: 1px solid #d8e1ec;
+			border-radius: 10px;
+			padding: 8px 10px;
+			margin-bottom: 6px;
+		}
+
+		.mini-exp-tag {
+			display: inline-block;
+			font-size: 10px;
+			font-weight: 800;
+			color: #1d4ed8;
+			background: #dbeafe;
+			border-radius: 999px;
+			padding: 2px 8px;
+			margin-bottom: 4px;
+		}
+
+		.mini-head {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			margin-bottom: 5px;
+		}
+
+		.mini-head b {
+			font-size: 13px;
+			color: var(--text);
+		}
+
+		.mini-head span {
+			font-size: 10px;
+			color: var(--muted);
+		}
+
+		.mini-row {
+			display: grid;
+			grid-template-columns: 26px 1fr 76px;
+			align-items: center;
+			gap: 6px;
+			margin: 3px 0;
+			font-size: 10px;
+			color: var(--muted);
+			font-weight: 600;
+		}
+
+		.mini-track {
+			display: flex;
+			height: 11px;
+			border-radius: 4px;
+			overflow: hidden;
+			background: #eef2f7;
+		}
+
+		.mini-track div+div {
+			border-left: 1px solid #fff;
+		}
+
+		.mini-pred .mini-track div {
+			opacity: 0.45;
+		}
+
+		.mini-nums {
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+			white-space: nowrap;
+		}
+
+		.mini-detected {
+			font-size: 11px;
+			color: var(--text);
+			margin-top: 5px;
+		}
+
+		.mini-detected b {
+			font-variant-numeric: tabular-nums;
+		}
+
+		/* 결과 팝업 그래프 */
+		.rc-group {
+			margin: 14px 0;
+			padding: 16px 18px;
+			border: 1px solid #d8e1ec;
+			border-radius: 16px;
+			background: #fff;
+		}
+
+		.rc-current {
+			border-color: rgba(33, 87, 213, 0.45);
+			box-shadow: 0 0 0 3px rgba(33, 87, 213, 0.08);
+		}
+
+		.rc-head {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+			gap: 8px;
+			margin-bottom: 12px;
+		}
+
+		.rc-cond {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.rc-chip {
+			background: #edf3fa;
+			border: 1px solid #d8e1ec;
+			border-radius: 999px;
+			padding: 4px 11px;
+			font-size: 13px;
+			font-weight: 700;
+			color: var(--text);
+		}
+
+		.rc-arrow {
+			color: var(--muted);
+			font-weight: 700;
+		}
+
+		.rc-exp-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 6px;
+			margin-bottom: 8px;
+		}
+
+		.rc-exp-tag {
+			background: #dbeafe;
+			border: 1px solid rgba(37, 99, 235, 0.18);
+			border-radius: 999px;
+			padding: 4px 11px;
+			font-size: 12px;
+			font-weight: 800;
+			color: #1d4ed8;
+		}
+
+		.rc-meta {
+			font-size: 12px;
+			color: var(--muted);
+		}
+
+		.rc-meta em {
+			font-style: normal;
+			font-weight: 700;
+			color: #fff;
+			background: #2157d5;
+			border-radius: 999px;
+			padding: 2px 9px;
+			margin-right: 8px;
+		}
+
+		.rc-big {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 8px;
+			margin-bottom: 6px;
+		}
+
+		.rc-big div {
+			background: #f6f9fc;
+			border-radius: 12px;
+			padding: 10px 12px;
+			text-align: center;
+		}
+
+		.rc-big b {
+			display: block;
+			font-size: 26px;
+			line-height: 1.2;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.rc-big span {
+			font-size: 12px;
+			color: var(--muted);
+			font-weight: 600;
+		}
+
+		.rc-detected {
+			font-size: 13px;
+			color: var(--text);
+			text-align: center;
+			margin: 6px 0 14px;
+		}
+
+		.rc-detected b {
+			font-variant-numeric: tabular-nums;
+		}
+
+		.rc-legend {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 14px;
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--text);
+			margin-bottom: 8px;
+		}
+
+		.rc-legend i {
+			display: inline-block;
+			width: 12px;
+			height: 12px;
+			border-radius: 3px;
+			margin-right: 5px;
+			vertical-align: -1px;
+		}
+
+		.rc-chart {
+			display: grid;
+			gap: 7px;
+		}
+
+		.rc-row {
+			display: grid;
+			grid-template-columns: 84px 1fr;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.rc-label {
+			font-size: 13px;
+			font-weight: 700;
+			color: var(--text);
+			line-height: 1.2;
+		}
+
+		.rc-label small {
+			display: block;
+			font-size: 10px;
+			font-weight: 500;
+			color: var(--muted);
+		}
+
+		.rc-track {
+			display: flex;
+			height: 30px;
+			border-radius: 8px;
+			overflow: hidden;
+			background: #eef2f7;
+			background-image: linear-gradient(90deg, transparent calc(50% - 1px), rgba(15, 23, 42, 0.18) calc(50% - 1px), rgba(15, 23, 42, 0.18) calc(50% + 1px), transparent calc(50% + 1px));
+		}
+
+		.rc-seg {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 0;
+			color: #fff;
+			font-size: 13px;
+			font-weight: 700;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.rc-seg+.rc-seg {
+			border-left: 2px solid #fff;
+		}
+
+		.rc-seg span {
+			white-space: nowrap;
+			overflow: hidden;
+		}
+
+		.rc-lost {
+			background: var(--lost);
+			color: #3b2300;
+		}
+
+		.rc-pred .rc-track {
+			height: 22px;
+		}
+
+		.rc-pred .rc-seg {
+			opacity: 0.5;
+			color: var(--text);
+			background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.45) 0 4px, transparent 4px 8px);
+		}
+
+		.rc-pred .rc-label {
+			color: var(--muted);
+		}
+
+		.rc-pred,
+		.rc-sum {
+			margin-top: 4px;
+			padding-top: 8px;
+			border-top: 1px dashed #d8e1ec;
+		}
+
+		.rc-pred+.rc-sum {
+			margin-top: 0;
+			padding-top: 0;
+			border-top: 0;
+		}
+
+		.rc-sum .rc-track {
+			height: 36px;
+		}
+
+		.rc-sum .rc-seg {
+			font-size: 15px;
+		}
+
+		.rc-ticks {
+			display: flex;
+			justify-content: space-between;
+			font-size: 10px;
+			color: var(--muted);
+			font-variant-numeric: tabular-nums;
+		}
+
+		.rc-table {
+			margin-top: 12px;
+			font-size: 11px;
+			line-height: 1.6;
+		}
+
+		.rc-table>summary {
+			cursor: pointer;
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--muted);
+		}
+
+		@media (max-width: 560px) {
+			.rc-group {
+				padding: 12px;
+			}
+
+			.rc-row {
+				grid-template-columns: 60px 1fr;
+				gap: 6px;
+			}
+
+			.rc-big b {
+				font-size: 20px;
+			}
+		}
+
+		.collection-fold {
+			margin: 8px 0;
+			border-top: 1px solid #dce4ef;
+			padding-top: 8px;
+		}
+
+		.collection-fold>summary {
+			cursor: pointer;
+			font-size: 12px;
+			font-weight: 700;
+			color: #435c78;
+		}
+
+		[data-step="3"]>.sb-note {
+			font-size: 11px;
+			line-height: 1.5;
+			margin: 5px 0;
+		}
+
+		#experimentProgress {
+			color: #2157d5;
+			font-weight: 700;
+		}
+
+		.collection-action {
+			margin: 12px 0 16px;
+			padding: 13px;
+			border: 1px solid #b7cef5;
+			border-radius: 16px;
+			background: #eef5ff;
+		}
+
+		.action-path {
+			display: flex;
+			gap: 5px;
+		}
+
+		.action-path span {
+			flex: 1;
+			padding: 5px 0;
+			border-radius: 7px;
+			background: #e2eaf5;
+			color: #687c95;
+			text-align: center;
+			font-size: 10px;
+			font-weight: 700;
+		}
+
+		.action-path .current {
+			background: #2157d5;
+			color: white;
+		}
+
+		.action-hint {
+			font-size: 12px;
+			color: #304766;
+			line-height: 1.55;
+			margin: 10px 0;
+		}
+
+		.collection-primary {
+			width: 100%;
+			min-height: 49px;
+			font-size: 14px;
+			white-space: normal;
+		}
+
+		.collection-action[data-phase="results"] {
+			background: #f0f9f4;
+			border-color: #a7d4b9;
+		}
+
+		.collection-action[data-phase="results"] .collection-primary,
+		.collection-action[data-phase="results"] .current {
+			background: #187547;
+		}
+
+		#measurementProgress {
+			width: 100%;
+			height: 8px;
+			margin-top: 12px;
+			accent-color: #2157d5;
+		}
+
+		.action-progress {
+			margin-top: 5px;
+			font-size: 11px;
+			color: #435c78;
+		}
+
+		.collection-secondary-title {
+			font-size: 10px;
+			font-weight: 700;
+			color: #789;
+			margin: 15px 0 8px;
+		}
+
+		.observation-tools {
+			margin: 10px 0;
+			padding: 10px;
+			background: #f4f6f9;
+			border: 1px solid #e0e6ed;
+			border-radius: 12px;
+		}
+
+		.tool-label {
+			display: block;
+			font-size: 10px;
+			color: #667b91;
+			margin-bottom: 7px;
+		}
+
+		.observation-tools .sb-note {
+			font-size: 10px;
+			margin: 0;
+		}
+
+		.collection-fold {
+			border: 1px solid #d9e2ec;
+			border-radius: 10px;
+			padding: 0;
+			margin: 7px 0;
+			overflow: hidden;
+		}
+
+		.collection-fold>summary {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 11px 10px;
+			list-style: none;
+			background: #f8fafc;
+		}
+
+		.collection-fold>summary::-webkit-details-marker {
+			display: none;
+		}
+
+		.collection-fold>summary::after {
+			content: '＋';
+			color: #456b9d;
+			font-size: 16px;
+			margin-left: 8px;
+		}
+
+		.collection-fold[open]>summary::after {
+			content: '−';
+		}
+
+		.collection-fold> :not(summary) {
+			margin-left: 10px;
+			margin-right: 10px;
+		}
+
+		.collection-fold> :last-child:not(summary) {
+			margin-bottom: 10px;
+		}
+
+		.collection-fold>textarea,
+		.collection-fold>select {
+			width: calc(100% - 20px);
+		}
+
+		button:focus-visible,
+		summary:focus-visible,
+		select:focus-visible {
+			outline: 3px solid #568eed;
+			outline-offset: 3px;
+		}
+
+		/* ── 휴대폰 가로 화면: 높이가 낮으므로 사이드바·HUD·캡션·팝업을 촘촘하게 줄입니다. ── */
+		@media (orientation: landscape) and (max-height: 540px) {
+			:root {
+				--lp-sb: min(290px, 40vw);
+			}
+
+			.sidebar {
+				left: 8px;
+				top: 8px;
+				bottom: 8px;
+				width: var(--lp-sb);
+				max-height: calc(100dvh - 16px);
+				padding: 10px 12px;
+				gap: 8px;
+				border-radius: 16px;
+			}
+
+			.sb-title {
+				font-size: 17px;
+			}
+
+			.sb-sub {
+				font-size: 11px;
+				margin-top: 3px;
+			}
+
+			.stage-hud {
+				top: 8px;
+				left: calc(var(--lp-sb) + 16px);
+				right: 8px;
+			}
+
+			.hud-stack {
+				display: flex;
+				width: auto;
+				gap: 6px;
+			}
+
+			.hud-mini {
+				padding: 5px 9px;
+				border-radius: 12px;
+			}
+
+			.hud-mini .label {
+				font-size: 9px;
+				margin-bottom: 1px;
+			}
+
+			.hud-mini .value {
+				font-size: 13px;
+			}
+
+			.view-hint {
+				display: none;
+			}
+
+			.overlay-controls {
+				top: 8px;
+				right: 8px;
+				bottom: auto;
+				flex-direction: row;
+				gap: 6px;
+			}
+
+			.overlay-btn {
+				padding: 6px 10px;
+				font-size: 11px;
+			}
+
+			.caption {
+				left: calc(var(--lp-sb) + 16px);
+				right: 8px;
+				bottom: 8px;
+				gap: 6px;
+			}
+
+			.cap-box {
+				padding: 7px 10px;
+				font-size: 11px;
+				line-height: 1.45;
+				border-radius: 12px;
+			}
+
+			.status-box {
+				min-width: 0;
+				padding: 7px 10px;
+				border-radius: 12px;
+			}
+
+			.status-box .big {
+				font-size: 15px;
+			}
+
+			.analyzer-stat-card {
+				padding: 6px 8px;
+				font-size: 10px;
+				line-height: 1.5;
+			}
+
+			.analyzer-stat-card summary {
+				font-size: 11px;
+			}
+
+			.pf-toast-layer {
+				top: 8px;
+				left: calc(var(--lp-sb) + 16px);
+			}
+
+			.modal-overlay {
+				padding: 8px;
+			}
+
+			.modal-card {
+				max-height: calc(100dvh - 16px);
+				padding: 16px 16px 14px;
+				border-radius: 18px;
+			}
+
+			.modal-overlay#resultsModal,
+			.modal-overlay#principleModal {
+				left: calc(var(--lp-sb) + 8px);
+				padding: 8px;
+			}
+
+			.modal-overlay#resultsModal .modal-card,
+			.modal-overlay#principleModal .modal-card {
+				max-height: calc(100dvh - 16px);
+			}
+		}
+
+		/* ── 휴대폰 세로 화면: 가로로 돌리라는 안내로 화면 전체를 덮습니다. ── */
+		.rotate-notice {
+			display: none;
+		}
+
+		@media all {
+			html.needs-rotate .rotate-notice {
+				position: fixed;
+				inset: 0;
+				z-index: 10000;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 14px;
+				padding: 24px;
+				text-align: center;
+				background: #07111f;
+				color: #eff6ff;
+			}
+
+			html.needs-rotate .rotate-notice svg {
+				width: 84px;
+				height: 84px;
+				color: #7fb0ff;
+				animation: rotate-hint 2.4s ease-in-out infinite;
+			}
+
+			html.needs-rotate .rotate-notice h2 {
+				font-size: 19px;
+				font-weight: 900;
+				letter-spacing: -0.03em;
+			}
+
+			html.needs-rotate .rotate-notice p {
+				max-width: 280px;
+				font-size: 13px;
+				line-height: 1.6;
+				color: rgba(224, 238, 255, 0.72);
+			}
+
+			html.needs-rotate .rotate-notice button {
+				padding: 11px 18px;
+				font-size: 13px;
+			}
+		}
+
+		@keyframes rotate-hint {
+			0%, 20% {
+				transform: rotate(0deg);
+			}
+
+			50%, 80% {
+				transform: rotate(-90deg);
+			}
+
+			100% {
+				transform: rotate(0deg);
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.rotate-notice svg {
+				animation: none;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="rotate-notice" role="alert">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+			stroke-linejoin="round" aria-hidden="true">
+			<rect x="7" y="2" width="10" height="20" rx="2" />
+			<line x1="11" y1="18" x2="13" y2="18" />
+		</svg>
+		<h2>화면을 가로로 돌려 주세요</h2>
+		<p>이 시뮬레이션은 가로 화면에 맞춰 만들어졌습니다. 화면이 돌아가지 않으면 기기의 ‘화면 회전 잠금’을 꺼 주세요.</p>
+		<button class="btn-main" id="rotateLandscapeBtn" type="button" hidden>가로 전체화면으로 보기</button>
+	</div>
+	<script>
+		// 전체화면 + 방향 고정 API를 지원하는 기기(주로 안드로이드)에서는 버튼 하나로 가로 전환을 돕습니다.
+		(() => {
+			const btn = document.getElementById("rotateLandscapeBtn");
+			// 세로 화면이면서 휴대폰(또는 폭 600px 이하의 좁은 창)일 때 안내를 띄웁니다.
+			// ‘데스크톱 사이트 보기’로 화면 폭이 넓게 잡혀도 실제 기기 크기·기기 정보로 휴대폰을 알아봅니다.
+			const portrait = window.matchMedia("(orientation: portrait)");
+			const updateRotateNotice = () => {
+			  const shortSide = Math.min(screen.width, screen.height);
+			  const touch = window.matchMedia("(any-pointer: coarse)").matches || navigator.maxTouchPoints > 0;
+			  const phone = /Android.+Mobile|iPhone|iPod|Windows Phone/i.test(navigator.userAgent) || (touch && shortSide <= 600);
+			  document.documentElement.classList.toggle("needs-rotate", portrait.matches && (phone || window.innerWidth <= 600));
+			};
+			updateRotateNotice();
+			portrait.addEventListener?.("change", updateRotateNotice);
+			window.addEventListener("resize", updateRotateNotice);
+
+			if (!document.documentElement.requestFullscreen || !screen.orientation?.lock) return;
+			btn.hidden = false;
+			btn.addEventListener("click", async () => {
+				try {
+					if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+					await screen.orientation.lock("landscape");
+				} catch (e) {
+					// 지원하지 않는 브라우저에서는 안내 문구대로 직접 돌리면 됩니다.
+				}
+			});
+		})();
+	</script>
+	<div class="app">
+		<!-- ── Sidebar ── -->
+		<aside class="sidebar">
+			<div>
+				<div class="sb-title">순차 측정 3D</div>
+				<div class="sb-sub" id="stepLabel">1 / 5 · 문제 인식</div>
+				<div class="step-progress" aria-hidden="true">
+					<span></span><span></span><span></span><span></span><span></span>
+				</div>
+			</div>
+
+			<div class="step-content" id="stepContent">
+				<!-- ① 문제 인식 (전개1) -->
+				<section class="ctrl-block" data-step="1">
+					<div class="ctrl-head">① 문제 인식</div>
+					<label class="writing-prompt" for="studentName">보고서 작성자 · 학번 / 이름</label>
+					<input id="studentName" type="text" maxlength="80" placeholder="예: 30305 김민수" />
+					<p class="key-question"><span>탐구 질문</span>z↑로 측정된 입자를 다른 축(x)으로 재면, 그 결과는 재기 전에 이미 정해져 있을까?
+						측정은 입자의 상태를 바꿀까?</p>
+					<p class="sb-note">지난 시간에 분석기(자석)를 지난 입자는 위(z↑)·아래(z↓) 두 곳에만 검출되었고, 마지막에
+						<strong>z↑ 입자만 골라 다시 측정하면 어떻게 될까?</strong>를 예측했습니다. 오늘은 분석기를 이어 붙여 직접 확인합니다.
+						분석기를 90° 돌린 <strong>x축 분석기</strong>는 입자를 오른쪽(x+)·왼쪽(x−) 두 갈래로 나눕니다.</p>
+					<fieldset class="model-options" id="firstHypothesisChoices">
+						<legend>z↑ 입자를 x축으로 잰 결과 — 나의 첫 예상</legend>
+						<label><input type="radio" name="firstHypothesis" value="A" /><span><strong>가설 A</strong> · 재기 전에 이미
+								정해져 있다<small>z↑ 입자 하나하나는 x 방향으로도 이미 x+ 또는 x−로 정해져 있고, 분석기는 그 값을 확인할 뿐이다(측정해도
+									상태는 그대로다).</small></span></label>
+						<label><input type="radio" name="firstHypothesis" value="B" /><span><strong>가설 B</strong> · 재는 순간
+								정해진다<small>z↑ 입자의 x 방향 결과는 정해져 있지 않다가, x축으로 측정하는 순간 x+ 또는 x− 하나로 정해진다(측정이 상태를
+									바꾼다).</small></span></label>
+					</fieldset>
+					<label class="writing-prompt" for="firstHypothesisNote">왜 그렇게 예상했나요? (아직 실험 전이니 정답을 몰라도 괜찮습니다)</label>
+					<textarea id="firstHypothesisNote"
+						placeholder="예시 형식: ~라고 생각하기 때문에 가설 ○가 맞다고 예상한다."></textarea>
+				</section>
+
+				<!-- ② 가설 설정 (전개1) -->
+				<section class="ctrl-block" data-step="2" hidden>
+					<div class="ctrl-head">② 가설 설정</div>
+					<p class="sb-note">첫 분석기(z축)에서 <strong>z↑로 측정된 입자만</strong> 통과시켜 두 번째 분석기로 다시 측정합니다.
+						검출기에 도달한 입자 중 실험 ①은 <b>z↑·z↓</b>, 실험 ②는 <b>x+·x−</b>가 각각 몇 %일지 막대를 움직여 예상해 보세요.</p>
+					<div class="pred-card">
+						<div class="pred-title"><span class="mini-exp-tag">실험 ①</span>z↑ 입자를 <b>z축</b>으로 다시 측정</div>
+						<div id="predSameAxis"></div>
+					</div>
+					<div class="pred-card">
+						<div class="pred-title"><span class="mini-exp-tag">실험 ②</span>z↑ 입자를 <b>x축</b>으로 측정</div>
+						<div id="predBasisChange"></div>
+					</div>
+					<p class="sb-note pred-lock-note" id="predLockNote" hidden>측정을 시작한 실험의 예측은 고정되어 바꿀 수 없습니다.</p>
+					<label class="writing-prompt" for="hypothesisNote">두 결과를 그렇게 예상한 까닭은 무엇인가요? ① 문제 인식에서 고른 가설(A 또는 B)과
+						연결해 적어 보세요.</label>
+					<textarea id="hypothesisNote"
+						placeholder="예시 형식: 가설 ○가 맞다면 실험 ①은 ~, 실험 ②는 ~일 것이다. 왜냐하면 ~이기 때문이다."></textarea>
+					<div class="btn-row btn-stack">
+						<button class="btn-sub" id="previewSameAxisBtn" disabled>실험 ① 배치 미리보기 · z → z</button>
+						<button class="btn-sub" id="previewDiffAxisBtn" disabled>실험 ② 배치 미리보기 · z → x</button>
+					</div>
+					<p class="sb-note" id="previewStatus">실험 ①·②의 결과를 먼저 예상해 주세요.</p>
+				</section>
+
+				<!-- ③ 자료 수집 (전개1) -->
+				<section class="ctrl-block" data-step="3" hidden>
+					<!-- 입자원은 항상 원자 오븐(방향 없음)으로 고정합니다. -->
+					<select id="sourcePreset" style="display:none">
+						<option value="mixed" selected>원자 오븐</option>
+					</select>
+					<div class="ctrl-head">③ 자료 수집 · 비교 실험</div>
+					<p class="key-question"><span>핵심 발문</span>z↑로 측정된 입자는 언제나 z↑일까? 다른 축으로 재거나, 중간에 다른 축 측정을 거치면 어떻게 될까?</p>
+					<p class="sb-note">아래 큰 버튼을 따라 실험 ①→④를 차례로 진행한 뒤, ⑤ 자유 탐구에서 궁금한 조건을 직접 만들어 확인해 보세요.</p>
+					<label class="writing-prompt" for="experimentPlan">실험 선택</label>
+					<select id="experimentPlan">
+						<option value="sameAxis">① 같은 축 · z↑ → z</option>
+						<option value="basisChange">② 다른 축 · z↑ → x</option>
+						<option value="collapse">③ 중간 측정 추가 · z↑ → x+ → z</option>
+						<option value="recombine">④ 두 경로 합치기 · z↑ → x(합침) → z</option>
+						<option value="free">⑤ 자유 탐구</option>
+					</select>
+					<p class="sb-note" id="experimentQuestion"></p>
+					<p class="sb-note" id="experimentProgress" role="status"></p>
+					<div class="collection-action" id="collectionActionPanel">
+						<div class="action-path" aria-label="실험 진행 순서"><span data-action-phase="ready">1 예측</span><span
+								data-action-phase="running">2 측정</span><span data-action-phase="results">3 결과</span>
+						</div>
+						<p id="collectionActionHint" class="action-hint" aria-live="polite"></p>
+						<button class="btn-main collection-primary" id="collectionActionBtn"
+							aria-describedby="collectionActionHint">예측하고 측정 시작 →</button>
+						<progress id="measurementProgress" max="1000" value="0" hidden
+							aria-label="현재 회차 발사 진행률"></progress>
+						<p id="measurementProgressText" class="action-progress" hidden></p>
+					</div>
+					<details class="collection-fold" id="analyzerSettingsFold" hidden>
+						<summary>분석기 설정 확인·변경</summary>
+						<p class="sb-note" id="filterRuleNote">A → B → C 순서로 측정합니다. 중간 분석기는 한쪽 경로만 통과시키거나, 두 경로를 모두 열고 다시 합칠 수 있어요.</p>
+						<div class="ctrl-block" style="margin:10px 0">
+							<div class="ctrl-head">분석기 설정<span>A → B → C</span></div>
+							<div class="ctrl-row"><label for="axisA">A · 축</label>
+								<select id="axisA">
+									<option value="z">z축</option>
+									<option value="x">x축</option>
+								</select>
+							</div>
+							<div class="ctrl-row"><label for="filterA">A · 필터</label>
+								<select id="filterA">
+									<option value="both">전체 통과</option>
+									<option value="plus">↑ 경로만</option>
+									<option value="minus">↓ 경로만</option>
+									<option value="merge">두 경로 다시 합침</option>
+								</select>
+							</div>
+							<div class="ctrl-row"><label for="axisB">B · 축</label>
+								<select id="axisB">
+									<option value="none">꺼짐</option>
+									<option value="z">z축</option>
+									<option value="x">x축</option>
+								</select>
+							</div>
+							<div class="ctrl-row"><label for="filterB">B · 필터</label>
+								<select id="filterB">
+									<option value="both">전체 통과</option>
+									<option value="plus">↑ 경로만</option>
+									<option value="minus">↓ 경로만</option>
+									<option value="merge">두 경로 다시 합침</option>
+								</select>
+							</div>
+							<div class="ctrl-row"><label for="axisC">C · 축</label>
+								<select id="axisC">
+									<option value="none">꺼짐</option>
+									<option value="z">z축</option>
+									<option value="x">x축</option>
+								</select>
+							</div>
+							<div class="ctrl-row"><label for="filterC">C · 필터</label>
+								<select id="filterC">
+									<option value="both">전체 통과</option>
+									<option value="plus">↑ 경로만</option>
+									<option value="minus">↓ 경로만</option>
+									<option value="merge">두 경로 다시 합침</option>
+								</select>
+							</div>
+						</div>
+
+					</details>
+					<div class="observation-tools"><span class="tool-label">경로 살펴보기 · 집계에 포함되지 않아요</span>
+						<button class="btn-sub" id="singleShotBtn" style="width:100%;margin-bottom:8px">＋ 입자 한 개 발사</button>
+						<div class="ctrl-row"><label for="playbackSpeed">재생 속도</label>
+							<select id="playbackSpeed">
+								<option value="0.1">0.1배 · 아주 느리게</option>
+								<option value="0.25">0.25배 · 느리게</option>
+								<option value="0.5">0.5배</option>
+								<option value="1" selected>1배</option>
+							</select>
+						</div>
+						<p class="sb-note" id="observationReadout">관찰용 입자는 정식 측정 집계에 포함되지 않습니다.</p>
+						<p class="sb-note">재생 속도는 관찰용 입자에만 적용됩니다.</p>
+					</div>
+					<button class="btn-sub" id="expandResultsBtn" style="width:100%">▦ 조건별 측정 결과 보기</button>
+					<details class="collection-fold" id="observationNotesFold" open>
+						<summary>✎ 관찰 내용 작성하기</summary>
+						<div id="observationNotesHome">
+							<label class="writing-prompt" for="detectedRatioNote">실험 ①(z↑ → z)과 실험 ②(z↑ → x)의 결과를
+								비교해 보세요. 실험 ①에서 z↑·z↓는, 실험 ②에서 x+·x−는 각각 몇 %였나요? 두 결과는 왜 다르게 나왔을까요?</label>
+							<textarea id="detectedRatioNote"
+								placeholder="예시 형식: ①은 z↑ OO%·z↓ OO%, ②는 x+ OO%·x− OO%였다. 같은 축으로 재면 ~하고, 다른 축으로 재면 ~하기 때문이다."></textarea>
+							<details class="hint-fold">
+								<summary>도움이 필요하면 · 단계별 힌트</summary>
+								<p><b>힌트 1</b> 결과 그래프에서 ①과 ②의 색 막대 길이를 비교해 보세요.</p>
+								<p><b>힌트 2</b> 같은 축으로 다시 잴 때와 다른 축으로 잴 때, 각각 어떤 규칙이 보이나요?</p>
+								<p><b>힌트 3</b> 첫 번째 측정 뒤 입자의 상태가 어느 방향으로 정해졌는지를 근거로 두 결과의 차이를 설명해 보세요.</p>
+							</details>
+						</div>
+					</details>
+				</section>
+
+				<!-- ④ 자료 분석 (전개2) -->
+				<section class="ctrl-block" data-step="4" hidden>
+					<div class="ctrl-head">④ 자료 분석 · 결과 비교와 토의</div>
+					<p class="key-question"><span>핵심 발문</span>중간에 x를 재면(③) 상태가 바뀌었다. 그렇다면 x 분석기를 지나되 어느 길로 갔는지 확인하지 않으면(④) 어떻게 될까?</p>
+					<p class="sb-note">③ 단계에서 측정한 결과가 조건별로 합산되어 있습니다. 옅은 빗금 막대가 <strong>내 예측</strong>, 진한 막대가
+						<strong>실제 결과</strong>입니다. (모두 검출기에 도달한 입자 기준)</p>
+					<div id="runLogEmpty" class="sb-note">아직 기록된 실행이 없습니다. ③ 단계로 돌아가 실행해 보세요.</div>
+					<div id="runLogTable"></div>
+					<button class="btn-sub" id="runLogExpandBtn" style="width:100%" hidden>▦ 조건별 측정 결과 크게 보기</button>
+
+					<label class="writing-prompt" for="stateExplanationNote">실험 ①·②·③·④의 예측과 실제 결과를 비교해 보세요. 예측과 맞은 것과
+						어긋난 것은 무엇인가요?</label>
+					<textarea id="stateExplanationNote"
+						placeholder="예시 형식: ①은 예측 OO%, 실제 OO%로 (맞았다/어긋났다). ②는 ... ③은 ... ④는 ..."></textarea>
+
+					<label class="writing-prompt" for="changedConditionNote">실험 ①(z↑ → z)과 실험 ③(z↑ → x+ → z)은 마지막
+						분석기가 모두 z축입니다. ①은 중간에 아무것도 재지 않았고, ③은 중간에 x를 쟀습니다. 마지막 z 측정 결과는 어떻게 달랐고, 그 까닭은 무엇일까요?</label>
+					<textarea id="changedConditionNote"
+						placeholder="예시 형식: ①의 마지막 z 측정은 z↑ OO%, ③은 z↑ OO%였다. 그 까닭은 ~이다."></textarea>
+					<details class="hint-fold">
+						<summary>도움이 필요하면 · 단계별 힌트</summary>
+						<p><b>힌트 1</b> 실험 ①과 ③의 분석기 배치에서 다른 점을 먼저 찾아보세요.</p>
+						<p><b>힌트 2</b> 그 차이(중간의 x축 측정)가 마지막 z 측정 결과와 어떻게 연결될까요?</p>
+						<p><b>힌트 3</b> 중간 측정이 입자의 이전 상태(z↑)를 바꿨다고 할 수 있을까요? 아래 핵심 추론과 연결해 생각해 보세요.</p>
+					</details>
+
+					<div class="deep-dive" id="mixtureTest">
+						<div class="deep-head">핵심 추론 · 입자는 x 분석기를 어떻게 지났을까?</div>
+						<p class="sb-note" style="margin-top:0">③과 ④는 똑같이 x 분석기를 지나요. 다른 점은 <b>한 길을 막았는지</b>(③: 어느 길로 갔는지 확인)
+							<b>두 길을 다 열고 합쳤는지</b>(④: 확인하지 않음)뿐이에요.</p>
+						<fieldset class="model-options" id="mixtureTestChoices">
+							<legend>입자가 x+나 x− 중 한 길로만 지났다면, ④의 z↑는 몇 %여야 할까요?</legend>
+							<label><input type="radio" name="mixtureTestChoice" value="50" />50% — 어느 길이든 z로 재면 반반이니까(③)</label>
+							<label><input type="radio" name="mixtureTestChoice" value="100" />100%</label>
+						</fieldset>
+						<div id="mixtureTestResult"></div>
+						<p class="sb-note" id="mixtureFollowUp" hidden></p>
+						<label class="writing-prompt" for="mixtureTestNote">입자는 x 분석기를 어떻게 지났을까요? 길을 막았을 때(③)와 막지 않았을 때(④)는 무엇이 다를까요?</label>
+						<textarea id="mixtureTestNote" placeholder="예시 형식: 한 길로만 지났다면 ④는 ~%여야 하는데 실제로는 ~%였다. 그러므로 입자는 ~. 길을 막으면 ~."></textarea>
+						<p class="sb-note" id="mixtureGateNote">예상을 골라야 ⑤ 결론 도출로 넘어갈 수 있어요.</p>
+					</div>
+				</section>
+
+				<!-- ⑤ 결론 도출 (정리) -->
+				<section class="ctrl-block" data-step="5" hidden id="conclusionPanel">
+					<div class="ctrl-head">⑤ 결론 도출</div>
+					<label class="writing-prompt" for="conclusion">① 결론 정리 — 같은 축으로 다시 잴 때, 다른 축으로 잴 때, 중간에 다른 축 측정을 거칠 때 각각 어떤 결과가 나왔나요? 측정은 입자의 상태에 어떤 영향을 주나요?</label>
+					<textarea id="conclusion"
+						placeholder="힌트: 같은 축으로 다시 잴 때, 다른 축으로 잴 때, 중간에 다른 축 측정을 거쳤을 때를 나눠서 실험 결과를 근거로 정리해 보세요."></textarea>
+
+					<div class="question-label">② z↑ 입자의 x 결과는 재기 전에 정해져 있었을까?</div>
+
+					<div class="evidence-step">
+						<span class="evidence-num">1</span>
+						<div class="evidence-body">
+							<p class="evidence-title">내 첫 예상 (① 문제 인식)</p>
+							<div class="recap-box">
+								<p id="recapFirstHypothesis">—</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="evidence-step">
+						<span class="evidence-num">2</span>
+						<div class="evidence-body">
+							<p class="evidence-title">내가 모은 증거</p>
+							<div class="evidence-card-row" id="evidenceCards"></div>
+						</div>
+					</div>
+
+					<div class="evidence-step">
+						<span class="evidence-num">3</span>
+						<div class="evidence-body">
+							<p class="evidence-title">위 증거를 바탕으로 내가 내리는 판단</p>
+							<fieldset class="model-options" id="conclusionChoices">
+								<legend>z↑ 입자를 x축으로 잰 결과 — 지금의 판단</legend>
+								<label><input type="radio" name="conclusionChoice" value="A" /><span><strong>가설 A</strong> · 재기 전에 이미 정해져 있다<small>측정은 확인만 한다</small></span></label>
+								<label><input type="radio" name="conclusionChoice" value="B" /><span><strong>가설 B</strong> · 재는 순간 정해진다<small>측정이 상태를 바꾼다</small></span></label>
+							</fieldset>
+							<label class="writing-prompt" for="reflectionNote">그렇게 고른 근거는 무엇인가요? 첫 예상과 비교하면 생각이 바뀌었나요,
+								그대로인가요?</label>
+							<textarea id="reflectionNote"
+								placeholder="힌트: 원리 보기를 열기 전에, 위 증거(특히 실험 ③과 ④, 핵심 추론 결과)만 근거로 먼저 적어 보세요."></textarea>
+						</div>
+					</div>
+
+					<div class="sec-label">③ 원리 보기 — 측정과 중첩</div>
+					<button class="btn-sub" id="principleBtn" style="width:100%" disabled>원리 보기</button>
+					<p class="sb-note" id="principleLockNote">②의 판단과 근거를 먼저 적으면 열립니다.</p>
+					<div id="afterPrincipleBlock" hidden>
+						<label class="writing-prompt" for="afterPrincipleNote">원리를 보고 새로 알게 되거나 달라진 생각을 적어 보세요. (‘중첩’과
+							‘측정에 의한 상태 붕괴’라는 말을 넣어서)</label>
+						<textarea id="afterPrincipleNote"
+							placeholder="예시 형식: 입자가 한 길로만 지났다면 ④는 ~였을 텐데, 실제로는 ~였으므로 입자는 ~(중첩)였다. 길을 막아 확인하면 ~(붕괴)."></textarea>
+					</div>
+
+					<div class="self-check" id="selfCheck">
+						<p>스스로 점검해보기 (점수가 아니라 체크만 해도 됩니다)</p>
+						<label><input type="checkbox" id="selfCheck1" /> 같은 축으로 다시 재면 결과가 유지되고, 다른 축으로 재면 반반이 되는 규칙을 찾았다</label>
+						<label><input type="checkbox" id="selfCheck2" /> 측정 후 상태가 측정한 축 방향으로 정해진다는 것을 근거로 두 결과의 차이를 설명할 수
+							있다</label>
+						<label><input type="checkbox" id="selfCheck3" /> 실험 ①과 ③의 결과 차이를, 측정하지 않으면 상태가 그대로이고 다른 축으로 측정하면 상태가 바뀐다는 것과 연결해 설명할 수 있다</label>
+						<label><input type="checkbox" id="selfCheck4" /> 두 길을 합치면(④) z↑가 그대로이고 한 길을 막으면(③) 반반이 되는 까닭을 중첩과 측정으로 설명할 수 있다</label>
+					</div>
+
+					<!-- 다음 차시(양자컴퓨터·큐비트)로 이어지는 예고: 결론을 모두 마친 뒤 맨 마지막에만 둡니다. -->
+					<div class="next-lesson" id="nextLesson">
+						<div class="sec-label">④ 다음 시간 예고 — 양자컴퓨터와 큐비트</div>
+						<p class="sb-note">오늘 확인한 <strong>두 결과, 중첩, 측정에 의한 상태 붕괴</strong>는 양자컴퓨터의 정보 단위인
+							<strong>큐비트</strong>에서도 그대로 나타납니다.</p>
+						<table class="qubit-table">
+							<thead>
+								<tr>
+									<th>오늘의 실험</th>
+									<th>양자컴퓨터의 큐비트</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>두 결과: z↑ / z↓</td>
+									<td>두 상태: |0⟩ / |1⟩</td>
+								</tr>
+								<tr>
+									<td>z↑ 입자는 x+와 x−의 중첩</td>
+									<td>큐비트도 |0⟩과 |1⟩의 중첩에 있을 수 있음</td>
+								</tr>
+								<tr>
+									<td>측정하면 하나로 정해짐 (상태 붕괴)</td>
+									<td>측정하면 0 또는 1 하나로 정해짐</td>
+								</tr>
+							</tbody>
+						</table>
+						<p class="key-question"><span>생각해 보기</span>오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까?</p>
+						<label class="writing-prompt" for="qcPredictionNote">나의 예상과 그 까닭</label>
+						<textarea id="qcPredictionNote" placeholder="예시 형식: 진짜 양자컴퓨터에서는 ~일 것 같다. 왜냐하면 ~"></textarea>
+						<p class="sb-note">다음 시간에 실제 양자컴퓨터로 직접 확인해 봅니다.</p>
+					</div>
+					<p class="save-reminder">수업이 끝나기 전에 아래 <strong>보고서 저장</strong>을 꼭 눌러 주세요. 페이지를 닫으면 기록이 사라집니다.</p>
+				</section>
+			</div>
+
+			<nav class="btn-row" style="margin-top:4px">
+				<button class="btn-sub" id="prevStepBtn" disabled>이전 단계</button>
+				<button class="btn-main" id="nextStepBtn">다음 · 가설 설정</button>
+			</nav>
+			<div class="btn-row">
+				<button class="btn-sub" id="downloadReportBtn" style="grid-column:1/-1">보고서 저장</button>
+				<p id="sessionNote" style="grid-column:1/-1">다시 열면 초기화됩니다. 필요한 기록은 보고서로 저장하세요.</p>
+			</div>
+		</aside>
+
+		<!-- ── 3D Stage ── -->
+		<main class="stage">
+			<canvas id="threeCanvas"></canvas>
+			<div class="analyzer-stats-layer" id="analyzerStatsLayer" aria-label="분석기별 집계"></div>
+		</main>
+
+		<!-- Stage HUD -->
+		<div class="stage-hud">
+			<div class="hud-stack">
+				<div class="hud-mini">
+					<span class="label">실험 상태</span>
+					<span class="value" id="hudReportStatus">대기 중</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- View hint -->
+		<div class="view-hint">드래그: 회전 | 스크롤: 줌</div>
+
+		<!-- Overlay controls -->
+		<div class="overlay-controls">
+			<button class="overlay-btn" id="resetViewBtn">시점 초기화</button>
+			<button class="overlay-btn" id="fullscreenBtn">전체화면</button>
+		</div>
+
+		<!-- Caption -->
+		<div class="caption">
+			<div class="cap-box" id="captionBox">3D 장면에서 슈테른-겔라흐 분석기가 입자를 편향시키는 과정을 관찰하세요.</div>
+		</div>
+	</div>
+
+	<div class="modal-overlay hidden" id="resultsModal" role="dialog" aria-labelledby="resultsModalTitle">
+		<div class="modal-card" style="width:min(560px,95vw);max-width:560px">
+			<button class="modal-close" id="resultsModalClose" aria-label="결과표 닫기">✕</button>
+			<div class="modal-title" id="resultsModalTitle">조건별 측정 결과</div>
+			<p class="sb-note">막대 하나는 <strong>검출기에 도달한 입자 전체(100%)</strong>입니다. 옅은 빗금 막대는 내 예측, 진한 막대는 실제 결과예요.
+				색 막대의 길이를 비교해 보세요. (차단된 입자와 관찰용 입자는 제외)</p>
+			<div id="expandedResults"></div>
+			<div class="modal-footer"><button class="btn-modal-primary" id="resultsContinueBtn">결과 확인 완료 →</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- ── Prediction Modal ── -->
+	<div class="modal-overlay hidden" id="predictionModal">
+		<div class="modal-card">
+			<button class="modal-close" id="predictionModalClose">✕</button>
+			<div class="modal-title">측정 전 결과 예측</div>
+			<div class="modal-sub">예측을 먼저 해야 측정할 수 있어요. 한 번 제출한 예측은 결과와 비교하기 위해 고정됩니다.</div>
+
+			<p class="sb-note">실험: <strong id="predictionExpLabel">—</strong></p>
+			<p class="sb-note">분석기 배치: <strong id="predictionConfigDesc">—</strong></p>
+			<p class="question-label" id="predictionQuestion">검출기에 도달한 입자 중 두 결과는 각각 몇 %일까요?</p>
+			<div id="predModalWidget"></div>
+			<label class="writing-prompt" for="predReason">한 줄 근거 (선택)</label>
+			<input id="predReason" class="text-input" type="text" maxlength="120" placeholder="예: 중간에 x축 측정을 거치므로 ~" />
+			<p class="sb-note" id="predictionWarn" style="color:#b45309; min-height:16px"></p>
+
+			<div class="modal-footer">
+				<button class="btn-modal-primary" id="predictionSubmitBtn">예측 완료 → 측정 시작</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- ── Principle Modal ── -->
+	<div class="modal-overlay hidden" id="principleModal">
+		<div class="modal-card">
+			<button class="modal-close" id="principleClose">✕</button>
+			<div class="modal-title">원리 보기</div>
+			<div class="modal-sub">슈테른-겔라흐 연속 측정으로 보는 중첩과 측정에 의한 상태 붕괴</div>
+
+			<!-- 1. 빔 분리 -->
+			<div class="help-sec">
+				<div class="help-sec-label">① 분석기는 입자를 두 갈래로 나눠요</div>
+				<figure class="principle-card">
+					<svg viewBox="0 0 380 140" width="100%" style="display:block;margin-bottom:10px" role="img"
+						aria-label="원자 오븐에서 나온 입자가 슬릿을 지나 z축 분석기를 통과하면 위쪽(z↑)과 아래쪽(z↓) 두 경로로만 갈라진다">
+						<defs>
+							<marker id="beamArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+								orient="auto-start-reverse">
+								<path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8" />
+							</marker>
+						</defs>
+						<rect x="10" y="55" width="46" height="36" rx="6" fill="#57534e" />
+						<circle cx="53" cy="73" r="3.5" fill="#ff7a1a" />
+						<text x="33" y="77" font-size="10" fill="white" text-anchor="middle" font-weight="700">오븐</text>
+						<rect x="66" y="55" width="4" height="15" fill="#64748b" />
+						<rect x="66" y="76" width="4" height="15" fill="#64748b" />
+						<text x="68" y="46" font-size="9.5" fill="#64748b" text-anchor="middle" font-weight="700">슬릿</text>
+						<circle cx="88" cy="73" r="5" fill="#94a3b8" />
+						<circle cx="105" cy="73" r="5" fill="#94a3b8" />
+						<circle cx="122" cy="73" r="5" fill="#94a3b8" />
+						<rect x="144" y="30" width="48" height="36" rx="8" fill="#3b82f6" />
+						<rect x="144" y="80" width="48" height="36" rx="8" fill="#d9485f" />
+						<text x="168" y="20" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="700">z축 분석기</text>
+						<text x="168" y="76" font-size="10" fill="#475569" text-anchor="middle">자석</text>
+						<path d="M192 73 C210 73 220 40 236 40" fill="none" stroke="#d9485f" stroke-width="3"
+							stroke-linecap="round" marker-end="url(#beamArrow)" />
+						<circle cx="256" cy="40" r="16" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
+						<text x="256" y="45" font-size="12" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
+						<path d="M192 73 C210 73 220 106 236 106" fill="none" stroke="#3b82f6" stroke-width="3"
+							stroke-linecap="round" marker-end="url(#beamArrow)" />
+						<circle cx="256" cy="106" r="16" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
+						<text x="256" y="111" font-size="12" fill="#3b82f6" text-anchor="middle" font-weight="800">z↓</text>
+						<text x="290" y="70" font-size="10" fill="#64748b">두 갈래뿐,</text>
+						<text x="290" y="83" font-size="10" fill="#64748b">중간은 없음</text>
+					</svg>
+					<figcaption>
+						분석기 안의 불균일한 자기장이 입자를 z↑ 또는 z↓ 두 경로로만 나눕니다(스핀의 양자화). x축 분석기는 같은 원리로 좌우로 나눠요.
+					</figcaption>
+				</figure>
+			</div>
+
+			<!-- 2. 측정 후 상태 -->
+			<div class="help-sec">
+				<div class="help-sec-label">② 측정하면 상태가 측정한 축 방향으로 정해져요</div>
+				<figure class="principle-card">
+					<svg viewBox="0 0 380 110" width="100%" style="display:block;margin-bottom:10px" role="img"
+						aria-label="입자가 z축 분석기에서 z↑로 측정되면 그 뒤로는 z↑ 상태가 되어, 다시 z축으로 재면 항상 z↑가 나온다">
+						<defs>
+							<marker id="collapseArrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+								orient="auto-start-reverse">
+								<path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8" />
+							</marker>
+						</defs>
+						<rect x="6" y="34" width="88" height="42" rx="12" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1.5" />
+						<text x="50" y="59" font-size="10" fill="#64748b" text-anchor="middle" font-weight="700">오븐의 입자</text>
+						<line x1="98" y1="55" x2="128" y2="55" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#collapseArrow2)" />
+						<rect x="140" y="24" width="88" height="62" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
+						<text x="184" y="50" font-size="10" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축 측정</text>
+						<text x="184" y="66" font-size="9" fill="#1d4ed8" text-anchor="middle">z↑ 경로만 통과</text>
+						<line x1="232" y1="55" x2="262" y2="55" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#collapseArrow2)" />
+						<rect x="274" y="24" width="100" height="62" rx="12" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
+						<text x="324" y="48" font-size="11" fill="#d9485f" text-anchor="middle" font-weight="800">z↑ 상태</text>
+						<text x="324" y="66" font-size="9" fill="#94a3b8" text-anchor="middle">다시 z축으로 재면</text>
+						<text x="324" y="78" font-size="9" fill="#94a3b8" text-anchor="middle">→ 항상 z↑ (실험 ①)</text>
+					</svg>
+					<figcaption>
+						z↑로 측정된 입자는 <strong>z↑ 상태</strong>가 됩니다. 그래서 같은 축으로 곧바로 다시 재면 100% z↑가 나와요.
+					</figcaption>
+				</figure>
+			</div>
+
+			<!-- 3. 다른 축 -->
+			<div class="help-sec">
+				<div class="help-sec-label">③ z↑ 입자를 x축으로 재면 반반이에요</div>
+				<figure class="principle-card">
+					<svg viewBox="0 0 380 130" width="100%" style="display:block;margin-bottom:10px" role="img"
+						aria-label="z↑ 입자를 z축으로 다시 재면 z↑ 100%이지만, x축으로 재면 x+와 x−가 각각 50%씩 나온다">
+						<text x="0" y="16" font-size="10.5" fill="#475569" font-weight="700">같은 축 (실험 ① · z↑ → z)</text>
+						<rect x="0" y="24" width="360" height="20" rx="6" fill="#d9485f" />
+						<text x="180" y="38" font-size="11" fill="white" text-anchor="middle" font-weight="800">z↑ 100%</text>
+						<text x="0" y="70" font-size="10.5" fill="#475569" font-weight="700">다른 축 (실험 ② · z↑ → x)</text>
+						<rect x="0" y="78" width="180" height="20" fill="#22c55e" />
+						<text x="90" y="92" font-size="11" fill="white" text-anchor="middle" font-weight="800">x+ 50%</text>
+						<rect x="180" y="78" width="180" height="20" fill="#a855f7" />
+						<text x="270" y="92" font-size="11" fill="white" text-anchor="middle" font-weight="800">x− 50%</text>
+						<text x="180" y="120" font-size="10" fill="#64748b" text-anchor="middle">z↑ 상태는 x축으로 재면 어느 쪽인지 확률로만 정해져요</text>
+					</svg>
+					<figcaption>
+						z↑ 상태는 z축에 대해서는 결과가 확실하지만, <strong>x축에 대해서는</strong> x+·x−가 50%씩 나옵니다. 같은 입자라도 어느 축으로 재느냐에
+						따라 결과가 확실할 수도, 확률적일 수도 있어요.
+					</figcaption>
+				</figure>
+			</div>
+
+			<!-- 4. 중간 측정 -->
+			<div class="help-sec">
+				<div class="help-sec-label">④ 중간 측정이 상태를 바꿔요</div>
+				<figure class="principle-card">
+					<svg viewBox="0 0 420 150" width="100%" style="display:block;margin-bottom:10px" role="img"
+						aria-label="z↑ 입자가 x축 분석기에서 x+로 측정된 뒤 다시 z축으로 측정하면 z↑와 z↓가 다시 50%씩 나온다">
+						<defs>
+							<marker id="eraserArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+								orient="auto-start-reverse">
+								<path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8" />
+							</marker>
+						</defs>
+						<rect x="4" y="52" width="58" height="42" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+						<text x="33" y="70" font-size="9.5" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축</text>
+						<text x="33" y="83" font-size="9" fill="#1d4ed8" text-anchor="middle">↑만 통과</text>
+						<line x1="66" y1="73" x2="94" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
+						<circle cx="112" cy="73" r="14" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
+						<text x="112" y="78" font-size="10.5" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
+						<line x1="126" y1="73" x2="154" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
+						<rect x="164" y="52" width="58" height="42" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5" />
+						<text x="193" y="70" font-size="9.5" fill="#15803d" text-anchor="middle" font-weight="700">x축</text>
+						<text x="193" y="83" font-size="9" fill="#15803d" text-anchor="middle">↑만 통과</text>
+						<line x1="226" y1="73" x2="254" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
+						<circle cx="272" cy="73" r="14" fill="#f0fdf4" stroke="#22c55e" stroke-width="2" />
+						<text x="272" y="78" font-size="10.5" fill="#22c55e" text-anchor="middle" font-weight="800">x+</text>
+						<text x="272" y="104" font-size="9" fill="#d97706" text-anchor="middle">(x−는 차단)</text>
+						<line x1="286" y1="73" x2="314" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
+						<rect x="324" y="52" width="58" height="42" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+						<text x="353" y="70" font-size="9.5" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축</text>
+						<text x="353" y="83" font-size="9" fill="#1d4ed8" text-anchor="middle">전체 통과</text>
+						<circle cx="404" cy="52" r="12" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
+						<text x="404" y="56" font-size="9" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
+						<text x="404" y="34" font-size="9" fill="#d9485f" text-anchor="middle" font-weight="700">50%</text>
+						<circle cx="404" cy="94" r="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
+						<text x="404" y="98" font-size="9" fill="#3b82f6" text-anchor="middle" font-weight="800">z↓</text>
+						<text x="404" y="116" font-size="9" fill="#3b82f6" text-anchor="middle" font-weight="700">50%</text>
+						<text x="210" y="138" font-size="10" fill="#b45309" text-anchor="middle" font-weight="700">x축 측정이 입자의 상태를 z↑에서 x+로 바꿨어요</text>
+					</svg>
+					<figcaption>
+						실험 ①과 ③은 마지막 분석기가 같지만, ③에서는 중간의 x축 측정이 입자의 상태를 <strong>x+로 바꿔 놓았습니다</strong>. x+ 상태를 z축으로
+						재면 다시 반반이 나와요. 반대로 중간에 아무것도 재지 않은 ①에서는 z↑가 그대로였어요 — <strong>측정하지 않으면 상태는 바뀌지 않습니다</strong>. 만약 가설 A처럼 측정이 이미 정해진 값을 <em>확인만</em> 한다면, 처음에 z↑로 골라낸 입자는 마지막에도 모두 z↑여야
+						합니다. 실제로는 z↓가 절반 나왔으므로 <strong>측정은 상태를 바꿉니다</strong>.
+					</figcaption>
+				</figure>
+			</div>
+
+			<!-- 5. 두 경로 합치기 → 중첩 -->
+			<div class="help-sec">
+				<div class="help-sec-label">⑤ 두 경로를 다시 합치면? — 중첩</div>
+				<figure class="principle-card">
+					<svg viewBox="0 0 420 176" width="100%" style="display:block;margin-bottom:10px" role="img"
+						aria-label="z↑ 입자가 x 분석기를 지날 때 한 길을 막으면 마지막 z 측정이 반반이지만, 두 길을 모두 열고 다시 합치면 z↑가 100% 그대로 나온다">
+						<defs>
+							<marker id="mergeArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+								orient="auto-start-reverse">
+								<path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8" />
+							</marker>
+						</defs>
+						<!-- ③ 한 길 막기 -->
+						<text x="0" y="14" font-size="10.5" font-weight="700" fill="#475569">실험 ③ · 한 길을 막음 (어느 길로 갔는지 확인)</text>
+						<circle cx="18" cy="50" r="12" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
+						<text x="18" y="54" font-size="9.5" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
+						<rect x="40" y="34" width="44" height="32" rx="7" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5" />
+						<text x="62" y="54" font-size="9.5" fill="#15803d" text-anchor="middle" font-weight="700">x축</text>
+						<path d="M84 50 C104 50 112 30 134 30" fill="none" stroke="#22c55e" stroke-width="2.4" />
+						<path d="M84 50 C104 50 112 70 126 70" fill="none" stroke="#a855f7" stroke-width="2.4" stroke-dasharray="3 3" />
+						<rect x="127" y="62" width="10" height="16" fill="#f97316" />
+						<line x1="134" y1="30" x2="196" y2="30" stroke="#22c55e" stroke-width="2.4" marker-end="url(#mergeArrow)" />
+						<rect x="200" y="14" width="44" height="32" rx="7" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+						<text x="222" y="34" font-size="9.5" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축</text>
+						<line x1="246" y1="30" x2="266" y2="30" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#mergeArrow)" />
+						<rect x="270" y="18" width="75" height="24" fill="#d9485f" />
+						<rect x="345" y="18" width="75" height="24" fill="#3c82f6" />
+						<text x="307" y="34" font-size="10" fill="white" text-anchor="middle" font-weight="800">z↑ 50%</text>
+						<text x="382" y="34" font-size="10" fill="white" text-anchor="middle" font-weight="800">z↓ 50%</text>
+
+						<!-- ④ 두 길 합치기 -->
+						<text x="0" y="104" font-size="10.5" font-weight="700" fill="#475569">실험 ④ · 두 길을 다 열고 다시 합침 (확인하지 않음)</text>
+						<circle cx="18" cy="140" r="12" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
+						<text x="18" y="144" font-size="9.5" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
+						<rect x="40" y="124" width="44" height="32" rx="7" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5" />
+						<text x="62" y="144" font-size="9.5" fill="#15803d" text-anchor="middle" font-weight="700">x축</text>
+						<path d="M84 140 C110 140 120 118 146 118 C172 118 182 140 196 140" fill="none" stroke="#94a3b8" stroke-width="2.4" />
+						<path d="M84 140 C110 140 120 162 146 162 C172 162 182 140 196 140" fill="none" stroke="#94a3b8" stroke-width="2.4" />
+						<rect x="200" y="124" width="44" height="32" rx="7" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+						<text x="222" y="144" font-size="9.5" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축</text>
+						<line x1="246" y1="140" x2="266" y2="140" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#mergeArrow)" />
+						<rect x="270" y="128" width="150" height="24" fill="#d9485f" />
+						<text x="345" y="144" font-size="10" fill="white" text-anchor="middle" font-weight="800">z↑ 100%</text>
+						<text x="146" y="174" font-size="9.5" fill="#b45309" text-anchor="middle" font-weight="700">두 길을 함께 지남</text>
+					</svg>
+					<figcaption>
+						<p>입자가 x+나 x− 중 <strong>한 길로만</strong> 지났다면, 어느 길이든 z로 재면 반반이니(실험 ③) 두 길을 합쳐도 z↑는 50%여야
+							해요. 하지만 실험 ④에서는 <strong>z↑가 100% 그대로</strong> 나왔어요. 그러니 입자는 한 길로만 지난 것이 아니라, 두 길을
+							<strong>함께</strong> 지난 상태였어요.</p>
+						<p>이처럼 <strong>둘 이상의 서로 다른 상태(여기서는 x+와 x−)가 하나의 상태 안에 겹쳐 있는 것</strong>을 <strong>중첩</strong>이라고
+							해요. z↑ 입자는 x에 대해 x+와 x−의 중첩이에요.</p>
+						<p>그런데 한 길을 막아 <strong>어느 길로 갔는지 확인하면</strong>(실험 ③), 그 순간 입자는 한 길로 정해지고 z 결과는 다시 반반이 돼요.
+							이것이 <strong>측정에 의한 상태 붕괴</strong>예요. 반대로 확인하지 않으면(실험 ④) 중첩이 그대로 유지되어 붕괴하지 않아요.</p>
+						<p class="principle-aside">생각 더하기 · 실제 장치에서 두 경로를 흐트러짐 없이 다시 합치기는 매우 어려워서, 실험 ④는
+							물리학자들이 생각으로 해 보는 <em>사고실험</em>이에요. 빛이나 전자의 간섭 실험에서는 같은 원리가 실제로 확인됩니다.</p>
+					</figcaption>
+				</figure>
+			</div>
+
+			<div class="modal-footer">
+				<button class="btn-modal-sub" id="principleCancel">닫기</button>
+			</div>
+		</div>
+	</div>
+
+
+	<script type="module">
+		import * as THREE from "three";
+		import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+		// ── UI References ──
+		const ui = {
+			sourcePreset: document.getElementById("sourcePreset"),
+			axisA: document.getElementById("axisA"),
+			axisB: document.getElementById("axisB"),
+			axisC: document.getElementById("axisC"),
+			filterA: document.getElementById("filterA"),
+			filterB: document.getElementById("filterB"),
+			filterC: document.getElementById("filterC"),
+			captionBox: document.getElementById("captionBox"),
+			previewStatus: document.getElementById("previewStatus"),
+			hudReportStatus: document.getElementById("hudReportStatus"),
+			fullscreenBtn: document.getElementById("fullscreenBtn"),
+			resetViewBtn: document.getElementById("resetViewBtn"),
+			predReason: document.getElementById("predReason"),
+			predictionConfigDesc: document.getElementById("predictionConfigDesc"),
+			predictionWarn: document.getElementById("predictionWarn"),
+			predictionSubmitBtn: document.getElementById("predictionSubmitBtn"),
+			predictionModalClose: document.getElementById("predictionModalClose"),
+			runLogEmpty: document.getElementById("runLogEmpty"),
+			runLogTable: document.getElementById("runLogTable"),
+		};
+
+		// ── Constants ──
+		const axisLabels = { none: "꺼짐", z: "z축", x: "x축" };
+		const filterLabels = { both: "전체 통과", plus: "↑ 경로만", minus: "↓ 경로만", merge: "두 경로 다시 합침" };
+		// 결과 표기: z축은 위·아래(↑·↓), x축은 오른쪽·왼쪽(+·−). 실험 이름에 →를 순서 표시로 쓰므로
+		// x 결과까지 화살표로 쓰면 "z↑ → x→ → z"처럼 헷갈려 +·−로 씁니다.
+		const SIGN_MARK = { z: { plus: "↑", minus: "↓" }, x: { plus: "+", minus: "−" } };
+		const signMark = (axis, sign) => (SIGN_MARK[axis] || SIGN_MARK.z)[sign] || "";
+		const outcomeLabel = (axis, sign) => axis + signMark(axis, sign);
+		const filterLabel = (axis, filter) => filter === "both" || filter === "merge" ? filterLabels[filter] : signMark(axis, filter) + " 경로만";
+		// 결과표/그래프에서 각 조건이 ③ 자료 수집의 몇 번 실험이었는지 표시하기 위한 라벨.
+		const experimentLabels = {
+			sameAxis: "① 같은 축", basisChange: "② 다른 축",
+			collapse: "③ 중간 측정 추가", recombine: "④ 두 경로 합치기", free: "⑤ 자유 탐구"
+		};
+		const SPIN_COLORS = {
+			z: {
+				plus: { hex: 0xd9485f, cssHex: "#d9485f" },
+				minus: { hex: 0x3c82f6, cssHex: "#3c82f6" },
+			},
+			x: {
+				plus: { hex: 0x22c55e, cssHex: "#22c55e" },
+				minus: { hex: 0xa855f7, cssHex: "#a855f7" },
+			},
+		};
+		const LOST_COLOR = { hex: 0xd97706, cssHex: "#d97706" };
+		const GRAY_COLOR = { hex: 0x909090, cssHex: "#909090" };
+
+		// ③ 자료 수집의 정해진 실험 ①~④. 예측·결과는 분석기 배치(signature) 단위로 기록하므로,
+		// 2단계에서 적은 ②·③ 예측도 같은 signature로 저장해 ③ 단계 측정에 그대로 이어 씁니다.
+		const PRESETS = {
+			sameAxis: { src: "mixed", aA: "z", fA: "plus", aB: "z", fB: "both", aC: "none", fC: "both" },
+			basisChange: { src: "mixed", aA: "z", fA: "plus", aB: "x", fB: "both", aC: "none", fC: "both" },
+			// B는 마지막 활성 분석기가 아니므로(C가 마지막) +만 통과하도록 설정합니다.
+			collapse: { src: "mixed", aA: "z", fA: "plus", aB: "x", fB: "plus", aC: "z", fC: "both" },
+			// ④ 사고실험: x 분석기에서 두 경로를 모두 열어 두고, 어느 길로 갔는지 확인하지 않은 채 다시 합칩니다.
+			recombine: { src: "mixed", aA: "z", fA: "plus", aB: "x", fB: "merge", aC: "z", fC: "both" },
+		};
+		const presetAnalyzers = p => [{ axis: p.aA, filter: p.fA }, { axis: p.aB, filter: p.fB }, { axis: p.aC, filter: p.fC }];
+		const sigOf = analyzers => JSON.stringify(analyzers.map(a => [a.axis, a.axis === "none" ? "both" : a.filter]));
+		const lastAxisOf = analyzers => [...analyzers].reverse().find(a => a.axis !== "none")?.axis || "z";
+		const PRESET_SIGS = Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, sigOf(presetAnalyzers(p))]));
+		const FINAL_AXIS = Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, lastAxisOf(presetAnalyzers(p))]));
+		const hypothesisLabels = { A: "가설 A — z↑ 입자의 x 결과는 재기 전에 이미 정해져 있다", B: "가설 B — z↑ 입자의 x 결과는 재는 순간 정해진다" };
+		const hypothesisLabel = v => hypothesisLabels[v] || "미선택";
+
+		// Scene layout constants
+		const GEO = {
+			sourceZ: -8,
+			detectorZ: 8,
+			analyzerZs: [-4, 0, 4],
+			ySpread: 1.4,
+			xSpread: 1.4,
+			approachDist: 1.0,
+			// 두 경로 합침 장치가 경로를 다시 모으는 지점(분석기 중심으로부터의 거리)
+			mergeDist: 2.6,
+		};
+
+		// 1000개를 5초 안에 다 쏘도록: 1000 / 5 = 초당 200개.
+		const TOTAL_SHOTS = 1000;
+		const EMIT_RATE = 200; // 초당 발사 개수
+		// 실험마다 1,000개씩 3회 측정해 합산합니다.
+		const REPEAT_COUNT = 3;
+
+		// Default camera settings
+		const CAM_DEFAULT = { x: 9, y: 7, z: 12 };
+
+		// ── Game State ──
+		const state = {
+			running: false,
+			paused: false,
+			simTime: 1,
+			singleMode: false,
+			runKind: "idle",
+			repeatsLeft: 0,
+			seriesTotal: 0,
+			runContext: null,
+			predictions: {},
+			observationTotals: { emitted: 0, plus: 0, minus: 0, lost: 0 },
+			observationStats: Array.from({ length: 3 }, () => ({ entered: 0, plus: 0, minus: 0, passed: 0, blocked: 0 })),
+			analyzerStats: Array.from({ length: 3 }, () => ({ entered: 0, plus: 0, minus: 0, passed: 0, blocked: 0 })),
+			emitted: 0,
+			detectedPlus: 0,
+			detectedMinus: 0,
+			lost: 0,
+			activeParticles: [],
+			puffs3D: [],
+			emissionAccumulator: 0,
+			lastTime: 0,
+			runSettled: true,
+			theory: { plus: 0.5, minus: 0.5, lost: 0 },
+			predictedSignature: null,
+			prediction: null,
+			pendingRunSig: null,
+			runLog: [],
+			reviewedResults: {},
+			// 측정을 시작한 배치의 예측은 고정합니다(결과를 본 뒤 예측을 고치지 못하도록).
+			lockedSigs: new Set(),
+			// 핵심 추론: 학생의 예상과, 비교에 쓴 내 측정값(x+ 입자·z↑ 입자를 z로 잰 결과)
+			mixtureTest: null,
+			// 원리 보기를 처음 열 때의 판단(원리를 보기 전 판단을 보고서에 남기기 위함)
+			judgmentSnapshot: null,
+			// 저장하지 않은 기록이 있는지 (창을 닫을 때 경고)
+			dirty: false,
+		};
+
+		// ── Quantum Physics Helpers ──
+		function angleForSource(source) {
+			return source === "z+" ? 0 : source === "x+" ? 90 : source === "z-" ? 180 : source === "x-" ? 270 : null;
+		}
+		function angleForAxis(axis) { return axis === "x" ? 90 : 0; }
+		function normalizeAngle(a) { let o = a % 360; return o < 0 ? o + 360 : o; }
+		function cosSqHalfDiff(a, b) {
+			const diff = ((normalizeAngle(a) - normalizeAngle(b) + 540) % 360) - 180;
+			const c = Math.cos(diff * Math.PI / 360);
+			return c * c;
+		}
+		function passesFilter(filter, sign) { return filter === "both" || filter === sign; }
+		function pctText(v) { return `${Math.round(v * 100)}%`; }
+		function measurementStep(angle, axis) {
+			const axA = angleForAxis(axis);
+			const pP = angle === null ? 0.5 : cosSqHalfDiff(angle, axA);
+			const sign = Math.random() < pP ? "plus" : "minus";
+			return { sign, nextStateAngle: normalizeAngle(sign === "plus" ? axA : axA + 180) };
+		}
+
+		function theoreticalOutcome(settings) {
+			let branches = [{ probability: 1, stateAngle: angleForSource(settings.source), lost: false }];
+			settings.analyzers.forEach(({ axis, filter }) => {
+				if (axis === "none") return;
+				const next = [];
+				branches.forEach(br => {
+					// 이미 이전 분석기에서 차단된 분기는 다음 분석기를 통과하지 않으므로 다시
+					// 측정하지 않고 그대로(차단된 상태로) 넘깁니다 — 그렇지 않으면 이미 없어진
+					// 입자가 다음 분석기에서 되살아난 것처럼 확률이 잘못 계산됩니다.
+					if (br.lost) { next.push(br); return; }
+					// 두 경로를 합치면 어느 길로 갔는지 측정하지 않으므로 상태가 그대로 유지됩니다.
+					if (filter === "merge") { next.push(br); return; }
+					const axA = angleForAxis(axis);
+					const pP = br.stateAngle === null ? 0.5 : cosSqHalfDiff(br.stateAngle, axA);
+					[{ sign: "plus", p: pP, angle: axA }, { sign: "minus", p: 1 - pP, angle: axA + 180 }].forEach(o => {
+						if (o.p <= 1e-6) return;
+						next.push({
+							probability: br.probability * o.p, stateAngle: normalizeAngle(o.angle),
+							lastSign: o.sign, lost: !passesFilter(filter, o.sign)
+						});
+					});
+				});
+				branches = next;
+			});
+			let plus = 0, minus = 0, lost = 0;
+			branches.forEach(br => {
+				if (br.lost) lost += br.probability;
+				else if (br.lastSign === "plus") plus += br.probability;
+				else if (br.lastSign === "minus") minus += br.probability;
+				else { plus += br.probability * 0.5; minus += br.probability * 0.5; }
+			});
+			const t = plus + minus + lost || 1;
+			return { plus: plus / t, minus: minus / t, lost: lost / t };
+		}
+
+
+		// ── Settings Helpers ──
+		function getSettings() {
+			return {
+				source: ui.sourcePreset.value,
+				shots: TOTAL_SHOTS,
+				speed: EMIT_RATE,
+				analyzers: [
+					{ key: "A", axis: ui.axisA.value, filter: ui.filterA.value },
+					{ key: "B", axis: ui.axisB.value, filter: ui.filterB.value },
+					{ key: "C", axis: ui.axisC.value, filter: ui.filterC.value },
+				]
+			};
+		}
+
+		// 분석기 축·필터 조합이 바뀌면 새 예측이 필요하도록, 현재 설정을 문자열로 요약합니다.
+		function settingsSignature() {
+			return sigOf(getSettings().analyzers);
+		}
+
+		function configDescription() {
+			const s = getSettings();
+			const active = s.analyzers.filter(a => a.axis !== "none")
+				.map(a => `${axisLabels[a.axis]}(${filterLabel(a.axis, a.filter)})`).join(" → ");
+			return active || "분석기 없음";
+		}
+
+		function setRunStatus(text) {
+			ui.hudReportStatus.textContent = text;
+		}
+
+		function conclusionChoiceValue() {
+			return document.querySelector('input[name="conclusionChoice"]:checked')?.value;
+		}
+
+		function applyConfiguration(config) {
+			ui.sourcePreset.value = config.src;
+			ui.axisA.value = config.aA; ui.filterA.value = config.fA;
+			ui.axisB.value = config.aB; ui.filterB.value = config.fB;
+			ui.axisC.value = config.aC; ui.filterC.value = config.fC;
+			state.running = false;
+			syncLabels();
+			recomputeTheory();
+			clearRunState();
+			rebuildScene3D();
+		}
+
+		// ── UI Sync ──
+		// 규칙: 분석기가 2개 이상 켜져 있을 때, 검출기(C 쪽)에 가장 가까운 활성 분석기를 제외한
+		// 나머지는 반드시 +만 또는 −만 통과하도록 강제합니다. 그래야 다음 분석기로 넘어갈 입자가
+		// 하나의 경로로 정해집니다(둘 다 열려 있으면 다음 분석기로 보낼 입자를 정할 수 없습니다).
+		function enforceSequentialFilterRule() {
+			const axisSelects = [ui.axisA, ui.axisB, ui.axisC];
+			const filterSelects = [ui.filterA, ui.filterB, ui.filterC];
+			const activeIdx = axisSelects.map((el, i) => el.value !== "none" ? i : -1).filter(i => i >= 0);
+			const lastActive = activeIdx.length ? activeIdx[activeIdx.length - 1] : -1;
+
+			filterSelects.forEach((sel, i) => {
+				const isIntermediate = activeIdx.includes(i) && i !== lastActive;
+				const bothOption = sel.querySelector('option[value="both"]');
+				if (bothOption) bothOption.disabled = isIntermediate;
+				if (isIntermediate && sel.value === "both") sel.value = "plus";
+				// '두 경로 합침'은 뒤에 분석기가 있어야 의미가 있으므로 마지막 분석기에서는 전체 통과로 되돌립니다.
+				const mergeOption = sel.querySelector('option[value="merge"]');
+				if (mergeOption) mergeOption.disabled = !isIntermediate;
+				if (!isIntermediate && sel.value === "merge") sel.value = "both";
+			});
+		}
+
+		function syncLabels() {
+			ui.filterB.disabled = ui.axisB.value === "none";
+			ui.filterC.disabled = ui.axisC.value === "none";
+			enforceSequentialFilterRule();
+			updateControlLocks();
+		}
+
+		function syncAfterSettingsChange() {
+			if (!state.runSettled) return;
+			clearRunState();
+			syncLabels();
+			recomputeTheory();
+			rebuildScene3D();
+			updateExperimentGuide();
+			setRunStatus("설정 변경됨");
+
+		}
+
+		function updateReadouts() {
+			updateObservationReadout();
+			updateAnalyzerCards();
+			// 측정 전에는 예측을 먼저 하도록 안내하고, 측정한 뒤에는 결과 보기로 안내합니다.
+			// (이론값은 화면에 띄우지 않습니다 — 학생이 직접 측정한 결과로 판단하게 합니다.)
+			const sig = settingsSignature();
+			const measured = state.runLog.some(r => r.signature === sig);
+			ui.captionBox.textContent = `${configDescription()} · ${measured ? "측정 완료 — ‘조건별 측정 결과 보기’에서 결과를 확인하세요" : "결과를 먼저 예측한 뒤 측정해 보세요"}`;
+		}
+
+		function recomputeTheory() {
+			state.theory = theoreticalOutcome(getSettings());
+			updateReadouts();
+		}
+
+		function clearRunState() {
+			state.running = false;
+			state.paused = false;
+			state.singleMode = false;
+			state.runKind = "idle";
+			state.repeatsLeft = 0;
+			state.observationTotals = { emitted: 0, plus: 0, minus: 0, lost: 0 };
+			state.observationStats = Array.from({ length: 3 }, () => ({ entered: 0, plus: 0, minus: 0, passed: 0, blocked: 0 }));
+			state.simTime = 1;
+			state.analyzerStats = Array.from({ length: 3 }, () => ({ entered: 0, plus: 0, minus: 0, passed: 0, blocked: 0 }));
+			// Remove all active particle objects from scene
+			for (const p of state.activeParticles) removeParticle3D(p);
+			state.activeParticles = [];
+			for (const puff of state.puffs3D) { scene.remove(puff.mesh); puff.mesh.geometry.dispose(); puff.mesh.material.dispose(); }
+			state.puffs3D = [];
+
+			state.emitted = 0;
+			state.detectedPlus = 0;
+			state.detectedMinus = 0;
+			state.lost = 0;
+			state.emissionAccumulator = 0;
+			state.runSettled = true;
+			syncLabels();
+			updateReadouts();
+		}
+
+		function beginMeasurement(repeats = REPEAT_COUNT, context = null) {
+			const savedContext = context || {
+				signature: settingsSignature(), desc: configDescription(),
+				experiment: document.getElementById("experimentPlan").value,
+				settings: getSettings().analyzers.map(a => ({ ...a })),
+				pred: state.prediction ? { ...state.prediction } : null
+			};
+			if (!context) {
+				state.lockedSigs.add(savedContext.signature);
+				syncStep2Widgets();
+			}
+			clearRunState();
+			state.runContext = savedContext;
+			state.repeatsLeft = repeats;
+			if (!context) state.seriesTotal = repeats;
+			state.runKind = "measure";
+			state.running = true;
+			state.runSettled = false;
+			state.lastTime = 0;
+			setRunStatus("측정 중 · " + (state.seriesTotal - repeats + 1) + "/" + state.seriesTotal + "회");
+			updateControlLocks();
+
+		}
+
+		function requestRun({ resetFirst = false, single = false } = {}) {
+			if (single) {
+				if (state.runSettled) {
+					state.runKind = "observe";
+					state.singleMode = true;
+					state.running = false;
+					state.paused = false;
+					state.runSettled = false;
+				}
+				spawnParticle3D(true);
+				updateControlLocks();
+				return;
+			}
+			if (state.runKind === "measure" && !state.runSettled && !resetFirst) {
+				state.paused = false;
+				state.running = true;
+				state.lastTime = 0;
+				updateControlLocks();
+				return;
+			}
+			// 관찰·미리보기 입자는 정식 측정을 시작하기 전에 모두 정리합니다.
+			clearRunState();
+			const sig = settingsSignature();
+			state.pendingRunSig = sig;
+			if (state.predictions[sig]) {
+				state.prediction = { ...state.predictions[sig] };
+				state.predictedSignature = sig;
+				beginMeasurement();
+				return;
+			}
+			const axis = lastAxisOf(getSettings().analyzers);
+			const plan = document.getElementById("experimentPlan").value;
+			document.getElementById("predictionExpLabel").textContent = experimentLabels[plan] || plan;
+			ui.predictionConfigDesc.textContent = configDescription();
+			document.getElementById("predictionQuestion").textContent =
+				`검출기에 도달한 입자 중 최종 ${outcomeLabel(axis, "plus")}와 ${outcomeLabel(axis, "minus")}는 각각 몇 %일까요? (중간에 차단된 입자는 빼고 생각해요)`;
+			modalPredWidget.reset();
+			modalPredWidget.setAxis(axis);
+			ui.predReason.value = "";
+			ui.predictionWarn.textContent = "";
+			openModal("predictionModal");
+			modalPredWidget.focus();
+		}
+
+		function submitPrediction() {
+			const v = modalPredWidget.value;
+			if (v === null) {
+				ui.predictionWarn.textContent = "막대를 움직이거나 아래 버튼을 눌러 비율을 먼저 정해 주세요.";
+				return;
+			}
+			state.prediction = { plus: v, minus: 100 - v, reason: ui.predReason.value.trim(), source: "modal" };
+			state.predictedSignature = state.pendingRunSig;
+			state.predictions[state.pendingRunSig] = { ...state.prediction };
+			state.dirty = true;
+			closeModal("predictionModal");
+			beginMeasurement();
+		}
+
+		// ── 예측 막대 위젯 ──
+		// 검출기에 도달한 입자 중 ↑ 비율(0~100%)을 막대·슬라이더·빠른 선택 버튼으로 정합니다.
+		// ↓ 비율은 100 − ↑ 로 자동으로 정해지므로 "합이 100" 계산 부담 없이 막대 길이로 예상합니다.
+		// 아직 고르지 않은 상태(value = null)는 회색 빗금 막대로 보여 줍니다.
+		function createPredWidget(container, { name, onChange } = {}) {
+			const chips = [0, 25, 50, 75, 100];
+			container.innerHTML = '<div class="pw" data-set="false">' +
+				'<div class="pw-bar" aria-hidden="true"><div class="pw-plus"></div><div class="pw-minus"></div></div>' +
+				'<div class="pw-read"><span class="pw-plus-t"></span><span class="pw-minus-t"></span></div>' +
+				'<input type="range" min="0" max="100" step="5" value="50">' +
+				'<div class="pw-chips">' + chips.map(v => '<button type="button" data-v="' + v + '">' + v + '%</button>').join("") + '</div></div>';
+			const root = container.firstElementChild;
+			const range = root.querySelector("input");
+			const plusEl = root.querySelector(".pw-plus"), minusEl = root.querySelector(".pw-minus");
+			let axis = "z", value = null;
+			function paint() {
+				const c = SPIN_COLORS[axis];
+				root.dataset.set = String(value !== null);
+				plusEl.style.width = (value ?? 0) + "%";
+				minusEl.style.width = (value === null ? 0 : 100 - value) + "%";
+				plusEl.style.background = c.plus.cssHex;
+				minusEl.style.background = c.minus.cssHex;
+				root.querySelector(".pw-plus-t").textContent = outcomeLabel(axis, "plus") + " " + (value === null ? "?" : value + "%");
+				root.querySelector(".pw-minus-t").textContent = outcomeLabel(axis, "minus") + " " + (value === null ? "?" : (100 - value) + "%");
+				root.querySelector(".pw-plus-t").style.color = c.plus.cssHex;
+				root.querySelector(".pw-minus-t").style.color = c.minus.cssHex;
+				range.setAttribute("aria-label", (name ? name + " · " : "") + "예상 " + outcomeLabel(axis, "plus") + " 비율(%)");
+				if (value !== null) range.value = value;
+				root.querySelectorAll(".pw-chips button").forEach(b => {
+					b.setAttribute("aria-pressed", String(Number(b.dataset.v) === value));
+					b.setAttribute("aria-label", outcomeLabel(axis, "plus") + " " + b.dataset.v + "%");
+				});
+			}
+			function set(v, fire) {
+				value = v;
+				paint();
+				if (fire && onChange) onChange(v);
+			}
+			range.addEventListener("input", () => set(Number(range.value), true));
+			root.querySelectorAll(".pw-chips button").forEach(b => b.addEventListener("click", () => set(Number(b.dataset.v), true)));
+			paint();
+			return {
+				get value() { return value; },
+				set(v) { set(v, false); },
+				setAxis(a) { axis = a; paint(); },
+				setLocked(locked) {
+					range.disabled = locked;
+					root.querySelectorAll(".pw-chips button").forEach(b => { b.disabled = locked; });
+					root.classList.toggle("locked", locked);
+				},
+				reset() { value = null; range.value = 50; paint(); },
+				focus() { range.focus(); },
+			};
+		}
+
+		// ② 가설 설정의 실험 ②·③ 예측. 여기서 정한 값이 곧 ③ 단계 측정 전 예측이 됩니다.
+		const step2Widgets = {};
+		let modalPredWidget = null;
+
+		function initPredWidgets() {
+			[["sameAxis", "predSameAxis"], ["basisChange", "predBasisChange"]].forEach(([key, id]) => {
+				const sig = PRESET_SIGS[key];
+				const widget = createPredWidget(document.getElementById(id), {
+					name: experimentLabels[key],
+					onChange: v => {
+						if (state.lockedSigs.has(sig)) return;
+						state.predictions[sig] = { plus: v, minus: 100 - v, reason: "", source: "step2" };
+						state.dirty = true;
+						updateGates();
+						updateCollectionAction();
+					}
+				});
+				widget.setAxis(FINAL_AXIS[key]);
+				step2Widgets[key] = widget;
+			});
+			modalPredWidget = createPredWidget(document.getElementById("predModalWidget"), { name: "측정 전 예측" });
+		}
+
+		function syncStep2Widgets() {
+			let anyLocked = false;
+			for (const [key, widget] of Object.entries(step2Widgets)) {
+				const sig = PRESET_SIGS[key];
+				const p = state.predictions[sig];
+				if (p) widget.set(p.plus); else widget.reset();
+				const locked = state.lockedSigs.has(sig);
+				widget.setLocked(locked);
+				anyLocked ||= locked;
+			}
+			document.getElementById("predLockNote").hidden = !anyLocked;
+		}
+
+		function step2Ready() {
+			const predsFilled = ["sameAxis", "basisChange"].every(k => state.predictions[PRESET_SIGS[k]]);
+			return predsFilled && document.getElementById("hypothesisNote").value.trim() !== "";
+		}
+
+		function renderRunLog() {
+			ui.runLogEmpty.style.display = state.runLog.length ? "none" : "";
+			document.getElementById("runLogExpandBtn").hidden = !state.runLog.length;
+			ui.runLogTable.innerHTML = resultsMiniHTML();
+			document.getElementById("expandedResults").innerHTML = resultsChartHTML();
+			updateExperimentGuide();
+			renderMixtureTest();
+			renderEvidence();
+			updateReadouts();
+		}
+
+		function applyPreset(name) {
+			if (!state.runSettled) return;
+			const p = PRESETS[name];
+			if (!p) return;
+			document.getElementById("experimentPlan").value = name;
+			applyConfiguration({ ...p, shots: TOTAL_SHOTS, speed: EMIT_RATE });
+			setRunStatus("조건 준비됨");
+			updateExperimentGuide();
+		}
+
+		// ── Three.js Scene Setup ──
+		const canvas3D = document.getElementById("threeCanvas");
+		const renderer = new THREE.WebGLRenderer({ canvas: canvas3D, antialias: true });
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		renderer.toneMappingExposure = 1.2;
+		renderer.setClearColor(0xffffff);
+
+		const scene = new THREE.Scene();
+		scene.background = new THREE.Color(0xffffff);
+		scene.fog = new THREE.Fog(0xffffff, 35, 90);
+
+		const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
+		camera.position.set(CAM_DEFAULT.x, CAM_DEFAULT.y, CAM_DEFAULT.z);
+		camera.lookAt(0, 0, 0);
+
+		const controls = new OrbitControls(camera, renderer.domElement);
+		controls.target.set(0, 0, 0);
+		controls.enableDamping = true;
+		controls.dampingFactor = 0.08;
+		controls.minDistance = 4;
+		controls.maxDistance = 40;
+
+		// Resize handler
+		function resizeRenderer() {
+			const w = canvas3D.clientWidth;
+			const h = canvas3D.clientHeight;
+			if (renderer.domElement.width !== w * devicePixelRatio ||
+				renderer.domElement.height !== h * devicePixelRatio) {
+				renderer.setSize(w, h, false);
+				camera.aspect = w / h;
+				camera.updateProjectionMatrix();
+			}
+		}
+
+		// ── Lighting ──
+		scene.add(new THREE.AmbientLight(0xffffff, 2.0));
+
+		const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.8);
+		dirLight1.position.set(5, 8, 5);
+		dirLight1.castShadow = true;
+		scene.add(dirLight1);
+
+		const dirLight2 = new THREE.DirectionalLight(0xe8eeff, 0.8);
+		dirLight2.position.set(-8, 3, -5);
+		scene.add(dirLight2);
+
+		// ── Static Scene Objects ──
+		// Floor grid
+		const floorMesh = new THREE.Mesh(
+			new THREE.PlaneGeometry(30, 30),
+			new THREE.MeshStandardMaterial({ color: 0xeef2f7, roughness: 0.85, metalness: 0.0 })
+		);
+		floorMesh.rotation.x = -Math.PI / 2;
+		floorMesh.position.y = -2.5;
+		floorMesh.receiveShadow = true;
+		scene.add(floorMesh);
+
+		// Source — 슈테른-겔라흐 실험처럼 원자 오븐에서 나온 원자가 슬릿 두 장을 지나 가는 빔이 됩니다.
+		const OVEN_FRONT_Z = GEO.sourceZ + 0.7;
+		const ovenBody = new THREE.Mesh(
+			new THREE.BoxGeometry(1.6, 1.6, 1.8),
+			new THREE.MeshStandardMaterial({ color: 0x57534e, roughness: 0.55, metalness: 0.6 })
+		);
+		ovenBody.position.set(0, 0, OVEN_FRONT_Z - 0.9);
+		ovenBody.castShadow = true;
+		scene.add(ovenBody);
+		// 오븐 앞면의 달궈진 출구 (animateSource가 맥동시킴)
+		const sourceMesh = new THREE.Mesh(
+			new THREE.CylinderGeometry(0.22, 0.22, 0.06, 20),
+			new THREE.MeshStandardMaterial({ color: 0xff7a1a, emissive: 0xff6a00, emissiveIntensity: 1.1, roughness: 0.3 })
+		);
+		sourceMesh.rotation.x = Math.PI / 2;
+		sourceMesh.position.set(0, 0, OVEN_FRONT_Z + 0.02);
+		scene.add(sourceMesh);
+
+		const sourceLight = new THREE.PointLight(0xff7a1a, 1.5, 4);
+		sourceLight.position.set(0, 0, OVEN_FRONT_Z + 0.4);
+		scene.add(sourceLight);
+
+		// 슬릿: 가운데에 작은 구멍이 뚫린 판 두 장 (콜리메이터)
+		const SLIT_ZS = [GEO.sourceZ + 1.6, GEO.sourceZ + 2.4];
+		const slitMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.5, metalness: 0.5 });
+		SLIT_ZS.forEach(z => {
+			const size = 1.2, hole = 0.2, t = 0.06, side = (size - hole) / 2;
+			[[0, (hole + side) / 2, size, side], [0, -(hole + side) / 2, size, side],
+			[(hole + side) / 2, 0, side, hole], [-(hole + side) / 2, 0, side, hole]].forEach(([x, y, w, h]) => {
+				const plate = new THREE.Mesh(new THREE.BoxGeometry(w, h, t), slitMat);
+				plate.position.set(x, y, z);
+				scene.add(plate);
+			});
+		});
+
+		// Source label sprite
+		function makeTextSprite(text, color = 0x111111, size = 0.5) {
+			const canvas = document.createElement("canvas");
+			canvas.width = 256; canvas.height = 96;
+			const ctx = canvas.getContext("2d");
+			ctx.clearRect(0, 0, 256, 96);
+			ctx.font = "bold 54px 'Malgun Gothic', Arial, sans-serif";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			// White halo for readability on any background
+			ctx.strokeStyle = "rgba(255,255,255,0.95)";
+			ctx.lineWidth = 8;
+			ctx.lineJoin = "round";
+			ctx.strokeText(text, 128, 48);
+			ctx.fillStyle = `#${color.toString(16).padStart(6, "0")}`;
+			ctx.fillText(text, 128, 48);
+			const tex = new THREE.CanvasTexture(canvas);
+			const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+			const sprite = new THREE.Sprite(mat);
+			sprite.scale.set(size * 3, size * 1.2, 1);
+			return sprite;
+		}
+
+		const sourceLbl = makeTextSprite("원자 오븐", 0x9a3412, 0.8);
+		sourceLbl.position.set(0, 1.5, GEO.sourceZ - 0.2);
+		scene.add(sourceLbl);
+		const slitLbl = makeTextSprite("슬릿", 0x475569, 0.6);
+		slitLbl.position.set(0, 1.0, (SLIT_ZS[0] + SLIT_ZS[1]) / 2);
+		scene.add(slitLbl);
+
+		// Beam rail
+		const railGeo = new THREE.BufferGeometry().setFromPoints([
+			new THREE.Vector3(0, 0, OVEN_FRONT_Z),
+			new THREE.Vector3(0, 0, GEO.detectorZ - 0.5)
+		]);
+		const railMat = new THREE.LineBasicMaterial({ color: 0x334466, transparent: true, opacity: 0.3 });
+		scene.add(new THREE.Line(railGeo, railMat));
+
+		// Detector — 위치가 고정되어 있지 않고, 마지막 활성 분석기의 중앙과 같은 (x, y)로
+		// 매번 다시 그려집니다(rebuildScene3D에서 buildDetector3D 호출). 자세한 이유는
+		// rebuildScene3D 근처 주석을 참고하세요.
+		let detectorGroup = null;
+		let detectorArrowGroup = null;
+		let detectorAxisLbl = null;
+		let detectorArrowAxis = "z";
+		const DETECTOR_ARROW_LEN = 2.1;
+		const DETECTOR_ARROW_NEUTRAL = 0x8ea1b7;
+
+		// 검출기 화살표를 실제 측정 결과(sign)에 맞춰 갱신합니다. THREE.ArrowHelper의 방향은
+		// 항상 "기준 축(+y 혹은 +x)"으로 고정해 두고, minus일 때만 그 축과 수직인 축을 기준으로
+		// 180도 회전시켜 반대 방향을 향하게 합니다 — dir을 (0,-1,0)처럼 기준 축과 정반대로 직접
+		// 주면 ArrowHelper 내부의 setFromUnitVectors가 회전축을 특정하지 못해 방향이 뒤집히지
+		// 않는 문제가 있기 때문입니다.
+		// 검출기 라벨은 도착하는 입자마다(초당 최대 200번) 바뀌므로, 글자 텍스처를 매번 새로 그리지 않고
+		// 한 번 만든 재질(material)을 재사용합니다.
+		const labelMaterialCache = new Map();
+		function cachedLabelMaterial(text, color) {
+			const key = text + "|" + color;
+			if (!labelMaterialCache.has(key)) {
+				const material = makeTextSprite(text, color, 0.55).material;
+				material.userData.cached = true;
+				labelMaterialCache.set(key, material);
+			}
+			return labelMaterialCache.get(key);
+		}
+		let detectorShownSign = null;
+
+		function updateDetectorArrow(axis, sign) {
+			if (!detectorArrowGroup || axis !== detectorArrowAxis || sign === detectorShownSign) return;
+			detectorShownSign = sign;
+			const isZ = axis !== "x";
+			const s = sign === "minus" ? -1 : 1;
+			const color = isZ ? (s > 0 ? 0xd9485f : 0x3c82f6) : (s > 0 ? 0x22c55e : 0xa855f7);
+			detectorArrowGroup.rotation.set(0, 0, 0);
+			if (s < 0) {
+				const flipAxis = isZ ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+				detectorArrowGroup.rotateOnAxis(flipAxis, Math.PI);
+			}
+			const arrow = detectorArrowGroup.children[0];
+			arrow.setColor(color);
+			if (detectorAxisLbl) {
+				detectorAxisLbl.material = cachedLabelMaterial((isZ ? "z축 " : "x축 ") + signMark(isZ ? "z" : "x", s > 0 ? "plus" : "minus"), color);
+			}
+		}
+
+		// 다시 그리는 분석기·검출기의 지오메트리·재질·텍스처를 GPU에서 해제합니다.
+		// (ArrowHelper의 선·원뿔 지오메트리는 three.js가 모든 화살표에 공유하므로 건드리지 않습니다.)
+		function disposeObject3D(root) {
+			root.traverse(obj => {
+				if (obj.geometry && obj.parent?.type !== "ArrowHelper") obj.geometry.dispose();
+				const materials = Array.isArray(obj.material) ? obj.material : obj.material ? [obj.material] : [];
+				materials.forEach(m => {
+					if (m.userData?.cached) return;
+					m.map?.dispose();
+					m.dispose();
+				});
+			});
+		}
+
+		function buildDetector3D(offsetX, offsetY, axis = "z") {
+			const group = new THREE.Group();
+			group.position.set(offsetX, offsetY, 0);
+
+			const detGeo = new THREE.PlaneGeometry(5, 5);
+			const detMat = new THREE.MeshStandardMaterial({
+				color: 0x0a1a2e, transparent: true, opacity: 0.7,
+				emissive: 0x0a1528, emissiveIntensity: 0.5, side: THREE.DoubleSide
+			});
+			const detMesh = new THREE.Mesh(detGeo, detMat);
+			detMesh.position.set(0, 0, GEO.detectorZ);
+			detMesh.rotation.y = Math.PI;
+			group.add(detMesh);
+
+			const detLbl = makeTextSprite("검출기", 0x1d4ed8, 0.8);
+			detLbl.position.set(0, 2.8, GEO.detectorZ);
+			group.add(detLbl);
+
+			// Detector pads — 마지막 분석기에서 ↑/↓로 편향된 입자가 실제로 도착하는 자리(중심 기준 ±편향 거리)
+			const isZ = axis !== "x";
+			const padPositions = isZ
+				? [
+					{ x: 0, y: GEO.ySpread, color: 0xd9485f, label: "Z↑" },
+					{ x: 0, y: -GEO.ySpread, color: 0x3c82f6, label: "Z↓" },
+				]
+				: [
+					{ x: GEO.xSpread, y: 0, color: 0x22c55e, label: "X+" },
+					{ x: -GEO.xSpread, y: 0, color: 0xa855f7, label: "X−" },
+				];
+			padPositions.forEach(p => {
+				const padMesh = new THREE.Mesh(
+					new THREE.PlaneGeometry(0.8, 0.8),
+					new THREE.MeshStandardMaterial({ color: p.color, transparent: true, opacity: 0.35, side: THREE.DoubleSide, emissive: p.color, emissiveIntensity: 0.2 })
+				);
+				padMesh.position.set(p.x, p.y, GEO.detectorZ + 0.01);
+				padMesh.rotation.y = Math.PI;
+				group.add(padMesh);
+				const padLight = new THREE.PointLight(p.color, 0.3, 1.5);
+				padLight.position.set(p.x, p.y, GEO.detectorZ - 0.5);
+				group.add(padLight);
+			});
+
+			// 축 화살표 — z축이면 위/아래(±y), x축이면 좌/우(±x)를 향하며, 입자가 검출기에 도달해
+			// 실제로 측정된 결과(+ 혹은 −)에 따라 updateDetectorArrow()가 방향과 색을 갱신합니다.
+			// 아직 측정 전에는 방향을 알 수 없으므로 중립색으로 "기준 축(+y 혹은 +x)"을 가리키게 둡니다.
+			const posDir = isZ ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+			const detCenter = new THREE.Vector3(0, 0, GEO.detectorZ + 0.05);
+			const arrowGroup = new THREE.Group();
+			arrowGroup.position.copy(detCenter);
+			const arrowOrigin = posDir.clone().multiplyScalar(-DETECTOR_ARROW_LEN / 2);
+			const arrow = new THREE.ArrowHelper(posDir, arrowOrigin, DETECTOR_ARROW_LEN, DETECTOR_ARROW_NEUTRAL, 0.42, 0.26);
+			arrowGroup.add(arrow);
+			group.add(arrowGroup);
+			detectorArrowGroup = arrowGroup;
+			detectorArrowAxis = axis;
+			detectorShownSign = null;
+
+			const axisLbl = makeTextSprite(isZ ? "z축" : "x축", DETECTOR_ARROW_NEUTRAL, 0.55);
+			const lblOffset = isZ ? new THREE.Vector3(0.55, DETECTOR_ARROW_LEN / 2 + 0.35, GEO.detectorZ + 0.05)
+				: new THREE.Vector3(DETECTOR_ARROW_LEN / 2 + 0.35, 0.55, GEO.detectorZ + 0.05);
+			axisLbl.position.copy(lblOffset);
+			group.add(axisLbl);
+			detectorAxisLbl = axisLbl;
+
+			scene.add(group);
+			return group;
+		}
+
+		// ── Analyzer 3D Builder ──
+		// Store analyzer groups so we can rebuild
+		let analyzerGroups = [];
+
+		function buildAnalyzer3D(axis, filterSetting, posZ, label, offsetX = 0, offsetY = 0) {
+			const group = new THREE.Group();
+			group.position.set(offsetX, offsetY, posZ);
+
+			const isZ = axis !== "x";
+			// Pole colors: Z = blue/red, X = green/purple
+			const northColor = isZ ? 0x1e40af : 0x14532d;
+			const southColor = isZ ? 0x9f1239 : 0x581c87;
+			const northEmissive = isZ ? 0x1e3a8a : 0x14532d;
+			const southEmissive = isZ ? 0x7f1238 : 0x4a1066;
+
+			// N-pole (top for Z, right for X)
+			const northGeo = new THREE.BoxGeometry(2.6, 0.65, 1.6);
+			const northMat = new THREE.MeshStandardMaterial({
+				color: northColor, emissive: northEmissive, emissiveIntensity: 0.3, roughness: 0.4, metalness: 0.6
+			});
+			const northMesh = new THREE.Mesh(northGeo, northMat);
+			northMesh.position.set(0, 1.9, 0);
+			northMesh.castShadow = true;
+			group.add(northMesh);
+
+			// Wedge on inner face of N-pole
+			const wedgeGeo = new THREE.BoxGeometry(2.6, 0.3, 0.3);
+			const wedgeMat = new THREE.MeshStandardMaterial({ color: northEmissive, roughness: 0.3, metalness: 0.7 });
+			const wedgeMesh = new THREE.Mesh(wedgeGeo, wedgeMat);
+			wedgeMesh.position.set(0, 1.45, 0);
+			group.add(wedgeMesh);
+
+			// S-pole (bottom for Z, left for X)
+			const southGeo = new THREE.BoxGeometry(2.6, 0.65, 1.6);
+			const southMat = new THREE.MeshStandardMaterial({
+				color: southColor, emissive: southEmissive, emissiveIntensity: 0.3, roughness: 0.4, metalness: 0.6
+			});
+			const southMesh = new THREE.Mesh(southGeo, southMat);
+			southMesh.position.set(0, -1.9, 0);
+			southMesh.castShadow = true;
+			group.add(southMesh);
+
+			// Vertical field lines (6 cylinders between poles)
+			const fieldLineMat = new THREE.MeshBasicMaterial({ color: 0x6496ff, transparent: true, opacity: 0.22 });
+			for (let i = 0; i < 6; i++) {
+				const fGeo = new THREE.CylinderGeometry(0.015, 0.015, 3.2, 4);
+				const fMesh = new THREE.Mesh(fGeo, fieldLineMat);
+				fMesh.position.set(-1.0 + i * 0.4, 0, 0);
+				group.add(fMesh);
+			}
+
+			// Label sprite
+			const lbl = makeTextSprite(axis.toUpperCase() + "축", isZ ? 0x1d4ed8 : 0x15803d, 0.55);
+			lbl.position.set(0, 3.0, 0);
+			group.add(lbl);
+
+			// Analyzer label (A, B, C)
+			const analyzerLbl = makeTextSprite("분석기 " + label, 0x1e293b, 0.55);
+			analyzerLbl.position.set(0, 3.7, 0);
+			group.add(analyzerLbl);
+
+
+			// Filter blocker
+			// 이 그룹은 항상 "z축 기준" 로컬 좌표로 만든 뒤, x축 분석기일 때 그룹 전체를 +90도
+			// 회전시켜 좌우로 갈라지는 모습으로 바꿉니다(아래 "If X-axis" 참고). 회전 변환은
+			// world_x = -local_y 이므로, 입자가 실제로 도달하는 세계좌표(gX = ±xSpread, spawnParticle
+			// 트래젝토리 계산과 동일한 부호)에 차단판이 그대로 겹치려면 x축일 때는 로컬 Y 부호를
+			// 미리 반대로 넣어야 합니다. (z축은 회전이 없으므로 그대로 사용합니다.)
+			if (filterSetting === "plus" || filterSetting === "minus") {
+				// 막힌 경로는 필터의 반대쪽입니다.
+				const blockedSign = filterSetting === "plus" ? "minus" : "plus";
+				const blockY = axis === "z"
+					? (blockedSign === "plus" ? GEO.ySpread : -GEO.ySpread)
+					: (blockedSign === "plus" ? -GEO.xSpread : GEO.xSpread);
+
+				// Main blocker plate — thin face perpendicular to beam travel (Z)
+				const blocker = new THREE.Mesh(
+					new THREE.BoxGeometry(1.6, 1.6, 0.14),
+					new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xf97316, emissiveIntensity: 0.55, roughness: 0.4, metalness: 0.15 })
+				);
+				blocker.position.set(0, blockY, GEO.approachDist + 0.4);
+				group.add(blocker);
+
+				// Cross mark on blocker face (two thin bars forming an X)
+				const barMat = new THREE.MeshStandardMaterial({ color: 0x1a0a00, emissive: 0x000000, roughness: 0.8 });
+				const bar1 = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.14, 0.16), barMat);
+				bar1.rotation.z = Math.PI / 4;
+				bar1.position.set(0, blockY, GEO.approachDist + 0.47);
+				group.add(bar1);
+				const bar2 = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.14, 0.16), barMat);
+				bar2.rotation.z = -Math.PI / 4;
+				bar2.position.set(0, blockY, GEO.approachDist + 0.47);
+				group.add(bar2);
+
+			}
+
+			// 두 경로 합침(사고실험 장치): 두 경로를 모두 열어 두고, 어느 길로 갔는지 확인하지 않은 채
+			// 분석기 뒤에서 다시 하나로 모읍니다. 두 경로를 가는 관으로, 모이는 지점을 반투명 블록으로 그립니다.
+			if (filterSetting === "merge") {
+				const spread = axis === "z" ? GEO.ySpread : GEO.xSpread;
+				const guideMat = new THREE.MeshBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.45 });
+				[1, -1].forEach(sign => {
+					const pts = [];
+					for (let k = 0; k <= 24; k++) {
+						const u = k / 24;
+						pts.push(new THREE.Vector3(0, sign * Math.sin(Math.PI * u) * spread, u * GEO.mergeDist));
+					}
+					group.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 32, 0.04, 6, false), guideMat));
+				});
+				const merger = new THREE.Mesh(
+					new THREE.BoxGeometry(1.4, 0.9, 0.35),
+					new THREE.MeshStandardMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.5, roughness: 0.5 })
+				);
+				merger.position.set(0, 0, GEO.mergeDist);
+				group.add(merger);
+				const mergeLbl = makeTextSprite("두 경로 다시 합침", 0x475569, 0.42);
+				mergeLbl.position.set(0, -spread - 0.9, GEO.mergeDist);
+				group.add(mergeLbl);
+			}
+
+			// If X-axis: rotate entire group 90° around Z (poles, field lines, blocker all together)
+			if (axis === "x") {
+				group.rotation.z = Math.PI / 2;
+			}
+
+			return group;
+		}
+
+		// Rebuild analyzers whenever settings change
+		// 분석기 slot(0=A,1=B,2=C) 각각이 "어디에 놓여야 하는지"를 계산합니다.
+		// 규칙(자료 수집 단계에서 강제하는 것과 동일): 중간 분석기는 항상 +만 또는 −만 통과시키므로,
+		// 그 분석기를 통과한 입자는 반드시 그 방향으로만 편향됩니다. 그래서 다음 분석기는 "이전
+		// 분석기에서 막히지 않은 쪽의 중앙"에 두면 됩니다 — 입자가 다시 중앙으로 모일 필요가 없어집니다.
+		// offsets[i] = slot i 분석기 자신이 위치할 (x, y) = slot i "이전"의 활성 분석기들이 만든 누적 편향.
+		function computeAnalyzerOffsets(analyzers) {
+			const offsets = [];
+			let x = 0, y = 0;
+			for (let i = 0; i < analyzers.length; i++) {
+				offsets.push({ x, y });
+				const a = analyzers[i];
+				if (a.axis === "none") continue;
+				// filter가 "both"인 경우는 항상 마지막 활성 분석기에서만 허용되므로(뒤에 분석기가 없음)
+				// 여기서 어떤 부호를 골라도 이후 분석기 위치 계산에는 영향이 없습니다.
+				if (a.filter === "merge") continue; // 두 경로가 다시 합쳐져 중앙으로 돌아옵니다.
+				const sign = a.filter === "minus" ? -1 : 1;
+				if (a.axis === "z") y += sign * GEO.ySpread; else x += sign * GEO.xSpread;
+			}
+			return offsets;
+		}
+
+		function rebuildScene3D() {
+			// Remove old analyzer groups & detector
+			for (const g of analyzerGroups) { scene.remove(g); disposeObject3D(g); }
+			analyzerGroups = [];
+			if (detectorGroup) { scene.remove(detectorGroup); disposeObject3D(detectorGroup); }
+
+			const s = getSettings();
+			const offsets = computeAnalyzerOffsets(s.analyzers);
+			const labels = ["A", "B", "C"];
+			let lastActiveIdx = 0;
+			s.analyzers.forEach((a, idx) => {
+				if (a.axis === "none") return;
+				lastActiveIdx = idx;
+				const grp = buildAnalyzer3D(a.axis, a.filter, GEO.analyzerZs[idx], labels[idx], offsets[idx].x, offsets[idx].y);
+				scene.add(grp);
+				analyzerGroups.push(grp);
+			});
+
+			// 검출기는 마지막(가장 가까운) 활성 분석기와 같은 (x, y) 중앙에 두고,
+			// 화살표도 그 분석기의 축(z 또는 x)에 맞춰 표시합니다. 화살표의 +/− 방향은
+			// 입자가 실제로 도달할 때 updateDetectorArrow()가 측정 결과에 맞춰 갱신합니다.
+			const lastAnalyzer = s.analyzers[lastActiveIdx];
+			const lastAxis = lastAnalyzer.axis === "none" ? "z" : lastAnalyzer.axis;
+			detectorGroup = buildDetector3D(offsets[lastActiveIdx].x, offsets[lastActiveIdx].y, lastAxis);
+
+			// 바닥은 가장 낮은 물체(자석 아래 끝 ±2.23, 검출기 아래 끝 ±2.5)보다 조금 아래에 둡니다.
+			const lowest = Math.min(
+				...s.analyzers.map((a, i) => a.axis === "none" ? 0 : offsets[i].y - 2.23),
+				offsets[lastActiveIdx].y - 2.5
+			);
+			floorMesh.position.y = Math.min(-2.5, lowest - 0.3);
+		}
+
+		// ── Particle 3D Path Building ──
+		function createParticle3D() {
+			const settings = getSettings();
+			let stateAngle = angleForSource(settings.source);
+			let curX = 0, curY = 0;
+			const points = [];
+			const colorStops = [];  // {frac, hexColor, threeColor}
+			const spinStops = [];  // {frac, direction: THREE.Vector3}
+
+			// Start point
+			points.push(new THREE.Vector3(0, 0, GEO.sourceZ + 1));
+
+			// Total path length accumulated step by step
+			let cumLen = 0;
+			const rawPoints = [new THREE.Vector3(0, 0, GEO.sourceZ + 1)];
+
+			function pushPt(x, y, z) {
+				const prev = rawPoints[rawPoints.length - 1];
+				const np = new THREE.Vector3(x, y, z);
+				cumLen += prev.distanceTo(np);
+				rawPoints.push(np);
+			}
+
+			// Initial gray color (uncertain spin)
+			colorStops.push({ lenAtStop: 0, hexColor: "#909090", threeColor: GRAY_COLOR.hex });
+			spinStops.push({ lenAtStop: 0, direction: new THREE.Vector3(0, 0, 1) });
+
+			let ended = false;
+			let result = "lost";
+			let puffPos = null;
+			let puffColor = LOST_COLOR.hex;
+			let lastSign = null;
+			const stateSeqRaw = [{ lenAtStop: 0, angle: stateAngle }];
+			const measurementEvents = [];
+			const mergeSegments = [];
+
+			settings.analyzers.forEach(({ axis, filter }, idx) => {
+				if (ended || axis === "none") return;
+				const az = GEO.analyzerZs[idx];
+
+				// 두 경로 합침: 측정하지 않으므로 상태·색·방향이 그대로입니다. 입자 본체는 중앙선을 따라가고,
+				// 화면에는 두 경로를 동시에 지나는 반투명 '유령' 두 개를 그렸다가(updateParticles) 다시 합칩니다.
+				if (filter === "merge") {
+					pushPt(curX, curY, az - GEO.approachDist);
+					pushPt(curX, curY, az);
+					const lenStart = cumLen;
+					pushPt(curX, curY, az + GEO.approachDist);
+					pushPt(curX, curY, az + GEO.mergeDist);
+					const lenEnd = cumLen;
+					mergeSegments.push({ lenStart, lenEnd, axis, x: curX, y: curY });
+					const prev = colorStops[colorStops.length - 1], prevSpin = spinStops[spinStops.length - 1];
+					colorStops.push({ lenAtStop: lenStart, hexColor: prev.hexColor, threeColor: prev.threeColor });
+					spinStops.push({ lenAtStop: lenStart, direction: prevSpin.direction.clone() });
+					stateSeqRaw.push({ lenAtStop: lenStart, angle: stateAngle });
+					measurementEvents.push({ idx, sign: null, passed: true, measurePoint: rawPoints.findIndex(pt => pt.z === az), exitPoint: rawPoints.length - 1 });
+					return;
+				}
+
+				// Approach
+				pushPt(curX, curY, az - GEO.approachDist);
+				pushPt(curX, curY, az);
+				const lenAtAnalyzer = cumLen;
+
+				// Quantum measurement
+				const meas = measurementStep(stateAngle, axis);
+				lastSign = meas.sign;
+				stateAngle = meas.nextStateAngle;
+
+				// Deflection
+				let dX = 0, dY = 0;
+				if (axis === "z") {
+					dY = meas.sign === "plus" ? GEO.ySpread : -GEO.ySpread;
+				} else {
+					dX = meas.sign === "plus" ? GEO.xSpread : -GEO.xSpread;
+				}
+				curX += dX;
+				curY += dY;
+
+				pushPt(curX, curY, az + GEO.approachDist);
+
+				// 색(측정된 방향)은 자석을 "나올 때"가 아니라 자석의 정중앙(진입점, lenAtAnalyzer)을
+				// 지나는 순간 결정되도록 합니다 — 측정은 자석 한가운데서 일어난다고 보는 것이 물리적으로
+				// 더 자연스럽습니다.
+				const spinCol = SPIN_COLORS[axis]?.[meas.sign] ?? GRAY_COLOR;
+				colorStops.push({ lenAtStop: lenAtAnalyzer, hexColor: spinCol.cssHex, threeColor: spinCol.hex });
+
+				// Spin direction
+				const spinDir = axis === "z"
+					? new THREE.Vector3(0, meas.sign === "plus" ? 1 : -1, 0)
+					: new THREE.Vector3(meas.sign === "plus" ? 1 : -1, 0, 0);
+				spinStops.push({ lenAtStop: lenAtAnalyzer, direction: spinDir });
+				stateSeqRaw.push({ lenAtStop: lenAtAnalyzer, angle: meas.nextStateAngle });
+
+				if (!passesFilter(filter, meas.sign)) {
+					pushPt(curX, curY, az + GEO.approachDist * 1.8);
+					ended = true;
+					result = "lost";
+					puffPos = new THREE.Vector3(curX, curY, az + GEO.approachDist * 1.8);
+					puffColor = LOST_COLOR.hex;
+				}
+				measurementEvents.push({
+					idx, sign: meas.sign, passed: !ended,
+					measurePoint: rawPoints.findIndex(pt => pt.z === az), exitPoint: rawPoints.length - 1
+				});
+			});
+
+			if (!ended) {
+				pushPt(curX, curY, GEO.detectorZ);
+				if (lastSign === "plus") {
+					result = "plus";
+					puffPos = new THREE.Vector3(curX, curY, GEO.detectorZ);
+					puffColor = axis_color_for_result(settings, "plus");
+				} else if (lastSign === "minus") {
+					result = "minus";
+					puffPos = new THREE.Vector3(curX, curY, GEO.detectorZ);
+					puffColor = axis_color_for_result(settings, "minus");
+				} else {
+					result = Math.random() < 0.5 ? "plus" : "minus";
+					puffPos = new THREE.Vector3(curX, curY, GEO.detectorZ);
+					puffColor = result === "plus" ? SPIN_COLORS.z.plus.hex : SPIN_COLORS.z.minus.hex;
+				}
+			}
+
+			// Normalize color stop fractions
+			const totalLen = cumLen || 1;
+			const normalizedColorStops = colorStops.map(cs => ({ frac: cs.lenAtStop / totalLen, threeColor: cs.threeColor, hexColor: cs.hexColor }));
+			const normalizedSpinStops = spinStops.map(ss => ({ frac: ss.lenAtStop / totalLen, direction: ss.direction }));
+			const normalizedStateSeq = stateSeqRaw.map(s => ({ frac: s.lenAtStop / totalLen, angle: s.angle }));
+			const normalizedMerges = mergeSegments.map(m => ({ ...m, fracStart: m.lenStart / totalLen, fracEnd: m.lenEnd / totalLen }));
+
+			// Build curve
+			const curve = new THREE.CatmullRomCurve3(rawPoints, false, "catmullrom", 0.2);
+
+			// Match counters to the same arc-length parameter used by the moving sphere.
+			const arcLengths = curve.getLengths();
+			const arcFractionAtPoint = index => {
+				const sample = index / (rawPoints.length - 1) * (arcLengths.length - 1);
+				const lo = Math.floor(sample), hi = Math.min(lo + 1, arcLengths.length - 1);
+				return (arcLengths[lo] + (arcLengths[hi] - arcLengths[lo]) * (sample - lo)) / curve.getLength();
+			};
+			for (const [i, event] of measurementEvents.entries()) {
+				event.measureFrac = arcFractionAtPoint(event.measurePoint);
+				event.exitFrac = arcFractionAtPoint(event.exitPoint);
+				normalizedColorStops[i + 1].frac = event.measureFrac;
+				normalizedSpinStops[i + 1].frac = event.measureFrac;
+				normalizedStateSeq[i + 1].frac = event.measureFrac;
+			}
+
+			// Duration based on path length. 초당 200개 발사 속도에서도 동시에 살아있는 입자
+			// 수가 너무 많아지지 않도록(성능), 기존보다 훨씬 짧게(빠르게) 이동합니다.
+			const pathLen = curve.getLength();
+			const duration = Math.max(0.3, pathLen / 16) * 1000; // milliseconds
+
+			const activeAnalyzers = settings.analyzers.filter(a => a.axis !== "none");
+			const resultAxis = activeAnalyzers.length ? activeAnalyzers[activeAnalyzers.length - 1].axis : "z";
+
+			return {
+				curve,
+				rawPoints,
+				normalizedColorStops,
+				normalizedSpinStops,
+				normalizedStateSeq,
+				measurementEvents,
+				merges: normalizedMerges,
+				ghosts: null,
+				result,
+				resultAxis,
+				puffPos,
+				puffColor,
+				duration,
+				birth: null,
+				counted: false,
+				t: 0,
+				sphere: null,
+				glow: null,
+				spinArrow: null,
+			};
+		}
+
+		function axis_color_for_result(settings, sign) {
+			// Find the last active analyzer axis to determine final color
+			const active = settings.analyzers.filter(a => a.axis !== "none");
+			if (active.length === 0) return sign === "plus" ? SPIN_COLORS.z.plus.hex : SPIN_COLORS.z.minus.hex;
+			const lastAxis = active[active.length - 1].axis;
+			return sign === "plus" ? SPIN_COLORS[lastAxis].plus.hex : SPIN_COLORS[lastAxis].minus.hex;
+		}
+
+		function getColorAtFrac(colorStops, frac) {
+			let current = colorStops[0];
+			for (const stop of colorStops) {
+				if (frac >= stop.frac) current = stop;
+				else break;
+			}
+			return current.threeColor;
+		}
+
+		// 첫 측정 전에는 스핀 방향 화살표를 보여 주지 않습니다(null). 예전처럼 화살표가 특정 방향을
+		// 가리키며 돌면 "측정 전에도 방향이 정해져 있다(가설 A)"는 인상을 주기 때문입니다.
+		function getSpinDirAtFrac(spinStops, frac) {
+			let current = spinStops[0];
+			for (const stop of spinStops) {
+				if (frac >= stop.frac) current = stop;
+				else break;
+			}
+			if (current === spinStops[0]) return null;
+			return current.direction.clone();
+		}
+
+		// 초당 최대 200개까지 발사할 수 있으므로, 구(sphere) 지오메트리는 매번 새로 만들지 않고
+		// 공유합니다 — 지오메트리(GPU 버퍼) 생성은 비용이 커서, 입자마다 새로 만들면 스폰 자체가
+		// 병목이 되어 프레임이 밀리고 결과적으로 5초 목표보다 훨씬 느려집니다. 색은 재질(material)
+		// 쪽에서 입자마다 독립적으로 바뀌므로 지오메트리 공유는 안전합니다.
+		const PARTICLE_SPHERE_GEO = new THREE.SphereGeometry(0.14, 10, 10);
+
+		function spawnParticle3D(observation = false) {
+			const pData = createParticle3D();
+			pData.observation = observation;
+			pData.birth = state.simTime;
+
+			// Sphere
+			const initColor = pData.normalizedColorStops[0].threeColor;
+			pData.sphere = new THREE.Mesh(
+				PARTICLE_SPHERE_GEO,
+				new THREE.MeshStandardMaterial({ color: initColor, emissive: initColor, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.1 })
+			);
+			scene.add(pData.sphere);
+
+			// Spin arrow — 편광(스핀) 방향을 화살표로 보여줍니다.
+			const initDir = new THREE.Vector3(0, 0, 1);
+			pData.spinArrow = new THREE.ArrowHelper(initDir, new THREE.Vector3(0, 0, 0), 0.55, initColor, 0.18, 0.12);
+			pData.spinArrow.visible = false; // 첫 측정 전에는 방향을 표시하지 않음
+			scene.add(pData.spinArrow);
+			// 일시정지 중 추가한 입자도 다음 프레임을 기다리지 않고 입자원에 표시합니다.
+			const sourcePosition = pData.curve.getPointAt(0);
+			pData.sphere.position.copy(sourcePosition);
+			pData.spinArrow.position.copy(sourcePosition);
+
+			state.activeParticles.push(pData);
+			if (observation) state.observationTotals.emitted += 1;
+			else state.emitted += 1;
+			updateReadouts();
+		}
+
+		function removeParticle3D(p) {
+			// sphere geometry는 PARTICLE_SPHERE_GEO를 공유하므로
+			// 여기서 dispose하지 않습니다(다른 입자가 계속 쓰고 있음). 재질(material)은 입자마다
+			// 따로 만들었으므로 그대로 정리합니다.
+			if (p.sphere) { scene.remove(p.sphere); p.sphere.material.dispose(); }
+			if (p.spinArrow) scene.remove(p.spinArrow);
+			if (p.ghosts) p.ghosts.forEach(g => { scene.remove(g); g.material.dispose(); });
+		}
+
+		function spawnPuff3D(position, color) {
+			const mesh = new THREE.Mesh(
+				new THREE.SphereGeometry(0.15, 8, 8),
+				new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.8 })
+			);
+			mesh.position.copy(position);
+			scene.add(mesh);
+			state.puffs3D.push({ mesh, birth: state.simTime, duration: 800 });
+		}
+
+		function updateParticles(now) {
+			const toRemove = [];
+			for (const p of state.activeParticles) {
+				const elapsed = now - p.birth;
+				const t = elapsed / p.duration;
+				const cl = Math.max(0, Math.min(1, t));
+
+				for (const event of p.measurementEvents) {
+					const counts = (p.observation ? state.observationStats : state.analyzerStats)[event.idx];
+					if (!event.measured && cl >= event.measureFrac) {
+						event.measured = true;
+						counts.entered++;
+						if (event.sign) counts[event.sign]++;
+					}
+					if (!event.exited && cl >= event.exitFrac) {
+						event.exited = true;
+						counts[event.passed ? "passed" : "blocked"]++;
+					}
+				}
+
+				// Count when arrived
+				if (t >= 1 && !p.counted) {
+					p.counted = true;
+					if (p.observation) state.observationTotals[p.result] += 1;
+					else if (p.result === "plus") state.detectedPlus += 1;
+					else if (p.result === "minus") state.detectedMinus += 1;
+					else state.lost += 1;
+					if (p.puffPos) spawnPuff3D(p.puffPos, p.puffColor);
+					if (p.result === "plus" || p.result === "minus") {
+						updateDetectorArrow(p.resultAxis, p.result);
+					}
+					updateReadouts();
+				}
+
+				// Update position on curve
+				const pos = p.curve.getPointAt(cl);
+				p.sphere.position.copy(pos);
+				p.spinArrow.position.copy(pos);
+
+				// Color update
+				const col = getColorAtFrac(p.normalizedColorStops, cl);
+				p.sphere.material.color.setHex(col);
+				p.sphere.material.emissive.setHex(col);
+				p.spinArrow.setColor(col);
+
+				// 두 경로 합침 구간: 두 경로를 동시에 지나는 반투명 유령 두 개(벌어졌다가 다시 모임)
+				const inMerge = p.merges.find(m => cl >= m.fracStart && cl <= m.fracEnd);
+				if (inMerge && !p.ghosts) {
+					p.ghosts = [0, 1].map(() => new THREE.Mesh(PARTICLE_SPHERE_GEO, new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.6, transparent: true, opacity: 0.55 })));
+					p.ghosts.forEach(g => scene.add(g));
+				}
+				if (p.ghosts) {
+					p.ghosts.forEach((g, i) => {
+						g.visible = !!inMerge;
+						if (!inMerge) return;
+						const u = (cl - inMerge.fracStart) / Math.max(1e-6, inMerge.fracEnd - inMerge.fracStart);
+						const spread = Math.sin(Math.PI * u) * (inMerge.axis === "x" ? GEO.xSpread : GEO.ySpread);
+						const sign = i === 0 ? 1 : -1;
+						g.position.set(pos.x + (inMerge.axis === "x" ? sign * spread : 0), pos.y + (inMerge.axis === "z" ? sign * spread : 0), pos.z);
+					});
+				}
+				p.sphere.visible = !inMerge;
+				p.spinArrow.position.copy(pos);
+
+				// Spin direction update
+				const spinDir = getSpinDirAtFrac(p.normalizedSpinStops, cl);
+				p.spinArrow.visible = !!spinDir && !inMerge;
+				if (spinDir) p.spinArrow.setDirection(spinDir.normalize());
+
+				if (t > 1.1) toRemove.push(p);
+			}
+			if (toRemove.length) {
+				const removeSet = new Set(toRemove);
+				state.activeParticles = state.activeParticles.filter(x => !removeSet.has(x));
+				for (const p of toRemove) removeParticle3D(p);
+			}
+		}
+
+		function updatePuffs(now) {
+			const toRemove = [];
+			for (const puff of state.puffs3D) {
+				const elapsed = now - puff.birth;
+				const t = elapsed / puff.duration;
+				if (t >= 1) { toRemove.push(puff); continue; }
+				const scale = 0.2 + t * 0.6;
+				puff.mesh.scale.setScalar(scale);
+				puff.mesh.material.opacity = 0.8 * (1 - t);
+			}
+			if (toRemove.length) {
+				const removeSet = new Set(toRemove);
+				state.puffs3D = state.puffs3D.filter(x => !removeSet.has(x));
+				for (const puff of toRemove) { scene.remove(puff.mesh); puff.mesh.geometry.dispose(); puff.mesh.material.dispose(); }
+			}
+		}
+
+		// Animate source sphere pulse
+		let sourceAnimTime = 0;
+		function animateSource(dt) {
+			sourceAnimTime += dt;
+			const pulse = 0.9 + 0.12 * Math.sin(sourceAnimTime * 3.0);
+			sourceMesh.scale.setScalar(pulse);
+			sourceLight.intensity = 1.2 + 0.5 * Math.sin(sourceAnimTime * 2.5);
+		}
+
+		// ── Main Tick ──
+		function tick(now) {
+			if (!state.lastTime) state.lastTime = now;
+			const dt = Math.min(0.05, (now - state.lastTime) / 1000);
+			state.lastTime = now;
+			// 재생 속도는 관찰용 입자에만 적용하고, 정식 측정은 항상 1배로 진행합니다.
+			const speed = state.runKind === "observe" ? Number(document.getElementById("playbackSpeed").value) : 1;
+			const simDt = state.paused ? 0 : dt * speed;
+			state.simTime += simDt * 1000;
+			resizeRenderer();
+			animateSource(simDt);
+			if (!state.paused) {
+				if (state.running && state.emitted < TOTAL_SHOTS) {
+					state.emissionAccumulator += simDt * EMIT_RATE;
+					while (state.emissionAccumulator >= 1 && state.emitted < TOTAL_SHOTS) {
+						spawnParticle3D();
+						state.emissionAccumulator -= 1;
+					}
+				}
+				updateParticles(state.simTime);
+				updatePuffs(state.simTime);
+				if (!state.runSettled && !state.activeParticles.length) {
+					if (state.runKind !== "observe" && state.emitted >= TOTAL_SHOTS) finishRun();
+					else if (state.runKind === "observe") {
+						state.runSettled = true;
+						state.singleMode = false;
+						setRunStatus("관찰 완료");
+						syncLabels();
+					}
+				}
+			}
+			updateControlLocks();
+			updateAnalyzerCards();
+			controls.update();
+			renderer.render(scene, camera);
+			positionAnalyzerCards();
+			requestAnimationFrame(tick);
+		}
+
+		function finishRun() {
+			const context = state.runContext;
+			const remaining = state.repeatsLeft - 1;
+			if (state.runKind === "measure") {
+				const counts = { plus: state.detectedPlus, minus: state.detectedMinus, lost: state.lost };
+				state.runLog.push({
+					desc: context.desc, signature: context.signature, experiment: context.experiment,
+					settings: context.settings, shots: state.emitted, counts, pred: context.pred,
+					analyzerStats: state.analyzerStats.map(a => ({ ...a })),
+					actual: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, v / state.emitted * 100]))
+				});
+				state.dirty = true;
+				renderRunLog();
+
+				if (remaining > 0) { beginMeasurement(remaining, context); return; }
+			}
+			state.running = false;
+			state.paused = false;
+			state.runSettled = true;
+			state.repeatsLeft = 0;
+			setRunStatus(state.runKind === "measure" ? "측정 완료" : "가설 확인 완료");
+			syncLabels();
+			updateExperimentGuide();
+
+		}
+
+		// ── Modal Helpers ──
+		function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+		function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+
+		// ── 5단계 탐구 흐름 ──
+		const stepState = { step: 1 };
+
+		// 예상(예측)을 적기 전에는 실행/다음 단계로 넘어가는 버튼이 눌리지 않도록 막습니다.
+		function updateGates() {
+			const firstFilled = !!document.querySelector('input[name="firstHypothesis"]:checked')
+				&& document.getElementById("firstHypothesisNote").value.trim() !== "";
+			const predsFilled = ["sameAxis", "basisChange"].every(k => state.predictions[PRESET_SIGS[k]]);
+			const ready2 = step2Ready();
+
+			document.getElementById("nextStepBtn").disabled =
+				stepState.step === 5 || (stepState.step === 1 && !firstFilled) || (stepState.step === 2 && !ready2)
+				// 중첩으로 이어지는 핵심 추론이므로, 비교를 해 봐야 결론 도출로 넘어갈 수 있습니다.
+				|| (stepState.step === 4 && !state.mixtureTest);
+
+			const locked = !state.runSettled;
+			document.getElementById("previewSameAxisBtn").disabled = locked || !ready2;
+			document.getElementById("previewDiffAxisBtn").disabled = locked || !ready2;
+			if (stepState.step === 2 && !ui.previewStatus.dataset.previewed) {
+				ui.previewStatus.textContent = ready2
+					? "두 버튼을 눌러 분석기 배치를 살펴보세요. 결과는 ③ 자료 수집에서 직접 측정해 확인합니다."
+					: !predsFilled ? "실험 ①·②의 결과를 먼저 예상해 주세요." : "그렇게 예상한 까닭을 적어 주세요.";
+			}
+		}
+
+		function showStep(step) {
+			const prevStep = stepState.step;
+			stepState.step = Math.max(1, Math.min(5, step));
+			const labels = ["문제 인식", "가설 설정", "자료 수집", "자료 분석", "결론 도출"];
+			document.querySelectorAll("[data-step]").forEach(panel => {
+				panel.hidden = Number(panel.dataset.step) !== stepState.step;
+			});
+			document.querySelectorAll(".step-progress span").forEach((dot, index) => {
+				dot.classList.toggle("current", index + 1 === stepState.step);
+				dot.classList.toggle("past", index + 1 < stepState.step);
+			});
+			document.getElementById("stepLabel").textContent = `${stepState.step} / 5 · ${labels[stepState.step - 1]}`;
+			document.getElementById("prevStepBtn").disabled = stepState.step === 1;
+			document.getElementById("nextStepBtn").textContent = stepState.step === 5 ? "마지막 단계" : `다음 · ${labels[stepState.step]}`;
+			document.getElementById("stepContent").scrollTop = 0;
+			updateGates();
+			updateReadouts();
+			document.getElementById("nextStepBtn").classList.toggle("btn-main", stepState.step !== 3);
+			document.getElementById("nextStepBtn").classList.toggle("btn-sub", stepState.step === 3);
+			if (stepState.step === 3 && prevStep !== 3) startCollectionFromFirst();
+			if (stepState.step === 2) syncStep2Widgets();
+			if (stepState.step === 4) renderMixtureTest();
+
+			if (stepState.step === 5) {
+				const choice = document.querySelector('input[name="firstHypothesis"]:checked')?.value;
+				const note = document.getElementById("firstHypothesisNote").value.trim();
+				document.getElementById("recapFirstHypothesis").textContent =
+					choice ? `${hypothesisLabel(choice)}${note ? " · " + note : ""}` : "(① 문제 인식에서 고르지 않음)";
+				renderEvidence();
+				updatePrincipleLock();
+			}
+		}
+
+		// ③ 자료 수집에 들어오면 이전 단계와 상관없이 실험 ①부터 시작 (측정 기록은 유지, 진행 중인 정식 측정은 건드리지 않음)
+		function startCollectionFromFirst() {
+			if (state.runKind === "measure" && !state.runSettled) return;
+			clearRunState();
+			applyPreset("sameAxis");
+			updateCollectionAction();
+		}
+
+		// 배치(signature)별 정식 측정 합산을 "검출된 입자 기준" 비율로 요약합니다.
+		function summarizeSig(sig) {
+			const rows = state.runLog.filter(r => r.signature === sig && hasCounts(r));
+			if (!rows.length) return null;
+			const sum = rows.reduce((a, r) => ({ shots: a.shots + r.shots, plus: a.plus + r.counts.plus, minus: a.minus + r.counts.minus }), { shots: 0, plus: 0, minus: 0 });
+			const det = sum.plus + sum.minus;
+			return det ? { plusPct: 100 * sum.plus / det, minusPct: 100 * sum.minus / det, shots: sum.shots, runs: rows.length } : null;
+		}
+
+		// ── 예측 피드백 ──
+		// 맞혔는지보다 "예측하고 근거를 세운 과정"을 칭찬합니다. 틀린 예측은 '틀림'이 아니라 '새로운 발견'으로
+		// 보여 주고, 효과는 짧고 은은하게(적중: 작은 점이 퍼졌다 사라짐 / 발견: 전구가 은은하게 빛남) 둡니다.
+		// '동작 줄이기' 설정을 켠 기기에서는 효과 없이 카드만 보여 줍니다.
+		const FEEDBACK_TEXT = {
+			hit: { icon: "🎯", title: "예측 적중!", msg: "근거가 탄탄했어요. 그 근거를 결론에 그대로 써 보세요." },
+			near: { icon: "👍", title: "거의 맞았어요!", msg: "방향을 잘 잡았어요. 어느 부분에서 차이가 났는지 살펴보세요." },
+			discover: { icon: "💡", title: "새로운 발견!", msg: "예측과 다른 결과가 바로 탐구의 출발점이에요. 왜 달랐을지 생각해 보세요." }
+		};
+		const feedbackTier = diff => diff <= 5 ? "hit" : diff <= 15 ? "near" : "discover";
+		const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+		function createPredictionFeedback(tier, { detail = "", msg = "", animate = true } = {}) {
+			const t = FEEDBACK_TEXT[tier];
+			const el = document.createElement("div");
+			el.className = `pf pf-${tier}${animate ? " pf-play" : ""}`;
+			el.setAttribute("role", "status");
+			el.innerHTML = `<span class="pf-icon" aria-hidden="true">${t.icon}</span><div><div class="pf-title">${t.title}</div>` +
+				`<div class="pf-msg">${msg || t.msg}</div>${detail ? `<div class="pf-detail">${detail}</div>` : ""}</div>`;
+			if (animate && tier === "hit" && !prefersReducedMotion()) {
+				const colors = ["#86efac", "#fcd34d", "#93c5fd", "#f9a8d4"];
+				for (let i = 0; i < 10; i++) {
+					const dot = document.createElement("span");
+					const angle = (i / 10) * Math.PI * 2 + Math.random() * 0.4;
+					const dist = 24 + Math.random() * 14;
+					dot.className = "pf-dot";
+					dot.style.background = colors[i % colors.length];
+					dot.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+					dot.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
+					el.appendChild(dot);
+					setTimeout(() => dot.remove(), 900);
+				}
+			}
+			return el;
+		}
+
+		// 피드백은 사이드바 공간을 차지하지 않도록 장치 화면 위쪽에 잠깐 떴다가(6초) 사라지는 팝업으로 보여 줍니다.
+		// 누르면 바로 닫히고, 새 피드백이 오면 이전 것은 바로 바뀝니다.
+		let feedbackToastTimer = null;
+		function showFeedbackToast(tier, options = {}) {
+			let layer = document.querySelector(".pf-toast-layer");
+			if (!layer) {
+				layer = document.createElement("div");
+				layer.className = "pf-toast-layer";
+				document.body.appendChild(layer);
+			}
+			clearTimeout(feedbackToastTimer);
+			layer.replaceChildren();
+			const toast = createPredictionFeedback(tier, options);
+			toast.classList.add("pf-toast");
+			toast.title = "눌러서 닫기";
+			const close = () => {
+				toast.classList.add("pf-out");
+				setTimeout(() => toast.remove(), 350);
+			};
+			toast.addEventListener("click", close);
+			layer.appendChild(toast);
+			feedbackToastTimer = setTimeout(close, 6000);
+		}
+
+		// ── 핵심 추론: '입자가 x+나 x− 한 길로만 지났다면 ④는?' ──
+		// 학생이 직접 측정한 두 값을 나란히 놓습니다.
+		//   · 한 길(x+)만 열고 z로 잰 결과 = 실험 ③(z↑ → x+ → z) — 어느 길로 갔는지 확인한 경우
+		//   · 두 길을 다 열고 합친 뒤 z로 잰 결과 = 실험 ④(z↑ → x(합침) → z) — 확인하지 않은 경우
+		// 한 길로만 지났다면 ④는 ③처럼 반반이어야 하지만 실제로는 100%이므로, 입자는 두 길을 함께 지났고(중첩)
+		// 어느 길인지 확인하면(③) 그 순간 한 길로 정해진다(붕괴)는 결론으로 이어집니다.
+		function inferenceData() {
+			const oneWay = summarizeSig(PRESET_SIGS.collapse);
+			const merged = summarizeSig(PRESET_SIGS.recombine);
+			return oneWay && merged ? { oneWay: oneWay.plusPct, merged: merged.plusPct } : null;
+		}
+
+		function runMixtureTest() {
+			const choice = document.querySelector('input[name="mixtureTestChoice"]:checked')?.value;
+			const data = inferenceData();
+			if (!data || !choice) return;
+			const first = !state.mixtureTest;
+			state.mixtureTest = { choice, ...data };
+			state.dirty = true;
+			renderMixtureTest(first);
+			renderEvidence();
+			updateGates();
+		}
+
+		function showMixtureFeedback() {
+			const right = state.mixtureTest?.choice === "50";
+			showFeedbackToast(right ? "hit" : "discover", {
+				msg: right
+					? "맞아요! 한 길로만 지났다면 ④도 반반이어야 해요. 그런데 실제 ④는 어땠나요?"
+					: "한 길로만 지났다면, 어느 길이든 z로 재면 반반이에요(③). 그러니 ④도 50%여야 해요. 실제 ④와 비교해 보세요."
+			});
+		}
+
+		function renderMixtureTest(animateFeedback = false) {
+			const data = inferenceData();
+			const done = !!state.mixtureTest;
+			document.getElementById("mixtureGateNote").hidden = done;
+			document.querySelectorAll('input[name="mixtureTestChoice"]').forEach(el => { el.disabled = !data || done; });
+			const el = document.getElementById("mixtureTestResult");
+			if (!data) {
+				el.innerHTML = '<p class="sb-note">③ 자료 수집에서 실험 ③과 ④를 먼저 측정해 주세요.</p>';
+			} else if (!done) {
+				el.innerHTML = "";
+			} else {
+				const bar = (label, p) => '<div class="mini-row"><span>' + label + '</span><div class="mini-track"><div style="width:' + p + '%;background:var(--plus)"></div><div style="width:' + (100 - p) + '%;background:var(--minus)"></div></div><span class="mini-nums">z↑ ' + Math.round(p) + '%</span></div>';
+				el.innerHTML = '<div class="mini-group" style="margin-top:8px">' +
+					bar("③ 한 길만", data.oneWay) +
+					bar("④ 두 길 합침", data.merged) + '</div>';
+			}
+			const follow = document.getElementById("mixtureFollowUp");
+			follow.hidden = !done;
+			if (done) {
+				follow.innerHTML = "한 길로만 지났다면 ④도 50%여야 하지만, 실제 ④는 <strong>100%</strong>예요. " +
+					"그러니 입자는 한 길로만 지난 것이 아니에요. 그런데 한 길을 막아 어느 길로 갔는지 확인하면(③) <strong>다시 반반</strong>이 돼요.";
+			}
+			// 변경 이벤트로 불릴 때는 이벤트 객체가 넘어오므로, 팝업은 처음 고를 때(true)만 띄웁니다.
+			if (animateFeedback === true) showMixtureFeedback();
+		}
+
+		// ⑤ 결론 도출: 내가 측정한 수치로 증거 카드를 만듭니다(결론 문장을 미리 알려 주지 않음).
+		function renderEvidence() {
+			const el = document.getElementById("evidenceCards");
+			if (!el) return;
+			const card = (label, fact) => '<div class="evidence-card"><span class="evidence-card-label">' + label + '</span><span class="evidence-card-fact">' + fact + '</span></div>';
+			const items = [
+				["sameAxis", "① 같은 축으로 다시 측정 (z↑ → z) · 중간 측정 없음"],
+				["basisChange", "② 다른 축으로 측정 (z↑ → x)"],
+				["collapse", "③ 중간에 x 측정을 거침 (z↑ → x+ → z) · 한 길만"],
+				["recombine", "④ 두 길을 다 열고 합침 (z↑ → x(합침) → z) · 확인 안 함"],
+			];
+			const cards = items.map(([key, label]) => {
+				const s = summarizeSig(PRESET_SIGS[key]);
+				const a = FINAL_AXIS[key];
+				return card(label, s
+					? '검출된 입자 중 <strong>' + outcomeLabel(a, "plus") + ' ' + Math.round(s.plusPct) + '%</strong> · ' + outcomeLabel(a, "minus") + ' ' + Math.round(s.minusPct) + '%'
+					: '아직 측정하지 않음 — ③ 단계에서 측정해 보세요');
+			});
+			const m = state.mixtureTest;
+			cards.push(card("핵심 추론 · 한 길로만 지났다면 ④는?", m
+				? '한 길 가정 <strong>z↑ 50%</strong> ↔ 실제 ④ <strong>z↑ ' + Math.round(m.merged) + '%</strong>'
+				: '④ 자료 분석의 핵심 추론에서 확인해 보세요'));
+			el.innerHTML = cards.join("");
+		}
+
+		// 디지털 활용 유의사항: '원리 보기'는 측정 전 상태에 대한 판단과 근거를 적은 뒤에만 열리고,
+		// 처음 여는 순간의 판단을 기록해 둡니다(원리를 본 뒤 답을 고치지 않고 판단이 남도록).
+		function updatePrincipleLock() {
+			const opened = !!state.judgmentSnapshot;
+			const ready = !!conclusionChoiceValue() && document.getElementById("reflectionNote").value.trim() !== "";
+			document.getElementById("principleBtn").disabled = !opened && !ready;
+			document.getElementById("principleLockNote").textContent = opened
+				? "원리 보기 전의 판단이 기록되었습니다. 원리를 보고 달라진 생각은 아래에 적어 보세요."
+				: ready ? "원리 보기를 열면 지금의 판단과 근거가 그대로 기록되고 더 이상 고칠 수 없어요."
+					: "②의 판단과 근거를 먼저 적으면 열립니다.";
+		}
+
+		function openPrinciple() {
+			if (!state.judgmentSnapshot) {
+				state.judgmentSnapshot = { choice: conclusionChoiceValue(), note: document.getElementById("reflectionNote").value.trim() };
+				document.querySelectorAll('input[name="conclusionChoice"]').forEach(el => { el.disabled = true; });
+				document.getElementById("reflectionNote").readOnly = true;
+				document.getElementById("afterPrincipleBlock").hidden = false;
+				state.dirty = true;
+			}
+			updatePrincipleLock();
+			openModal("principleModal");
+			document.querySelector("#principleModal .modal-card").scrollTop = 0;
+		}
+
+		// ── 보고서 저장 ──
+		function buildReportHTML() {
+			const escape = escapeHTML;
+			const answer = id => escape(document.getElementById(id).value.trim() || "미작성");
+			const question = id => {
+				const l = document.querySelector(`label[for="${id}"]`);
+				return l ? escape(l.textContent.trim().replace(/\s+/g, " ")) : "";
+			};
+			const section = (title, qid) => `<h3>${title}</h3><p class="question">${question(qid)}</p><div class="answer">${answer(qid)}</div>`;
+			const selfCheckSummary = [
+				["selfCheck1", "같은 축은 결과 유지, 다른 축은 반반이 되는 규칙 찾기"],
+				["selfCheck2", "측정 후 상태가 측정 축 방향으로 정해진다는 근거로 설명하기"],
+				["selfCheck3", "실험 ①·③의 차이를 중간 측정 유무에 의한 상태 변화와 연결하기"],
+				["selfCheck4", "실험 ③·④의 차이를 중첩과 측정으로 설명하기"],
+			].map(([id, label]) => `<li class="${document.getElementById(id).checked ? "checked" : ""}">${label}</li>`).join("");
+			const groups = groupRunLog();
+			const chart = reportChartSVG(groups);
+			const today = new Date();
+			const dateStr = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}.`;
+			const firstChoice = document.querySelector('input[name="firstHypothesis"]:checked')?.value;
+			const snap = state.judgmentSnapshot;
+			const judgedChoice = snap ? snap.choice : conclusionChoiceValue();
+			const judgedNote = snap ? snap.note : document.getElementById("reflectionNote").value.trim();
+
+			const predVsActual = ["sameAxis", "basisChange", "collapse"].map(key => {
+				const sig = PRESET_SIGS[key], a = FINAL_AXIS[key];
+				const p = state.predictions[sig], s = summarizeSig(sig);
+				return `<tr><td>${experimentLabels[key]}</td><td>${escape(conditionShort([{ settings: presetAnalyzers(PRESETS[key]) }]))}</td>` +
+					`<td>${p ? `${outcomeLabel(a, "plus")} ${p.plus}% · ${outcomeLabel(a, "minus")} ${p.minus}%` : "—"}</td>` +
+					`<td>${s ? `${outcomeLabel(a, "plus")} ${s.plusPct.toFixed(1)}% · ${outcomeLabel(a, "minus")} ${s.minusPct.toFixed(1)}%` : "미측정"}</td></tr>`;
+			}).join("");
+			const step2Pred = key => {
+				const p = state.predictions[PRESET_SIGS[key]], a = FINAL_AXIS[key];
+				return p ? `${outcomeLabel(a, "plus")} ${p.plus}% · ${outcomeLabel(a, "minus")} ${p.minus}%` : "미작성";
+			};
+			const mixChoiceVal = document.querySelector('input[name="mixtureTestChoice"]:checked')?.value;
+			const mixChoice = { "50": "50% — 어느 길이든 z로 재면 반반이니까", "100": "100%" }[mixChoiceVal] || "미선택";
+			const m = state.mixtureTest;
+			const mixResult = m
+				? `z↑ 비율 · ③ 한 길만 ${m.oneWay.toFixed(1)}% ↔ ④ 두 길 합침 ${m.merged.toFixed(1)}%`
+				: "비교하지 않음";
+
+			return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>순차 측정 실험 보고서</title>
+<style>
+:root{--ink:#17212f;--sub:#52657c;--line:#dce4ef;--panel:#f4f7fb;--accent:#2157d5}
+*{box-sizing:border-box}
+body{font:15px/1.7 -apple-system,"Malgun Gothic",system-ui,sans-serif;color:var(--ink);max-width:880px;margin:0 auto;padding:0 28px 60px;background:#fff}
+.cover{padding:64px 0 40px;text-align:center;border-bottom:3px solid var(--ink);margin-bottom:32px}
+.cover .kicker{font-size:13px;letter-spacing:0.12em;color:var(--sub);font-weight:700;text-transform:uppercase;margin-bottom:14px}
+.cover h1{font-size:32px;font-weight:900;letter-spacing:-0.02em;margin-bottom:22px}
+.cover-meta{display:inline-flex;flex-direction:column;gap:6px;font-size:14px;color:var(--sub);text-align:left}
+.cover-meta b{color:var(--ink);display:inline-block;width:76px}
+h2{font-size:20px;font-weight:800;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--ink);display:flex;align-items:baseline;gap:8px}
+h2 .num{color:var(--accent)}
+h3{font-size:14.5px;font-weight:700;color:var(--ink);margin:18px 0 6px}
+h3:first-of-type{margin-top:4px}
+p{margin:0 0 10px}
+.question{color:var(--sub);font-size:13px}
+.answer{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;min-height:22px;font-size:14px}
+.meta{color:var(--sub);font-size:13px}
+.theory-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;font-size:14px;line-height:1.7}
+.theory-box ul{margin:6px 0 0;padding-left:20px}
+table.log{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 12px}
+table.log th,table.log td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+table.log th{background:var(--panel)}
+.results-scroll{overflow-x:auto}
+.results-table{width:100%;border-collapse:collapse;font-size:12px}
+.results-table td,.results-table th{border:1px solid var(--line);padding:6px;text-align:center}
+.result-group{margin:16px 0}
+.chart-wrap{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.chart-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12px;color:var(--sub)}
+.chart-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.selfcheck-list{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.selfcheck-list li{padding-left:26px;position:relative;color:var(--sub)}
+.selfcheck-list li::before{content:"☐";position:absolute;left:0;font-size:15px}
+.selfcheck-list li.checked{color:var(--ink);font-weight:600}
+.selfcheck-list li.checked::before{content:"☑";color:var(--accent)}
+@media print{.cover{padding-top:20px}}
+</style></head><body>
+
+<div class="cover">
+	<div class="kicker">과학 탐구 실험 보고서 · 양자와 미시세계</div>
+	<h1>연속 측정 시뮬레이션으로 측정에 의한 상태 변화 탐구하기</h1>
+	<div class="cover-meta">
+		<div><b>작성자</b>${answer("studentName")}</div>
+		<div><b>작성일</b>${escape(dateStr)}</div>
+		<div><b>탐구 질문</b>한 번 측정한 입자를 다시 측정하면 같은 결과가 나올까?</div>
+	</div>
+</div>
+
+<h2><span class="num">Ⅰ.</span> 문제 인식</h2>
+<h3>z↑ 입자를 x축으로 잰 결과 — 나의 첫 예상</h3>
+<p><strong>${escape(hypothesisLabel(firstChoice))}</strong></p>
+${section("그렇게 예상한 까닭", "firstHypothesisNote")}
+
+<h2><span class="num">Ⅱ.</span> 가설 설정</h2>
+<table class="log"><thead><tr><th>실험</th><th>나의 예상 (검출된 입자 기준)</th></tr></thead><tbody>
+<tr><td>① z↑ → z</td><td>${step2Pred("sameAxis")}</td></tr>
+<tr><td>② z↑ → x</td><td>${step2Pred("basisChange")}</td></tr>
+</tbody></table>
+${section("그렇게 예상한 까닭", "hypothesisNote")}
+
+<h2><span class="num">Ⅲ.</span> 실험 방법</h2>
+<div class="theory-box">
+	<p>원자 오븐에서 나온 입자 1,000개를 분석기에 통과시키고, 검출기에 도달한 입자의 두 결과(z는 ↑/↓, x는 +/−) 수와 중간에 차단된 입자 수를 셉니다.
+	같은 조건에서 3회 반복 측정해 합산합니다. 모든 실험은 검출될 입자의 비율을 먼저 예측한 뒤 측정했고, 실험 ⑤ 자유 탐구에서는 궁금한 조건을 직접 만들어 확인했습니다.</p>
+	<ul>
+		<li>① 같은 축 재측정 — z↑ 입자를 z축으로 다시 측정</li>
+		<li>② 다른 축 측정 — z↑ 입자를 x축으로 측정</li>
+		<li>③ 중간 측정 추가 — z↑ 입자를 x축(x+만 통과)으로 측정한 뒤 z축으로 측정</li>
+		<li>④ 두 경로 합치기(사고실험) — z↑ 입자를 x축 분석기에 통과시키되 두 경로를 모두 열고 다시 합친 뒤 z축으로 측정</li>
+	</ul>
+</div>
+
+<h2><span class="num">Ⅳ.</span> 실험 결과</h2>
+${chart ? `<div class="chart-wrap">${chart}</div>` : '<p class="meta">아직 정식 측정 기록이 없습니다.</p>'}
+<h3>예측과 실제 (검출된 입자 기준)</h3>
+<table class="log"><thead><tr><th>실험</th><th>분석기 배치</th><th>나의 예측</th><th>실제 (합산)</th></tr></thead><tbody>${predVsActual}</tbody></table>
+<h3>측정 기록 (조건별 상세)</h3>
+${resultsHTML()}
+
+<h2><span class="num">Ⅴ.</span> 자료 분석과 토의</h2>
+${section("실험 ①·② 비교", "detectedRatioNote")}
+${section("예측과 실제 결과 비교", "stateExplanationNote")}
+${section("실험 ①·③ 비교 — 중간 측정 유무에 따라 결과가 다른 까닭", "changedConditionNote")}
+<h3>핵심 추론 — 입자는 x 분석기를 어떻게 지났을까?</h3>
+<p><strong>한 길로만 지났다면 ④의 z↑는? 나의 예상:</strong> ${escape(mixChoice)}</p>
+<p class="meta">내 측정값: ${escape(mixResult)}</p>
+${section("입자는 x 분석기를 어떻게 지났을까? 길을 막았을 때와 막지 않았을 때의 차이는?", "mixtureTestNote")}
+
+<h2><span class="num">Ⅵ.</span> 결론</h2>
+${section("결론 정리", "conclusion")}
+<h3>z↑ 입자를 x축으로 잰 결과 — 원리 보기 전 나의 판단</h3>
+<p><strong>${escape(hypothesisLabel(judgedChoice))}</strong> (첫 예상: ${escape(hypothesisLabel(firstChoice))})</p>
+<div class="answer">${escape(judgedNote || "미작성")}</div>
+${section("원리를 본 뒤 새로 알게 되거나 달라진 생각", "afterPrincipleNote")}
+
+<h2><span class="num">Ⅶ.</span> 원리 확인</h2>
+<div class="theory-box">
+	<ul>
+		<li>측정하면 입자의 상태는 측정한 축 방향으로 정해집니다. 그래서 z↑로 측정된 입자를 같은 축으로 곧바로 다시 재면 항상 z↑가 나옵니다(실험 ①). 중간에 다른 축을 재지 않으면 상태는 그대로입니다.</li>
+		<li>z↑ 상태를 x축으로 재면 x+와 x−가 반반 나옵니다(실험 ②).</li>
+		<li>중간에 x축 측정을 거치면 입자의 상태가 x+로 바뀌어, 마지막 z 측정이 다시 반반이 됩니다(실험 ③). 측정이 이미 정해진 값을 확인하기만 한다면 ③에서도 z↑만 나와야 하므로, <strong>측정은 상태를 바꿉니다</strong>.</li>
+		<li>x 분석기에서 두 길을 모두 열고 다시 합치면(실험 ④) z↑가 100% 그대로 나옵니다. 입자가 x+나 x− 한 길로만 지났다면 ③처럼 반반이어야 하므로, 입자는 두 길을 함께 지난 <strong>중첩</strong> 상태였습니다. 한 길을 막아 어느 길로 갔는지 확인하면(실험 ③) 그 순간 한 길로 정해져 상태가 바뀝니다(<strong>측정에 의한 상태 붕괴</strong>). 측정하지 않으면 붕괴하지 않습니다.</li>
+	</ul>
+</div>
+
+<h2><span class="num">Ⅷ.</span> 스스로 점검</h2>
+<ul class="selfcheck-list">${selfCheckSummary}</ul>
+
+<h2><span class="num">Ⅸ.</span> 다음 시간 예고 — 양자컴퓨터와 큐비트</h2>
+<p>z↑/z↓는 큐비트의 |0⟩/|1⟩에 대응합니다. 큐비트도 측정 전에는 두 상태의 중첩에 있을 수 있고, 측정하면 0 또는 1 하나로 정해집니다.</p>
+${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까?", "qcPredictionNote")}
+
+<p class="meta" style="margin-top:32px;padding-top:14px;border-top:1px solid var(--line)">보고서 저장 시각: ${escape(new Date().toLocaleString("ko-KR"))}</p>
+<\/body><\/html>`;
+		}
+
+		function downloadReport() {
+			const blob = new Blob([buildReportHTML()], { type: "text/html;charset=utf-8" });
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement("a");
+			const name = (document.getElementById("studentName").value.trim() || "이름없음").replace(/[\\/:*?"<>|\x00-\x1f]/g, "_");
+			link.href = url;
+			link.download = `순차측정_실험보고서_${name}_${new Date().toISOString().slice(0, 10)}.html`;
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+			setTimeout(() => URL.revokeObjectURL(url), 1000);
+			state.dirty = false;
+		}
+
+		function escapeHTML(value) {
+			return String(value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+		}
+
+		function updateControlLocks() {
+			const locked = !state.runSettled;
+			const guided = document.getElementById("experimentPlan").value !== "free";
+			[ui.axisA, ui.axisB, ui.axisC, ui.filterA, ui.filterB, ui.filterC].forEach(el => { el.disabled = locked || guided; });
+			if (!locked && !guided) {
+				ui.filterB.disabled = ui.axisB.value === "none";
+				ui.filterC.disabled = ui.axisC.value === "none";
+			}
+			document.getElementById("experimentPlan").disabled = locked;
+
+			const ready2 = step2Ready();
+			document.getElementById("previewSameAxisBtn").disabled = locked || !ready2;
+			document.getElementById("previewDiffAxisBtn").disabled = locked || !ready2;
+			document.getElementById("singleShotBtn").disabled = false;
+			updateCollectionAction();
+		}
+
+		const analyzerCards = [];
+		function createAnalyzerCards() {
+			["A", "B", "C"].forEach((key, idx) => {
+				const card = document.createElement("details");
+				card.className = "analyzer-stat-card";
+				card.open = true;
+				card.innerHTML = '<summary></summary><div>입사 <span data-stat="entered">0</span></div>' +
+					'<div class="stat-signs"><span><i data-mark="plus">↑</i> <b data-stat="plus">0</b></span><span><i data-mark="minus">↓</i> <b data-stat="minus">0</b></span></div>' +
+					'<div>통과 <span data-stat="passed">0</span> · 차단 <span data-stat="blocked">0</span></div>';
+				document.getElementById("analyzerStatsLayer").appendChild(card);
+				analyzerCards.push({ card, key, fields: Object.fromEntries([...card.querySelectorAll("[data-stat]")].map(el => [el.dataset.stat, el])) });
+			});
+		}
+
+		function updateAnalyzerCards() {
+			const axes = [ui.axisA.value, ui.axisB.value, ui.axisC.value];
+			const filters = [ui.filterA.value, ui.filterB.value, ui.filterC.value];
+			analyzerCards.forEach(({ card, key, fields }, idx) => {
+				card.hidden = axes[idx] === "none";
+				card.querySelector("summary").textContent = key + " · " + axes[idx] + "축" + (filters[idx] === "merge" ? " · 합침(측정 안 함)" : "") + (state.runKind === "observe" ? " · 관찰" : "");
+				card.querySelectorAll("[data-mark]").forEach(el => { el.textContent = signMark(axes[idx], el.dataset.mark); });
+				for (const [name, el] of Object.entries(fields)) {
+					const value = String((state.runKind === "observe" ? state.observationStats : state.analyzerStats)[idx][name]);
+					if (el.textContent !== value) el.textContent = value;
+				}
+			});
+		}
+
+		function positionAnalyzerCards() {
+			if (window.matchMedia("(max-width: 980px) and (orientation: portrait)").matches) return;
+			const settings = getSettings(), offsets = computeAnalyzerOffsets(settings.analyzers);
+			const rect = canvas3D.getBoundingClientRect();
+			const sidebar = document.querySelector(".sidebar").getBoundingClientRect();
+			const minX = Math.max(8, sidebar.right + 12), maxX = rect.right - 162;
+			const placed = [];
+			analyzerCards.forEach(({ card }, idx) => {
+				if (settings.analyzers[idx].axis === "none") return;
+				const p = new THREE.Vector3(offsets[idx].x, offsets[idx].y - 1.8, GEO.analyzerZs[idx]).project(camera);
+				card.hidden = p.z < -1 || p.z > 1;
+				if (card.hidden) return;
+				let x = Math.max(Math.min(minX, maxX), Math.min(maxX, rect.left + (p.x + 1) * rect.width / 2 - 77));
+				let y = Math.max(120, Math.min(rect.bottom - card.offsetHeight - 12, rect.top + (1 - p.y) * rect.height / 2 + 10));
+				for (const prev of placed) {
+					if (Math.abs(x - prev.x) < 162 && Math.abs(y - prev.y) < card.offsetHeight + 8) {
+						y = prev.y - card.offsetHeight - 8;
+					}
+				}
+				card.style.left = x + "px";
+				card.style.top = Math.max(110, y) + "px";
+				placed.push({ x, y });
+			});
+		}
+
+		function updateObservationReadout() {
+			const o = state.observationTotals;
+			document.getElementById("observationReadout").textContent = "관찰 " + o.emitted + "개 · 정식 집계 제외";
+		}
+		function updateExperimentGuide() {
+			const key = document.getElementById("experimentPlan").value;
+			const questions = {
+				sameAxis: "z↑로 검출된 입자만 골라 z축으로 다시 측정합니다.",
+				basisChange: "①과 비교: 두 번째 분석기만 z축 → x축으로 바꿉니다.",
+				collapse: "①과 비교: 사이에 x축 측정(x+만 통과)을 하나 끼워 넣고, 마지막은 ①처럼 z축으로 측정합니다.",
+				recombine: "③과 비교: x 분석기의 두 경로를 모두 열어 두고, 어느 길로 갔는지 확인하지 않은 채 다시 합친 뒤 z축으로 측정합니다. (실제로 만들기는 매우 어려운 사고실험 장치예요)",
+				free: "아래 ‘분석기 설정’에서 궁금한 조건을 직접 만들어 측정해 보세요. 예: 중간 측정을 두 번 넣기, ↓ 경로만 통과시키기, x축 분석기 뒤에 두 경로 다시 합치기",
+			};
+			document.getElementById("experimentQuestion").textContent = questions[key];
+			const fold = document.getElementById("analyzerSettingsFold");
+			fold.hidden = key !== "free";
+			fold.open = key === "free";
+			const records = state.runLog.filter(r => r.signature === settingsSignature() && hasCounts(r));
+			document.getElementById("experimentProgress").textContent = "측정 " + records.length + "/3회" + (records.length >= 3 ? " · 목표 달성" : "");
+		}
+		function hasCounts(r) {
+			return Number.isInteger(r.shots) && r.shots > 0 && r.counts &&
+				[r.counts.plus, r.counts.minus, r.counts.lost].every(n => Number.isInteger(n) && n >= 0) &&
+				r.counts.plus + r.counts.minus + r.counts.lost === r.shots;
+		}
+
+		const noRunsHTML = '<p class="sb-note">아직 정식 측정 기록이 없습니다. ③ 자료 수집에서 측정을 시작하세요.</p>';
+		function groupRunLog() {
+			const groups = new Map();
+			state.runLog.forEach((r, i) => {
+				if (!groups.has(r.signature)) groups.set(r.signature, []);
+				groups.get(r.signature).push({ ...r, number: i + 1 });
+			});
+			return [...groups.entries()].map(([key, rows]) => {
+				const counted = rows.filter(hasCounts);
+				const sum = counted.reduce((a, r) => ({ shots: a.shots + r.shots, plus: a.plus + r.counts.plus, minus: a.minus + r.counts.minus, lost: a.lost + r.counts.lost }), { shots: 0, plus: 0, minus: 0, lost: 0 });
+				return { key, rows, counted, sum };
+			});
+		}
+		function conditionSteps(rows) {
+			return rows[0].settings.map((a, i) => String.fromCharCode(65 + i) + ' · ' + (a.axis === 'none' ? '꺼짐' : axisLabels[a.axis] + '(' + filterLabel(a.axis, a.filter) + ')'));
+		}
+		// 예측은 "검출된 입자 중 ↑ %"로 받으므로, 결과도 같은 기준(검출 기준)으로 비교합니다.
+		const detectedShare = c => {
+			const d = c.plus + c.minus;
+			return d ? { plus: 100 * c.plus / d, minus: 100 * c.minus / d } : { plus: 0, minus: 0 };
+		};
+		function predText(pred, axis) {
+			if (!pred) return "예측 기록 없음";
+			return `${outcomeLabel(axis, "plus")} ${pred.plus}% · ${outcomeLabel(axis, "minus")} ${pred.minus}%` + (pred.source === "step2" ? " (② 가설 설정에서 예측)" : "") +
+				(pred.reason ? " · 근거: " + escapeHTML(pred.reason) : "");
+		}
+		function resultTableHTML({ rows, counted, sum }) {
+			const rate = (n, d) => d ? (100 * n / d).toFixed(1) + "%" : "—";
+			const tableRow = (label, shots, c) => '<tr><td>' + label + '</td><td>' + shots + '</td><td>' + c.plus + '</td><td>' + c.minus + '</td><td>' + c.lost + '</td><td>' + rate(c.plus, c.plus + c.minus) + ' / ' + rate(c.minus, c.plus + c.minus) + '</td><td>' + rate(c.lost, shots) + '</td></tr>';
+			const dataRows = counted.map(r => tableRow("실험 " + r.number, r.shots, r.counts)).join("");
+			const axis = lastAxisOf(rows[0].settings);
+			return '<div class="results-scroll"><table class="results-table"><thead><tr><th>회차</th><th>발사 수</th><th>' + outcomeLabel(axis, "plus") + '</th><th>' + outcomeLabel(axis, "minus") + '</th><th>차단</th><th>검출 기준 ' + signMark(axis, "plus") + ' / ' + signMark(axis, "minus") + '</th><th>발사 중 차단</th></tr></thead><tbody>' +
+				dataRows + (counted.length > 1 ? tableRow('합산', sum.shots, sum) : '') + '</tbody></table></div>' +
+				'<p>내 예측(검출 기준): ' + predText(rows[rows.length - 1].pred, axis) + '</p>';
+		}
+		function resultsHTML() {
+			if (!state.runLog.length) return noRunsHTML;
+			return groupRunLog().map(g => {
+				const conditions = conditionSteps(g.rows).join(' → ');
+				const expTag = [...new Set(g.rows.map(r => r.experiment))]
+					.map(exp => experimentLabels[exp] ?? exp).filter(Boolean).join(" / ");
+				return '<div class="result-group"><strong>' + (expTag ? escapeHTML(expTag) + ' · ' : '') + escapeHTML(conditions) + '</strong><p>완료 ' + g.counted.length + '회 · 합산 ' + g.sum.shots + '개</p>' + resultTableHTML(g) + '</div>';
+			}).join("");
+		}
+
+		// 마지막으로 켜진 분석기의 축에 맞춰 3D 범례와 같은 색을 쓴다
+		function finalAxisStyle(rows) {
+			const lastAxis = lastAxisOf(rows[0].settings);
+			return {
+				axisName: lastAxis,
+				colors: lastAxis === "x" ? { plus: "#22c55e", minus: "#a855f7" } : { plus: "var(--plus)", minus: "var(--minus)" }
+			};
+		}
+		// "z↑ → x" 처럼 켜진 분석기만 짧게 표기 (↑/↓ 경로만 통과시키면 화살표를 붙임)
+		function conditionShort(rows) {
+			return rows[0].settings.filter(a => a.axis !== "none").map(a => a.axis + (a.filter === "merge" ? "(합침)" : a.filter === "both" ? "" : signMark(a.axis, a.filter))).join(" → ") || "분석기 없음";
+		}
+
+		// 보고서(별도 독립 HTML 문서)용 막대그래프. 메인 페이지의 CSS 변수(var(--plus) 등)에
+		// 의존하지 않고 색상을 직접 넣은 순수 SVG로 그려서, 보고서 파일 하나만으로도 항상
+		// 같은 모습으로 열리도록 합니다(다른 컴퓨터·인쇄에서도 깨지지 않음).
+		// 조건마다 실제(검출 기준) 막대와 그 아래 옅은 예측 막대를 나란히 그립니다.
+		function reportChartSVG(groups) {
+			const COLORS = { z: ["#d9485f", "#3c82f6"], x: ["#22c55e", "#a855f7"] };
+			const rowH = 26, predH = 14, gap = 16, labelW = 150, chartW = 460, padTop = 14;
+			const chartables = groups.filter(g => g.counted.length);
+			if (!chartables.length) return "";
+			const parts = [];
+			let y = padTop;
+			chartables.forEach(({ rows, sum }) => {
+				const axis = lastAxisOf(rows[0].settings);
+				const [pc, mc] = COLORS[axis];
+				const label = escapeHTML(conditionShort(rows));
+				const bar = (yy, h, plusPct, opacity, title) => {
+					const pw = chartW * plusPct / 100;
+					return `<rect x="${labelW}" y="${yy}" width="${pw.toFixed(1)}" height="${h}" fill="${pc}" opacity="${opacity}"><title>${title} ${outcomeLabel(axis, "plus")} ${plusPct.toFixed(1)}%</title></rect>` +
+						`<rect x="${(labelW + pw).toFixed(1)}" y="${yy}" width="${(chartW - pw).toFixed(1)}" height="${h}" fill="${mc}" opacity="${opacity}"><title>${title} ${outcomeLabel(axis, "minus")} ${(100 - plusPct).toFixed(1)}%</title></rect>`;
+				};
+				const actual = detectedShare(sum).plus;
+				parts.push(`<text x="0" y="${y + rowH / 2 + 4}" font-size="12" font-weight="700" fill="#17212f">${label}</text>` + bar(y, rowH, actual, 1, "실제") +
+					`<text x="${labelW + chartW + 8}" y="${y + rowH / 2 + 4}" font-size="11" fill="#52657c">${outcomeLabel(axis, "plus")} ${actual.toFixed(1)}%</text>`);
+				y += rowH + 3;
+				const pred = rows[rows.length - 1].pred;
+				if (pred) {
+					parts.push(`<text x="12" y="${y + predH / 2 + 4}" font-size="10.5" fill="#52657c">└ 내 예측</text>` + bar(y, predH, Number(pred.plus) || 0, 0.4, "예측") +
+						`<text x="${labelW + chartW + 8}" y="${y + predH / 2 + 4}" font-size="10.5" fill="#52657c">${outcomeLabel(axis, "plus")} ${Number(pred.plus)}%</text>`);
+					y += predH;
+				}
+				y += gap;
+			});
+			const axisY = y + 2;
+			const ticks = [0, 25, 50, 75, 100].map(t => {
+				const x = labelW + chartW * t / 100;
+				return `<line x1="${x}" y1="${padTop - 4}" x2="${x}" y2="${axisY - 12}" stroke="#dce4ef" stroke-width="1"/>` +
+					`<text x="${x}" y="${axisY}" font-size="10" fill="#94a3b8" text-anchor="middle">${t}%</text>`;
+			}).join("");
+			const w = labelW + chartW + 90, h = axisY + 8;
+			return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px;display:block" role="img"
+				aria-label="조건별로 검출된 입자 중 ↑, ↓ 비율을 실제 결과와 내 예측으로 비교한 가로 막대그래프">${ticks}${parts.join("")}</svg>` +
+				`<p class="chart-legend"><span><i style="background:${COLORS.z[0]}"></i>z↑</span><span><i style="background:${COLORS.z[1]}"></i>z↓</span>` +
+				`<span><i style="background:${COLORS.x[0]}"></i>x+</span><span><i style="background:${COLORS.x[1]}"></i>x−</span>` +
+				`<span>진한 막대 = 실제, 옅은 막대 = 내 예측 (검출된 입자 기준)</span></p>`;
+		}
+
+		// 자료 분석(사이드바): 조건별로 예측 vs 실제(검출 기준) 두 줄 비교
+		function resultsMiniHTML() {
+			const groups = groupRunLog().filter(g => g.counted.length);
+			if (!groups.length) return "";
+			const fmt = v => Math.round(v) + "%";
+			return groups.map(({ rows, counted, sum }) => {
+				const { axisName, colors } = finalAxisStyle(rows);
+				const track = p => '<div class="mini-track"><div style="width:' + p.plus + '%;background:' + colors.plus + '" title="' + outcomeLabel(axisName, "plus") + ' ' + p.plus.toFixed(1) + '%"></div><div style="width:' + p.minus + '%;background:' + colors.minus + '" title="' + outcomeLabel(axisName, "minus") + ' ' + p.minus.toFixed(1) + '%"></div></div>';
+				const nums = p => '<span class="mini-nums">' + outcomeLabel(axisName, "plus") + ' ' + fmt(p.plus) + '</span>';
+				const actual = detectedShare(sum);
+				const pr = rows[rows.length - 1].pred;
+				const pred = pr ? { plus: Number(pr.plus) || 0, minus: Number(pr.minus) || 0 } : null;
+				const gapText = pred ? '예측과 차이 ' + Math.abs(Math.round(actual.plus - pred.plus)) + '%p' : '예측 기록 없음';
+				const expTag = [...new Set(rows.map(r => r.experiment))]
+					.map(exp => experimentLabels[exp] ?? exp).filter(Boolean).join(" / ");
+				return '<div class="mini-group">' +
+					(expTag ? '<div class="mini-exp-tag">' + escapeHTML(expTag) + '</div>' : '') +
+					'<div class="mini-head"><b>' + escapeHTML(conditionShort(rows)) + '</b><span>' + counted.length + '회 · ' + sum.shots.toLocaleString() + '개</span></div>' +
+					(pred ? '<div class="mini-row mini-pred"><span>예측</span>' + track(pred) + nums(pred) + '</div>' : '') +
+					'<div class="mini-row"><span>실제</span>' + track(actual) + nums(actual) + '</div>' +
+					'<p class="mini-detected">' + gapText + ' · 발사한 입자 중 ' + fmt(100 * sum.lost / sum.shots) + '는 중간에 차단</p>' +
+					'</div>';
+			}).join("");
+		}
+
+		// 결과 팝업: 막대 하나 = 검출된 입자 100%. 내 예측(빗금)과 실제를 색 막대 길이로 비교
+		function resultsChartHTML() {
+			if (!state.runLog.length) return noRunsHTML;
+			const fmt = v => v.toFixed(1) + "%";
+			const current = settingsSignature();
+			const groups = groupRunLog().filter(g => g.counted.length).sort((a, b) => (b.key === current) - (a.key === current));
+			return groups.map(g => {
+				const { rows, counted, sum } = g;
+				const { axisName, colors } = finalAxisStyle(rows);
+				const bar = (label, p, cls, sub) => {
+					const segs = [["plus", p.plus, outcomeLabel(axisName, "plus") + ""], ["minus", p.minus, outcomeLabel(axisName, "minus") + ""]]
+						.map(([k, v, name]) => v > 0 ? '<div class="rc-seg rc-' + k + '" style="width:' + v + '%;background:' + colors[k] + '" title="' + name + ' ' + fmt(v) + '">' + (v >= 9 ? '<span>' + fmt(v) + '</span>' : '') + '</div>' : '').join("");
+					return '<div class="rc-row ' + cls + '"><div class="rc-label">' + label + (sub ? '<small>' + sub + '</small>' : '') + '</div><div class="rc-track">' + segs + '</div></div>';
+				};
+				const total = detectedShare(sum);
+				const pred = rows[rows.length - 1].pred;
+				const predBar = pred ? bar("내 예측", { plus: Number(pred.plus) || 0, minus: Number(pred.minus) || 0 }, "rc-pred") : "";
+				const sumBar = bar("실제 합산", total, "rc-sum", sum.shots.toLocaleString() + "개 발사");
+				const runBars = counted.map(r => bar("실험 " + r.number, detectedShare(r.counts), "", (r.counts.plus + r.counts.minus).toLocaleString() + "개 검출")).join("");
+				const cond = conditionSteps(rows).map(s => '<span class="rc-chip">' + escapeHTML(s) + '</span>').join('<span class="rc-arrow">→</span>');
+				const reached = 100 * (sum.plus + sum.minus) / sum.shots;
+				const big = '<div class="rc-big">' +
+					'<div><b style="color:' + colors.plus + '">' + fmt(total.plus) + '</b><span>' + outcomeLabel(axisName, "plus") + ' (검출 중)</span></div>' +
+					'<div><b style="color:' + colors.minus + '">' + fmt(total.minus) + '</b><span>' + outcomeLabel(axisName, "minus") + ' (검출 중)</span></div>' +
+					'<div><b style="color:var(--lost)">' + fmt(reached) + '</b><span>검출기 도달</span></div>' +
+					'</div><p class="rc-detected">' + (pred ? '내 예측은 <b>' + outcomeLabel(axisName, "plus") + ' ' + pred.plus + '%</b>였어요. ' : '') +
+					(sum.lost ? '발사한 입자 중 ' + fmt(100 * sum.lost / sum.shots) + '는 중간 분석기에서 차단되었어요.' : '차단된 입자는 없어요.') + '</p>';
+				const expTags = [...new Set(rows.map(r => r.experiment))]
+					.map(exp => '<span class="rc-exp-tag">' + escapeHTML(experimentLabels[exp] ?? exp) + '</span>').join("");
+				return '<section class="rc-group' + (g.key === current ? ' rc-current' : '') + '">' +
+					(expTags ? '<div class="rc-exp-row">' + expTags + '</div>' : '') +
+					'<div class="rc-head"><div class="rc-cond">' + cond + '</div><div class="rc-meta">' + (g.key === current ? '<em>방금 측정</em>' : '') + counted.length + '회 · 합산 ' + sum.shots.toLocaleString() + '개</div></div>' +
+					big +
+					'<div class="rc-legend"><span><i style="background:' + colors.plus + '"></i>' + outcomeLabel(axisName, "plus") + '</span><span><i style="background:' + colors.minus + '"></i>' + outcomeLabel(axisName, "minus") + '</span><span>옅은 빗금 = 내 예측</span></div>' +
+					'<div class="rc-chart">' + predBar + sumBar + runBars +
+					'<div class="rc-row rc-axis"><div class="rc-label"></div><div class="rc-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div></div></div>' +
+					'<details class="rc-table"><summary>숫자 표로 보기</summary>' + resultTableHTML(g) + '</details>' +
+					'</section>';
+			}).join("");
+		}
+
+		function currentConditionRecords() {
+			const signature = settingsSignature();
+			return state.runLog.filter(r => r.signature === signature && hasCounts(r));
+		}
+
+		function collectionAction() {
+			const records = currentConditionRecords();
+			if (state.runKind === "measure" && !state.runSettled) return state.paused ? "resume" : "pause";
+			if (!state.runSettled) return "observe";
+			if (records.length && state.reviewedResults[settingsSignature()] !== records.length) return "results";
+			// 자유 탐구에서는 자유 탐구로 직접 측정한 기록이 있어야 자료 분석으로 넘어갈 수 있습니다.
+			const freeDone = state.runLog.some(r => r.experiment === "free" && hasCounts(r));
+			if (records.length && (document.getElementById("experimentPlan").value !== "free" || freeDone)) return "next";
+			return "start";
+		}
+
+		function updateCollectionAction() {
+			const action = collectionAction();
+			const plan = document.getElementById("experimentPlan").value;
+			const repeat = REPEAT_COUNT;
+			const sig = settingsSignature();
+			const pred = state.predictions[sig];
+			const toFree = plan === "recombine";
+			let label, hint, phase;
+			if (action === "observe") {
+				label = "관찰 마치고 측정하기 →";
+				hint = "입자가 이동 중입니다. 정식 측정은 관찰 집계를 비우고 시작합니다.";
+				phase = "ready";
+			} else if (action === "pause" || action === "resume") {
+				label = action === "pause" ? "Ⅱ 측정 일시정지" : "▶ 측정 계속하기";
+				hint = action === "pause" ? "측정 중입니다. 완료되면 결과 확인 버튼으로 바뀝니다." : "측정이 멈췄습니다. 아래 버튼으로 이어서 진행하세요.";
+				phase = "running";
+			} else if (action === "results") {
+				label = "측정 결과 확인하기 →";
+				hint = "측정이 끝났습니다. 내 예측과 실제 결과의 막대 길이를 비교해 보세요.";
+				phase = "results";
+			} else if (action === "next") {
+				label = plan === "free" ? "자료 분석으로 이동 →" : toFree ? "자유 탐구 해보기 →" : "다음 실험으로 이동 →";
+				hint = toFree ? "실험 ①~④를 모두 마쳤습니다! 이번에는 궁금한 조건을 직접 만들어 예측하고 확인해 보세요."
+					: plan === "free" ? "자유 탐구 결과를 확인했습니다. 다른 조건을 더 해 봐도 좋고, 준비되면 자료 분석으로 넘어가세요."
+						: "결과를 확인했습니다. 다음 조건으로 바꿔 비교해 보세요.";
+				phase = "results";
+			} else if (plan === "free" && currentConditionRecords().length) {
+				label = "이 조건 한 번 더 측정 →";
+				hint = "이미 측정한 조건이에요. 위의 ‘분석기 설정’에서 축이나 필터를 바꿔 궁금한 새 조건을 만들어 보세요.";
+				phase = "ready";
+			} else if (pred) {
+				const axis = lastAxisOf(getSettings().analyzers);
+				label = "1,000개 측정 시작 →";
+				hint = (pred.source === "step2" ? "② 가설 설정에서 예측한 값" : "입력한 예측") + "(" + outcomeLabel(axis, "plus") + " " + pred.plus + "%)으로 1,000개씩 " + repeat + "회 측정합니다.";
+				phase = "ready";
+			} else {
+				label = "예측하고 측정 시작 →";
+				hint = "먼저 검출될 입자의 두 결과 비율을 예상한 뒤 1,000개씩 " + repeat + "회 측정합니다.";
+				phase = "ready";
+			}
+			const setText = (id, text) => { const el = document.getElementById(id); if (el.textContent !== text) el.textContent = text; };
+			setText("collectionActionBtn", label);
+			setText("collectionActionHint", hint);
+			document.getElementById("collectionActionBtn").dataset.action = action;
+			document.getElementById("collectionActionPanel").dataset.phase = phase;
+			document.querySelectorAll("[data-action-phase]").forEach(el => {
+				const current = el.dataset.actionPhase === phase;
+				el.classList.toggle("current", current);
+				if (current) el.setAttribute("aria-current", "step"); else el.removeAttribute("aria-current");
+			});
+			const measuring = action === "pause" || action === "resume";
+			const progress = document.getElementById("measurementProgress");
+			progress.hidden = !measuring;
+			progress.value = state.emitted;
+			document.getElementById("measurementProgressText").hidden = !measuring;
+			if (measuring) setText("measurementProgressText", (state.seriesTotal - state.repeatsLeft + 1) + "/" + state.seriesTotal + "회 · " + state.emitted + "/1,000개 발사" + (state.emitted === 1000 ? " · 도착 대기" : ""));
+		}
+
+		// 측정을 마친 직후 결과 팝업을 열 때만(withFeedback) 방금 측정한 조건의 예측 피드백을 맨 위에 보여 줍니다.
+		// '조건별 측정 결과 보기' 버튼으로 다시 열 때는 보여 주지 않습니다.
+		function openCollectionResults(withFeedback = false) {
+			if (withFeedback === true) {
+				const sig = settingsSignature();
+				const pred = state.predictions[sig], actual = summarizeSig(sig);
+				if (pred && actual) {
+					const axis = lastAxisOf(getSettings().analyzers);
+					const diff = Math.abs(actual.plusPct - pred.plus);
+					showFeedbackToast(feedbackTier(diff), {
+						detail: `내 예측 ${outcomeLabel(axis, "plus")} ${pred.plus}% · 실제 ${outcomeLabel(axis, "plus")} ${actual.plusPct.toFixed(1)}% (차이 ${diff.toFixed(1)}%p)`
+					});
+				}
+			}
+			openModal("resultsModal");
+			document.getElementById("resultsModalClose").focus();
+			document.querySelector("#resultsModal .modal-card").scrollTop = 0;
+		}
+
+		// 정식 측정 일시정지·재개 (큰 진행 버튼에서 호출)
+		function togglePause() {
+			if (state.runSettled) return;
+			state.paused = !state.paused;
+			state.lastTime = 0;
+			setRunStatus(state.paused ? "일시정지" : "진행 중…");
+			updateControlLocks();
+		}
+
+		function performCollectionAction() {
+			const action = collectionAction();
+			if (action === "pause" || action === "resume") { togglePause(); return; }
+			if (action === "results") { openCollectionResults(true); return; }
+			if (action === "next") {
+				const select = document.getElementById("experimentPlan");
+				if (select.value === "free") showStep(4);
+				else {
+					select.selectedIndex++;
+					select.dispatchEvent(new Event("change"));
+					updateCollectionAction();
+					document.getElementById("collectionActionBtn").focus();
+				}
+				return;
+			}
+			requestRun();
+			updateCollectionAction();
+		}
+
+		// ── Init ──
+		function init() {
+			// 브라우저의 입력값 복원과 이전 버전의 임시 저장을 사용하지 않습니다.
+			try { localStorage.removeItem("quantum-polarization-draft-v1"); } catch { }
+			document.querySelectorAll("input, textarea, select").forEach(el => {
+				el.setAttribute("autocomplete", "off");
+				if (el.tagName === "SELECT") {
+					const selected = [...el.options].findIndex(o => o.defaultSelected);
+					el.selectedIndex = selected >= 0 ? selected : 0;
+				} else if (el.type === "radio" || el.type === "checkbox") el.checked = el.defaultChecked;
+				else el.value = el.defaultValue;
+			});
+			window.addEventListener("pageshow", event => { if (event.persisted) location.reload(); });
+			// 디지털 활용 유의사항: 저장하지 않은 기록이 있으면 창을 닫기 전에 경고합니다.
+			document.addEventListener("input", e => {
+				if (e.target.closest(".sidebar, #predictionModal")) state.dirty = true;
+			});
+			window.addEventListener("beforeunload", e => {
+				if (!state.dirty) return;
+				e.preventDefault();
+				e.returnValue = "";
+			});
+			initPredWidgets();
+			createAnalyzerCards();
+			rebuildScene3D();
+			renderRunLog();
+
+			const inputs = [ui.axisA, ui.axisB, ui.axisC, ui.filterA, ui.filterB, ui.filterC];
+			inputs.forEach(el => {
+				el.addEventListener("change", () => syncAfterSettingsChange());
+				el.addEventListener("input", () => syncAfterSettingsChange());
+			});
+
+			document.getElementById("singleShotBtn").addEventListener("click", () => requestRun({ single: true }));
+
+			ui.predictionSubmitBtn.addEventListener("click", submitPrediction);
+			ui.predictionModalClose.addEventListener("click", () => closeModal("predictionModal"));
+			document.getElementById("expandResultsBtn").addEventListener("click", openCollectionResults);
+			document.getElementById("runLogExpandBtn").addEventListener("click", openCollectionResults);
+			document.getElementById("resultsModalClose").addEventListener("click", () => closeModal("resultsModal"));
+
+			ui.resetViewBtn.addEventListener("click", () => {
+				camera.position.set(CAM_DEFAULT.x, CAM_DEFAULT.y, CAM_DEFAULT.z);
+				controls.target.set(0, 0, 0);
+				controls.update();
+			});
+
+			ui.fullscreenBtn.addEventListener("click", async () => {
+				try {
+					if (!document.fullscreenElement) {
+						await document.documentElement.requestFullscreen();
+						ui.fullscreenBtn.textContent = "전체화면 해제";
+					} else {
+						await document.exitFullscreen();
+						ui.fullscreenBtn.textContent = "전체화면";
+					}
+				} catch (e) {
+					ui.fullscreenBtn.textContent = "전체화면";
+				}
+			});
+			document.addEventListener("fullscreenchange", () => {
+				ui.fullscreenBtn.textContent = document.fullscreenElement ? "전체화면 해제" : "전체화면";
+			});
+
+			document.getElementById("experimentPlan").addEventListener("change", () => {
+				if (document.getElementById("experimentPlan").value === "free") {
+					clearRunState(); syncLabels(); updateExperimentGuide();
+				} else applyPreset(document.getElementById("experimentPlan").value);
+
+			});
+			document.getElementById("collectionActionBtn").addEventListener("click", performCollectionAction);
+			document.getElementById("resultsContinueBtn").addEventListener("click", () => {
+				const records = currentConditionRecords();
+				if (records.length) state.reviewedResults[settingsSignature()] = records.length;
+				closeModal("resultsModal");
+				updateCollectionAction();
+				document.getElementById("collectionActionBtn").focus();
+			});
+
+			// 배치 미리보기는 분석기 배치만 보여 주고, 이론값은 측정 전까지 공개하지 않습니다(updateReadouts 참고).
+			const preview = (preset, text) => {
+				applyPreset(preset);
+				ui.previewStatus.dataset.previewed = "1";
+				ui.previewStatus.textContent = text;
+			};
+			document.getElementById("previewSameAxisBtn").addEventListener("click", () =>
+				preview("sameAxis", "실험 ① · z축 분석기 두 대가 배치되었습니다. 결과는 ③ 자료 수집에서 직접 측정해 확인합니다."));
+			document.getElementById("previewDiffAxisBtn").addEventListener("click", () =>
+				preview("basisChange", "실험 ② · z축 분석기 뒤에 x축 분석기가 배치되었습니다. 결과는 ③ 자료 수집에서 직접 측정해 확인합니다."));
+
+
+			document.getElementById("prevStepBtn").addEventListener("click", () => showStep(stepState.step - 1));
+			document.getElementById("nextStepBtn").addEventListener("click", () => showStep(stepState.step + 1));
+			document.getElementById("downloadReportBtn").addEventListener("click", downloadReport);
+
+			document.getElementById("principleBtn").addEventListener("click", openPrinciple);
+			document.getElementById("principleClose").addEventListener("click", () => closeModal("principleModal"));
+			document.getElementById("principleCancel").addEventListener("click", () => closeModal("principleModal"));
+			document.getElementById("firstHypothesisNote").addEventListener("input", updateGates);
+			document.querySelectorAll('input[name="firstHypothesis"]').forEach(el => el.addEventListener("change", updateGates));
+			document.getElementById("hypothesisNote").addEventListener("input", updateGates);
+			document.getElementById("reflectionNote").addEventListener("input", updatePrincipleLock);
+			document.querySelectorAll('input[name="conclusionChoice"]').forEach(el => el.addEventListener("change", updatePrincipleLock));
+			document.querySelectorAll('input[name="mixtureTestChoice"]').forEach(el => el.addEventListener("change", runMixtureTest));
+
+			["principleModal", "resultsModal"].forEach(id => {
+				document.getElementById(id).addEventListener("click", e => {
+					if (e.target.id === id) closeModal(id);
+				});
+			});
+
+			applyPreset("sameAxis");
+			showStep(1);
+			requestAnimationFrame(tick);
+		}
+
+		init();
+	</script>
+	<!-- BEGIN EMBEDDED THREE.JS: no external library files are needed. -->
+</body>
+
+</html>
