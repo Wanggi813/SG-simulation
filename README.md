@@ -1,2 +1,2 @@
 # SG-simulation
-SG simulation 연구중~
+SG simulation 연구
