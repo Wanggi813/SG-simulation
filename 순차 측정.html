@@ -9,7 +9,7 @@
 	<meta name="referrer" content="strict-origin-when-cross-origin">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 	<title>순차 측정</title>
-	<meta name="description" content="슈테른-겔라흐 실험을 3D로 시각화한 순차 측정 시뮬레이션입니다." />
+	<meta name="description" content="슈테른-겔라흐 실험을 시각화한 순차 측정 시뮬레이션입니다." />
 	<script type="importmap">
 		{
 			"imports": {
@@ -367,6 +367,14 @@
 			line-height: 1.6;
 			color: var(--muted);
 			margin: 6px 0;
+		}
+
+		.model-note {
+			background: #fff7ed;
+			border: 1px solid #fed7aa;
+			border-radius: 10px;
+			padding: 8px 10px;
+			color: var(--text);
 		}
 
 		.writing-prompt,
@@ -1774,7 +1782,8 @@
 		}
 
 		.mini-pred .mini-track div {
-			opacity: 0.45;
+			opacity: 0.6;
+			background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.7) 0 3px, transparent 3px 7px);
 		}
 
 		.mini-nums {
@@ -1992,9 +2001,15 @@
 		}
 
 		.rc-pred .rc-seg {
-			opacity: 0.5;
+			opacity: 0.6;
 			color: var(--text);
-			background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.45) 0 4px, transparent 4px 8px);
+			background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.7) 0 4px, transparent 4px 9px);
+		}
+
+		.rc-legend i.rc-hatch {
+			background-color: #94a3b8;
+			opacity: 0.6;
+			background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.7) 0 2px, transparent 2px 5px);
 		}
 
 		.rc-pred .rc-label {
@@ -2471,7 +2486,7 @@
 		<!-- ── Sidebar ── -->
 		<aside class="sidebar">
 			<div>
-				<div class="sb-title">순차 측정 3D</div>
+				<div class="sb-title">순차 측정</div>
 				<div class="sb-sub" id="stepLabel">1 / 5 · 문제 인식</div>
 				<div class="step-progress" aria-hidden="true">
 					<span></span><span></span><span></span><span></span><span></span>
@@ -2484,20 +2499,18 @@
 					<div class="ctrl-head">① 문제 인식</div>
 					<label class="writing-prompt" for="studentName">보고서 작성자 · 학번 / 이름</label>
 					<input id="studentName" type="text" maxlength="80" placeholder="예: 30305 김민수" />
-					<p class="key-question"><span>탐구 질문</span>z↑로 측정된 입자를 다른 축(x)으로 재면, 그 결과는 재기 전에 이미 정해져 있을까?</p>
-					<p class="sb-note">지난 시간에 분석기(자석)를 지난 입자는 위(z↑)·아래(z↓) 두 곳에만 검출되었고, 마지막에
-						<strong>z↑ 입자만 골라 다시 측정하면 어떻게 될까?</strong>를 예측했습니다. 오늘은 분석기를 이어 붙여 직접 확인합니다.
-						분석기를 90° 돌린 <strong>x축 분석기</strong>는 입자를 오른쪽(x+)·왼쪽(x−) 두 갈래로 나눕니다.</p>
+					<p class="key-question"><span>탐구 질문</span>z↑ 입자를 x축으로 측정하면, 그 결과는 이미 정해져 있을까, 측정하는 순간 정해질까?</p>
+					<p class="sb-note">지난 시간에 입자는 위(z↑)·아래(z↓) 두 곳에만 검출되었습니다.
+						오늘은 그중 <strong>z↑ 입자</strong>만 골라 분석기를 이어 붙여 다시 측정합니다.
+						분석기를 90° 돌리면 <strong>x축(좌우) 방향</strong>으로도 측정할 수 있습니다.</p>
 					<fieldset class="model-options" id="firstHypothesisChoices">
-						<legend>z↑ 입자를 x축으로 잰 결과 — 나의 첫 예상</legend>
-						<label><input type="radio" name="firstHypothesis" value="A" /><span><strong>가설 A</strong> · 재기 전에 이미
-								정해져 있다<small>z↑ 입자 하나하나는 x 방향으로도 이미 x+ 또는 x−로 정해져 있고, 분석기는 그 값을 확인할 뿐이다(측정해도
-									상태는 그대로다).</small></span></label>
-						<label><input type="radio" name="firstHypothesis" value="B" /><span><strong>가설 B</strong> · 재는 순간
-								정해진다<small>z↑ 입자의 x 방향 결과는 정해져 있지 않다가, x축으로 측정하는 순간 x+ 또는 x− 하나로 정해진다(측정이 상태를
-									바꾼다).</small></span></label>
+						<legend>z↑ 입자를 x축으로 측정한 결과 — 나의 첫 예상</legend>
+						<label><input type="radio" name="firstHypothesis" value="A" /><span><strong>가설 A</strong> · 이미 정해져
+								있다<small>z↑ 입자를 x축으로 측정한 결과는 측정 전에 이미 어느 한쪽으로 정해져 있고, 분석기는 그것을 확인만 한다.</small></span></label>
+						<label><input type="radio" name="firstHypothesis" value="B" /><span><strong>가설 B</strong> · 측정하는 순간
+								정해진다<small>z↑ 입자를 x축으로 측정한 결과는 측정 전에는 어느 쪽으로도 정해져 있지 않다가, 측정하는 순간 하나로 정해진다.</small></span></label>
 					</fieldset>
-					<label class="writing-prompt" for="firstHypothesisNote">왜 그렇게 예상했나요? (아직 실험 전이니 정답을 몰라도 괜찮습니다)</label>
+					<label class="writing-prompt" for="firstHypothesisNote">왜 그렇게 예상했나요? (정답을 몰라도 괜찮아요)</label>
 					<textarea id="firstHypothesisNote"
 						placeholder="예시 형식: ~라고 생각하기 때문에 가설 ○가 맞다고 예상한다."></textarea>
 				</section>
@@ -2533,7 +2546,8 @@
 						<option value="mixed" selected>원자 오븐</option>
 					</select>
 					<div class="ctrl-head">③ 자료 수집 · 비교 실험</div>
-					<p class="key-question"><span>핵심 발문</span>z↑로 측정된 입자는 언제나 z↑일까? 다른 축으로 재거나, 중간에 다른 축 측정을 거치면 어떻게 될까?</p>
+					<p class="key-question"><span>핵심 발문</span>z↑로 측정된 입자는 언제나 z↑일까? 다른 축으로 측정하거나, 중간에 다른 축 측정을 거치면 어떻게 될까?</p>
+					<p class="sb-note model-note">화면 속 입자의 이동 경로와, 입자 색이 자석 가운데서 바뀌는 것은 이해를 돕기 위한 <strong>모형</strong>이에요. 실제 측정 결과는 입자가 <strong>차단판에 막히거나 검출기에 찍힐 때</strong> 확인됩니다.</p>
 					<p class="sb-note">아래 큰 버튼을 따라 실험 ①→③을 차례로 진행한 뒤, ④ 자유 탐구에서 궁금한 조건을 직접 만들어 확인해 보세요.</p>
 					<label class="writing-prompt" for="experimentPlan">실험 선택</label>
 					<select id="experimentPlan">
@@ -2623,11 +2637,11 @@
 						<div id="observationNotesHome">
 							<label class="writing-prompt" for="detectedRatioNote">실험 ①(z↑ → z)과 ②(z↑ → x)는 두 번째 분석기의 축만 다릅니다. 결과가 왜 다르게 나왔을까요?</label>
 							<textarea id="detectedRatioNote"
-								placeholder="예시 형식: 같은 축으로 다시 재면 ~하지만, 다른 축으로 재면 ~하기 때문이다."></textarea>
+								placeholder="예시 형식: 같은 축으로 다시 측정하면 ~하지만, 다른 축으로 측정하면 ~하기 때문이다."></textarea>
 							<details class="hint-fold">
 								<summary>도움이 필요하면 · 단계별 힌트</summary>
 								<p><b>힌트 1</b> 결과 그래프에서 ①과 ②의 색 막대 길이를 비교해 보세요.</p>
-								<p><b>힌트 2</b> 같은 축으로 다시 잴 때와 다른 축으로 잴 때, 각각 어떤 규칙이 보이나요?</p>
+								<p><b>힌트 2</b> 같은 축으로 다시 측정할 때와 다른 축으로 측정할 때, 각각 어떤 규칙이 보이나요?</p>
 								<p><b>힌트 3</b> 첫 번째 측정 뒤 입자의 상태가 어느 방향으로 정해졌는지를 근거로 두 결과의 차이를 설명해 보세요.</p>
 							</details>
 						</div>
@@ -2637,7 +2651,7 @@
 				<!-- ④ 자료 분석 (전개2) -->
 				<section class="ctrl-block" data-step="4" hidden>
 					<div class="ctrl-head">④ 자료 분석 · 결과 비교와 토의</div>
-					<p class="key-question"><span>핵심 발문</span>마지막 분석기가 똑같이 z축인데, 중간에 x를 재면(③) 결과가 달라졌다. 측정은 입자의 상태에 어떤 영향을 줄까?</p>
+					<p class="key-question"><span>핵심 발문</span>마지막 분석기가 똑같이 z축인데, 중간에 x를 측정하면(③) 결과가 달라졌다. 측정은 입자의 상태에 어떤 영향을 줄까?</p>
 					<p class="sb-note">③ 단계에서 측정한 결과가 조건별로 합산되어 있습니다. 옅은 빗금 막대가 <strong>내 예측</strong>, 진한 막대가
 						<strong>실제 결과</strong>입니다. (모두 검출기에 도달한 입자 기준)</p>
 					<div id="runLogEmpty" class="sb-note">아직 기록된 실행이 없습니다. ③ 단계로 돌아가 실행해 보세요.</div>
@@ -2648,13 +2662,13 @@
 					<textarea id="stateExplanationNote"
 						placeholder="예시 형식: 실험 ○이 예측과 가장 크게 어긋났다. 왜냐하면 ~"></textarea>
 
-					<label class="writing-prompt" for="changedConditionNote">실험 ①(z↑ → z)과 ③(z↑ → x+ → z)은 중간에 x를 쟀는지만 다릅니다. 마지막 z 결과가 왜 달라졌을까요?</label>
+					<label class="writing-prompt" for="changedConditionNote">실험 ①(z↑ → z)과 ③(z↑ → x+ → z)은 중간에 x를 측정했는지만 다릅니다. 마지막 z 결과가 왜 달라졌을까요?</label>
 					<textarea id="changedConditionNote"
 						placeholder="예시 형식: ③에서는 중간의 x 측정이 ~했기 때문이다."></textarea>
 					<details class="hint-fold">
 						<summary>도움이 필요하면 · 단계별 힌트</summary>
 						<p><b>힌트 1</b> 결과 그래프에서 ①과 ③의 마지막 z 막대를 비교해 보세요.</p>
-						<p><b>힌트 2</b> 중간에 x를 잰 뒤, 입자의 상태는 어느 방향으로 정해졌을까요?</p>
+						<p><b>힌트 2</b> 중간에 x를 측정한 뒤, 입자의 상태는 어느 방향으로 정해졌을까요?</p>
 						<p><b>힌트 3</b> 측정이 값을 확인만 한다면, ③의 마지막 z 결과는 어떻게 나와야 할까요?</p>
 					</details>
 
@@ -2667,7 +2681,7 @@
 					<textarea id="conclusion"
 						placeholder="힌트: 실험 ①과 ③의 차이를 근거로 적어 보세요."></textarea>
 
-					<div class="question-label">② z↑ 입자의 x 결과는 재기 전에 정해져 있었을까?</div>
+					<div class="question-label">② z↑ 입자를 x축으로 측정한 결과는 이미 정해져 있었을까, 측정하는 순간 정해졌을까?</div>
 
 					<div class="evidence-step">
 						<span class="evidence-num">1</span>
@@ -2692,9 +2706,9 @@
 						<div class="evidence-body">
 							<p class="evidence-title">위 증거를 바탕으로 내가 내리는 판단</p>
 							<fieldset class="model-options" id="conclusionChoices">
-								<legend>z↑ 입자를 x축으로 잰 결과 — 지금의 판단</legend>
-								<label><input type="radio" name="conclusionChoice" value="A" /><span><strong>가설 A</strong> · 재기 전에 이미 정해져 있다<small>측정은 확인만 한다</small></span></label>
-								<label><input type="radio" name="conclusionChoice" value="B" /><span><strong>가설 B</strong> · 재는 순간 정해진다<small>측정이 상태를 바꾼다</small></span></label>
+								<legend>z↑ 입자를 x축으로 측정한 결과 — 지금의 판단</legend>
+								<label><input type="radio" name="conclusionChoice" value="A" /><span><strong>가설 A</strong> · 이미 정해져 있다<small>측정은 확인만 한다</small></span></label>
+								<label><input type="radio" name="conclusionChoice" value="B" /><span><strong>가설 B</strong> · 측정하는 순간 정해진다<small>다른 축 측정이 상태를 바꾼다</small></span></label>
 							</fieldset>
 							<label class="writing-prompt" for="reflectionNote">그렇게 고른 근거는 무엇인가요?</label>
 							<textarea id="reflectionNote"
@@ -2706,15 +2720,15 @@
 					<button class="btn-sub" id="principleBtn" style="width:100%" disabled>원리 보기</button>
 					<p class="sb-note" id="principleLockNote">②의 판단과 근거를 먼저 적으면 열립니다.</p>
 					<div id="afterPrincipleBlock" hidden>
-						<label class="writing-prompt" for="afterPrincipleNote">원리를 보고 새로 알게 되거나 달라진 생각을 적어 보세요. (‘측정은 상태를
-							바꾼다’는 내용을 넣어서)</label>
+						<label class="writing-prompt" for="afterPrincipleNote">원리를 보고 새로 알게 되거나 달라진 생각을 적어 보세요. (‘다른 축으로 측정하면 상태가
+							바뀐다’는 내용을 넣어서)</label>
 						<textarea id="afterPrincipleNote"
 							placeholder="예시 형식: 측정이 값을 확인만 한다면 ③은 ~였을 텐데, 실제로는 ~였다. 그러므로 측정은 ~."></textarea>
 					</div>
 
 					<div class="self-check" id="selfCheck">
 						<p>스스로 점검해보기 (점수가 아니라 체크만 해도 됩니다)</p>
-						<label><input type="checkbox" id="selfCheck1" /> 같은 축으로 다시 재면 결과가 유지되고, 다른 축으로 재면 반반이 되는 규칙을 찾았다</label>
+						<label><input type="checkbox" id="selfCheck1" /> 같은 축으로 다시 측정하면 결과가 유지되고, 다른 축으로 측정하면 반반이 되는 규칙을 찾았다</label>
 						<label><input type="checkbox" id="selfCheck2" /> 측정 후 상태가 측정한 축 방향으로 정해진다는 것을 근거로 두 결과의 차이를 설명할 수
 							있다</label>
 						<label><input type="checkbox" id="selfCheck3" /> 실험 ①과 ③의 결과 차이를, 측정하지 않으면 상태가 그대로이고 다른 축으로 측정하면 상태가 바뀐다는 것과 연결해 설명할 수 있다</label>
@@ -2735,10 +2749,10 @@
 							<tbody>
 								<tr>
 									<td>두 결과: z↑ / z↓</td>
-									<td>두 상태: 0 / 1</td>
+									<td>두 결과: 0 / 1</td>
 								</tr>
 								<tr>
-									<td>z↑ 입자를 x로 재면 x+·x−가 확률로 정해짐</td>
+									<td>z↑ 입자를 x로 측정하면 x+·x−가 확률로 정해짐</td>
 									<td>큐비트도 측정하면 0·1이 확률로 정해질 수 있음</td>
 								</tr>
 								<tr>
@@ -2793,7 +2807,7 @@
 
 		<!-- Caption -->
 		<div class="caption">
-			<div class="cap-box" id="captionBox">3D 장면에서 슈테른-겔라흐 분석기가 입자를 편향시키는 과정을 관찰하세요.</div>
+			<div class="cap-box" id="captionBox">화면에서 슈테른-겔라흐 분석기가 입자를 편향시키는 과정을 관찰하세요.</div>
 		</div>
 	</div>
 
@@ -2874,7 +2888,7 @@
 						<text x="290" y="83" font-size="10" fill="#64748b">중간은 없음</text>
 					</svg>
 					<figcaption>
-						분석기 안의 불균일한 자기장이 입자를 z↑ 또는 z↓ 두 경로로만 나눕니다(스핀의 양자화). x축 분석기는 같은 원리로 좌우로 나눠요.
+						불균일한 자기장이 입자를 z↑·z↓ 두 경로로만 나눕니다(스핀의 양자화).
 					</figcaption>
 				</figure>
 			</div>
@@ -2884,7 +2898,7 @@
 				<div class="help-sec-label">② 측정하면 상태가 측정한 축 방향으로 정해져요</div>
 				<figure class="principle-card">
 					<svg viewBox="0 0 380 110" width="100%" style="display:block;margin-bottom:10px" role="img"
-						aria-label="입자가 z축 분석기에서 z↑로 측정되면 그 뒤로는 z↑ 상태가 되어, 다시 z축으로 재면 항상 z↑가 나온다">
+						aria-label="입자가 z축 분석기에서 z↑로 측정되면 그 뒤로는 z↑ 상태가 되어, 다시 z축으로 측정하면 항상 z↑가 나온다">
 						<defs>
 							<marker id="collapseArrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
 								orient="auto-start-reverse">
@@ -2900,21 +2914,21 @@
 						<line x1="232" y1="55" x2="262" y2="55" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#collapseArrow2)" />
 						<rect x="274" y="24" width="100" height="62" rx="12" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
 						<text x="324" y="48" font-size="11" fill="#d9485f" text-anchor="middle" font-weight="800">z↑ 상태</text>
-						<text x="324" y="66" font-size="9" fill="#94a3b8" text-anchor="middle">다시 z축으로 재면</text>
+						<text x="324" y="66" font-size="9" fill="#94a3b8" text-anchor="middle">다시 z축으로 측정하면</text>
 						<text x="324" y="78" font-size="9" fill="#94a3b8" text-anchor="middle">→ 항상 z↑ (실험 ①)</text>
 					</svg>
 					<figcaption>
-						z↑로 측정된 입자는 <strong>z↑ 상태</strong>가 됩니다. 그래서 같은 축으로 곧바로 다시 재면 100% z↑가 나와요.
+						z↑로 측정된 입자는 <strong>z↑ 상태</strong>가 됩니다.
 					</figcaption>
 				</figure>
 			</div>
 
 			<!-- 3. 다른 축 -->
 			<div class="help-sec">
-				<div class="help-sec-label">③ z↑ 입자를 x축으로 재면 반반이에요</div>
+				<div class="help-sec-label">③ z↑ 입자를 x축으로 측정하면 반반이에요</div>
 				<figure class="principle-card">
-					<svg viewBox="0 0 380 130" width="100%" style="display:block;margin-bottom:10px" role="img"
-						aria-label="z↑ 입자를 z축으로 다시 재면 z↑ 100%이지만, x축으로 재면 x+와 x−가 각각 50%씩 나온다">
+					<svg viewBox="0 0 380 104" width="100%" style="display:block;margin-bottom:10px" role="img"
+						aria-label="z↑ 입자를 z축으로 다시 측정하면 z↑ 100%이지만, x축으로 측정하면 x+와 x−가 각각 50%씩 나온다">
 						<text x="0" y="16" font-size="10.5" fill="#475569" font-weight="700">같은 축 (실험 ① · z↑ → z)</text>
 						<rect x="0" y="24" width="360" height="20" rx="6" fill="#d9485f" />
 						<text x="180" y="38" font-size="11" fill="white" text-anchor="middle" font-weight="800">z↑ 100%</text>
@@ -2923,18 +2937,16 @@
 						<text x="90" y="92" font-size="11" fill="white" text-anchor="middle" font-weight="800">x+ 50%</text>
 						<rect x="180" y="78" width="180" height="20" fill="#a855f7" />
 						<text x="270" y="92" font-size="11" fill="white" text-anchor="middle" font-weight="800">x− 50%</text>
-						<text x="180" y="120" font-size="10" fill="#64748b" text-anchor="middle">z↑ 상태는 x축으로 재면 어느 쪽인지 확률로만 정해져요</text>
 					</svg>
 					<figcaption>
-						z↑ 상태는 z축에 대해서는 결과가 확실하지만, <strong>x축에 대해서는</strong> x+·x−가 50%씩 나옵니다. 같은 입자라도 어느 축으로 재느냐에
-						따라 결과가 확실할 수도, 확률적일 수도 있어요.
+						같은 입자라도 어느 축으로 측정하느냐에 따라 결과가 <strong>확실할 수도(z), 확률적일 수도(x)</strong> 있어요.
 					</figcaption>
 				</figure>
 			</div>
 
 			<!-- 4. 중간 측정 -->
 			<div class="help-sec">
-				<div class="help-sec-label">④ 중간 측정이 상태를 바꿔요</div>
+				<div class="help-sec-label">④ 중간에 다른 축으로 측정하면 상태가 바뀌어요</div>
 				<figure class="principle-card">
 					<svg viewBox="0 0 420 150" width="100%" style="display:block;margin-bottom:10px" role="img"
 						aria-label="z↑ 입자가 x축 분석기에서 x+로 측정된 뒤 다시 z축으로 측정하면 z↑와 z↓가 다시 50%씩 나온다">
@@ -2953,7 +2965,7 @@
 						<line x1="126" y1="73" x2="154" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
 						<rect x="164" y="52" width="58" height="42" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5" />
 						<text x="193" y="70" font-size="9.5" fill="#15803d" text-anchor="middle" font-weight="700">x축</text>
-						<text x="193" y="83" font-size="9" fill="#15803d" text-anchor="middle">↑만 통과</text>
+						<text x="193" y="83" font-size="9" fill="#15803d" text-anchor="middle">+만 통과</text>
 						<line x1="226" y1="73" x2="254" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
 						<circle cx="272" cy="73" r="14" fill="#f0fdf4" stroke="#22c55e" stroke-width="2" />
 						<text x="272" y="78" font-size="10.5" fill="#22c55e" text-anchor="middle" font-weight="800">x+</text>
@@ -2971,9 +2983,8 @@
 						<text x="210" y="138" font-size="10" fill="#b45309" text-anchor="middle" font-weight="700">x축 측정이 입자의 상태를 z↑에서 x+로 바꿨어요</text>
 					</svg>
 					<figcaption>
-						실험 ①과 ③은 마지막 분석기가 같지만, ③에서는 중간의 x축 측정이 입자의 상태를 <strong>x+로 바꿔 놓았습니다</strong>. x+ 상태를 z축으로
-						재면 다시 반반이 나와요. 반대로 중간에 아무것도 재지 않은 ①에서는 z↑가 그대로였어요 — <strong>측정하지 않으면 상태는 바뀌지 않습니다</strong>. 만약 가설 A처럼 측정이 이미 정해진 값을 <em>확인만</em> 한다면, 처음에 z↑로 골라낸 입자는 마지막에도 모두 z↑여야
-						합니다. 실제로는 z↓가 절반 나왔으므로 <strong>측정은 상태를 바꿉니다</strong>.
+						③에서는 중간의 x 측정이 상태를 <strong>x+로 바꿨고</strong>, 아무것도 측정하지 않은 ①에서는 z↑가 그대로였어요.
+						측정이 <em>확인만</em> 한다면(가설 A) ③도 모두 z↑여야 하지만 z↓가 절반 나왔습니다. 그러므로 <strong>다른 축으로 측정하면 상태가 바뀝니다</strong>.
 					</figcaption>
 				</figure>
 			</div>
@@ -3052,7 +3063,7 @@
 		const lastAxisOf = analyzers => [...analyzers].reverse().find(a => a.axis !== "none")?.axis || "z";
 		const PRESET_SIGS = Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, sigOf(presetAnalyzers(p))]));
 		const FINAL_AXIS = Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, lastAxisOf(presetAnalyzers(p))]));
-		const hypothesisLabels = { A: "가설 A — z↑ 입자의 x 결과는 재기 전에 이미 정해져 있다", B: "가설 B — z↑ 입자의 x 결과는 재는 순간 정해진다" };
+		const hypothesisLabels = { A: "가설 A — z↑ 입자의 x축 측정 결과는 이미 정해져 있다", B: "가설 B — z↑ 입자의 x축 측정 결과는 측정하는 순간 정해진다" };
 		const hypothesisLabel = v => hypothesisLabels[v] || "미선택";
 
 		// Scene layout constants
@@ -3229,7 +3240,16 @@
 			});
 		}
 
+		// 필터 선택지 글을 분석기 축에 맞춥니다(z축: ↑/↓, x축: +/−).
+		function syncFilterOptionLabels() {
+			[[ui.axisA, ui.filterA], [ui.axisB, ui.filterB], [ui.axisC, ui.filterC]].forEach(([axisSel, filterSel]) => {
+				const axis = axisSel.value === "none" ? "z" : axisSel.value;
+				filterSel.querySelectorAll("option").forEach(opt => { opt.textContent = filterLabel(axis, opt.value); });
+			});
+		}
+
 		function syncLabels() {
+			syncFilterOptionLabels();
 			ui.filterB.disabled = ui.axisB.value === "none";
 			ui.filterC.disabled = ui.axisC.value === "none";
 			enforceSequentialFilterRule();
@@ -3967,9 +3987,9 @@
 
 				pushPt(curX, curY, az + GEO.approachDist);
 
-				// 색(측정된 방향)은 자석을 "나올 때"가 아니라 자석의 정중앙(진입점, lenAtAnalyzer)을
-				// 지나는 순간 결정되도록 합니다 — 측정은 자석 한가운데서 일어난다고 보는 것이 물리적으로
-				// 더 자연스럽습니다.
+				// 색(측정된 방향)은 자석의 정중앙(진입점, lenAtAnalyzer)을 지나는 순간 바뀌도록 그립니다.
+				// 이는 보기 쉽게 하려는 모형 표현일 뿐입니다 — 실제 결과는 차단판이나 검출기에서 위치가
+				// 기록될 때 확인되며, 학생 화면의 ③ 단계 모형 안내(model-note)에도 이렇게 적어 두었습니다.
 				const spinCol = SPIN_COLORS[axis]?.[meas.sign] ?? GRAY_COLOR;
 				colorStops.push({ lenAtStop: lenAtAnalyzer, hexColor: spinCol.cssHex, threeColor: spinCol.hex });
 
@@ -4554,12 +4574,12 @@ table.log th{background:var(--panel)}
 	<div class="cover-meta">
 		<div><b>작성자</b>${answer("studentName")}</div>
 		<div><b>작성일</b>${escape(dateStr)}</div>
-		<div><b>탐구 질문</b>한 번 측정한 입자를 다시 측정하면 같은 결과가 나올까?</div>
+		<div><b>탐구 질문</b>z↑ 입자를 x축으로 측정하면, 그 결과는 이미 정해져 있을까, 측정하는 순간 정해질까?</div>
 	</div>
 </div>
 
 <h2><span class="num">Ⅰ.</span> 문제 인식</h2>
-<h3>z↑ 입자를 x축으로 잰 결과 — 나의 첫 예상</h3>
+<h3>z↑ 입자를 x축으로 측정한 결과 — 나의 첫 예상</h3>
 <p><strong>${escape(hypothesisLabel(firstChoice))}</strong></p>
 ${section("그렇게 예상한 까닭", "firstHypothesisNote")}
 
@@ -4595,7 +4615,7 @@ ${section("실험 ①·③ 비교 — 중간 측정 유무에 따라 결과가 �
 
 <h2><span class="num">Ⅵ.</span> 결론</h2>
 ${section("결론 정리", "conclusion")}
-<h3>z↑ 입자를 x축으로 잰 결과 — 원리 보기 전 나의 판단</h3>
+<h3>z↑ 입자를 x축으로 측정한 결과 — 원리 보기 전 나의 판단</h3>
 <p><strong>${escape(hypothesisLabel(judgedChoice))}</strong> (첫 예상: ${escape(hypothesisLabel(firstChoice))})</p>
 <div class="answer">${escape(judgedNote || "미작성")}</div>
 ${section("원리를 본 뒤 새로 알게 되거나 달라진 생각", "afterPrincipleNote")}
@@ -4603,9 +4623,9 @@ ${section("원리를 본 뒤 새로 알게 되거나 달라진 생각", "afterPr
 <h2><span class="num">Ⅶ.</span> 원리 확인</h2>
 <div class="theory-box">
 	<ul>
-		<li>측정하면 입자의 상태는 측정한 축 방향으로 정해집니다. 그래서 z↑로 측정된 입자를 같은 축으로 곧바로 다시 재면 항상 z↑가 나옵니다(실험 ①). 중간에 다른 축을 재지 않으면 상태는 그대로입니다.</li>
-		<li>z↑ 상태를 x축으로 재면 x+와 x−가 반반 나옵니다(실험 ②).</li>
-		<li>중간에 x축 측정을 거치면 입자의 상태가 x+로 바뀌어, 마지막 z 측정이 다시 반반이 됩니다(실험 ③). 측정이 이미 정해진 값을 확인하기만 한다면 ③에서도 z↑만 나와야 하므로, <strong>측정은 상태를 바꿉니다</strong>.</li>
+		<li>측정하면 입자의 상태는 측정한 축 방향으로 정해집니다. 그래서 z↑로 측정된 입자를 같은 축으로 곧바로 다시 측정하면 항상 z↑가 나옵니다(실험 ①). 중간에 다른 축을 측정하지 않으면 상태는 그대로입니다.</li>
+		<li>z↑ 상태를 x축으로 측정하면 x+와 x−가 반반 나옵니다(실험 ②).</li>
+		<li>중간에 x축 측정을 거치면 입자의 상태가 x+로 바뀌어, 마지막 z 측정이 다시 반반이 됩니다(실험 ③). 측정이 이미 정해진 값을 확인하기만 한다면 ③에서도 z↑만 나와야 하므로, <strong>다른 축으로 측정하면 상태가 바뀝니다</strong>.</li>
 	</ul>
 </div>
 
@@ -4844,7 +4864,7 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 			const fmt = v => Math.round(v) + "%";
 			return groups.map(({ rows, counted, sum }) => {
 				const { axisName, colors } = finalAxisStyle(rows);
-				const track = p => '<div class="mini-track"><div style="width:' + p.plus + '%;background:' + colors.plus + '" title="' + outcomeLabel(axisName, "plus") + ' ' + p.plus.toFixed(1) + '%"></div><div style="width:' + p.minus + '%;background:' + colors.minus + '" title="' + outcomeLabel(axisName, "minus") + ' ' + p.minus.toFixed(1) + '%"></div></div>';
+				const track = p => '<div class="mini-track"><div style="width:' + p.plus + '%;background-color:' + colors.plus + '" title="' + outcomeLabel(axisName, "plus") + ' ' + p.plus.toFixed(1) + '%"></div><div style="width:' + p.minus + '%;background-color:' + colors.minus + '" title="' + outcomeLabel(axisName, "minus") + ' ' + p.minus.toFixed(1) + '%"></div></div>';
 				const nums = p => '<span class="mini-nums">' + outcomeLabel(axisName, "plus") + ' ' + fmt(p.plus) + '</span>';
 				const actual = detectedShare(sum);
 				const pr = rows[rows.length - 1].pred;
@@ -4873,7 +4893,7 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 				const { axisName, colors } = finalAxisStyle(rows);
 				const bar = (label, p, cls, sub) => {
 					const segs = [["plus", p.plus, outcomeLabel(axisName, "plus") + ""], ["minus", p.minus, outcomeLabel(axisName, "minus") + ""]]
-						.map(([k, v, name]) => v > 0 ? '<div class="rc-seg rc-' + k + '" style="width:' + v + '%;background:' + colors[k] + '" title="' + name + ' ' + fmt(v) + '">' + (v >= 9 ? '<span>' + fmt(v) + '</span>' : '') + '</div>' : '').join("");
+						.map(([k, v, name]) => v > 0 ? '<div class="rc-seg rc-' + k + '" style="width:' + v + '%;background-color:' + colors[k] + '" title="' + name + ' ' + fmt(v) + '">' + (v >= 9 ? '<span>' + fmt(v) + '</span>' : '') + '</div>' : '').join("");
 					return '<div class="rc-row ' + cls + '"><div class="rc-label">' + label + (sub ? '<small>' + sub + '</small>' : '') + '</div><div class="rc-track">' + segs + '</div></div>';
 				};
 				const total = detectedShare(sum);
@@ -4895,7 +4915,7 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 					(expTags ? '<div class="rc-exp-row">' + expTags + '</div>' : '') +
 					'<div class="rc-head"><div class="rc-cond">' + cond + '</div><div class="rc-meta">' + (g.key === current ? '<em>방금 측정</em>' : '') + counted.length + '회 · 합산 ' + sum.shots.toLocaleString() + '개</div></div>' +
 					big +
-					'<div class="rc-legend"><span><i style="background:' + colors.plus + '"></i>' + outcomeLabel(axisName, "plus") + '</span><span><i style="background:' + colors.minus + '"></i>' + outcomeLabel(axisName, "minus") + '</span><span>옅은 빗금 = 내 예측</span></div>' +
+					'<div class="rc-legend"><span><i style="background:' + colors.plus + '"></i>' + outcomeLabel(axisName, "plus") + '</span><span><i style="background:' + colors.minus + '"></i>' + outcomeLabel(axisName, "minus") + '</span><span><i class="rc-hatch"></i>옅은 빗금 = 내 예측</span></div>' +
 					'<div class="rc-chart">' + predBar + sumBar + runBars +
 					'<div class="rc-row rc-axis"><div class="rc-label"></div><div class="rc-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div></div></div>' +
 					'<details class="rc-table"><summary>숫자 표로 보기</summary>' + resultTableHTML(g) + '</details>' +
@@ -4952,7 +4972,7 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 			} else if (pred) {
 				const axis = lastAxisOf(getSettings().analyzers);
 				label = "1,000개 측정 시작 →";
-				hint = (pred.source === "step2" ? "② 가설 설정에서 예측한 값" : "입력한 예측") + "(" + outcomeLabel(axis, "plus") + " " + pred.plus + "%)으로 1,000개씩 " + repeat + "회 측정합니다.";
+				hint = "1,000개씩 " + repeat + "회 측정해 " + (pred.source === "step2" ? "② 가설 설정에서 예측한 값" : "입력한 예측") + "(" + outcomeLabel(axis, "plus") + " " + pred.plus + "%)과 비교합니다.";
 				phase = "ready";
 			} else {
 				label = "예측하고 측정 시작 →";

@@ -276,6 +276,27 @@
       color: #b7c2d0;
     }
 
+    .range-inputs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin: 4px 0 12px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .range-inputs input {
+      width: 5em;
+      margin: 0 2px;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 700;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
     .pct-gauge-unit {
       font-size: 13px;
       font-weight: 700;
@@ -1014,7 +1035,7 @@
     .chart-legend .prediction-key {
       width: 20px;
       height: 0;
-      border-top: 3px solid #00a510;
+      border-top: 3px dashed #00a510;
       background: none;
     }
 
@@ -2202,7 +2223,7 @@
           </div>
           <div id="initialStateQuestion" hidden>
             <h3 class="section-title">두 갈래 무늬를 본 뒤 · 관찰 정리</h3>
-            <p class="key-question"><span>핵심 발문</span>예측과 실제 무늬가 다르면, 그것은 원자 속 자석의 방향이 어떻다는 걸까?</p>
+            <p class="key-question"><span>핵심 발문</span>예측과 실제 무늬가 다르면, 그것은 원자 속 작은 자석을 위아래로 <strong>측정한 결과</strong>에 대해 무엇을 말해 줄까?</p>
             <figure class="pattern-compare" aria-label="내가 그린 예상 무늬, 고전 예측 무늬, 실제 관측 무늬 비교">
               <div>
                 <img id="myPatternImg" alt="내가 그린 예상 무늬" />
@@ -2331,8 +2352,7 @@
         <section class="panel inquiry-card" data-step="4" hidden>
           <h2 class="section-title">④ 자료 분석</h2>
           <p class="inquiry-note" id="probabilityRecap">자료 수집에서 계산한 실제 확률을 불러오는 중입니다.</p>
-          <p class="inquiry-note">실행할 때마다 위·아래 비율이 정확히 50%는 아니었을 것입니다. 그런데도 여러 번 반복하면 왜 항상 50%에 가까워질까요?</p>
-          <details>
+          <details open>
             <summary>최근 실험 기록 (최대 20회)</summary>
             <p class="inquiry-note">‘1000개 보내기’ 기록을 회차별로 비교하세요. 기록은 이 페이지를 여는 동안 유지됩니다.</p>
             <table class="inquiry-history">
@@ -2352,6 +2372,22 @@
                 </tr>
               </tfoot>
             </table>
+          </details>
+
+          <p class="key-question"><span>분석하기</span>같은 조건으로 1000개씩 보냈는데도 회차마다 위쪽 개수가 달랐습니다.</p>
+          <label class="writing-prompt" for="runRangeMax">(1) 위쪽 개수가 가장 많았던 회차와 가장 적었던 회차는 각각 몇 개였나요?</label>
+          <div class="range-inputs">
+            <span>가장 많았던 회차 <input type="number" id="runRangeMax" min="0" max="1000" step="1" inputmode="numeric" aria-label="위쪽 개수가 가장 많았던 회차의 개수" /> 개</span>
+            <span>가장 적었던 회차 <input type="number" id="runRangeMin" min="0" max="1000" step="1" inputmode="numeric" aria-label="위쪽 개수가 가장 적었던 회차의 개수" /> 개</span>
+          </div>
+          <label class="writing-prompt" for="runVariationNote">(2) 이것으로 보아, 원자 하나를 보낼 때 위·아래 중 어디로 갈지 미리 알 수 있을까요? 그렇게 생각한 이유도 적어 보세요.</label>
+          <textarea id="runVariationNote"
+            placeholder="예시 형식: 같은 조건인데도 위쪽 개수가 ~개에서 ~개까지 달랐으므로, ~."></textarea>
+          <details class="hint-fold">
+            <summary>도움이 필요하면 · 단계별 힌트</summary>
+            <p><b>힌트 1</b> 표의 ‘위쪽 검출’ 열에서 가장 큰 수와 가장 작은 수를 찾아보세요. 기록이 2회보다 적으면 ③ 자료 수집에서 ‘1000개 보내기’를 더 해 보세요.</p>
+            <p><b>힌트 2</b> 장치와 조건이 똑같았는데도 개수가 달랐습니다. 조건만 알고서 원자 하나가 어디로 갈지 맞힐 수 있을까요?</p>
+            <p><b>힌트 3</b> 개수는 회차마다 달랐지만 비율은 어떤 값 근처였나요? 무엇은 예측할 수 있고 무엇은 예측할 수 없는지 나눠 보세요.</p>
           </details>
 
         </section>
@@ -2391,7 +2427,7 @@
           <h3 class="section-title">③ 다음 시간 예고 · 다시 측정한다면?</h3>
           <p class="key-question"><span>핵심 발문</span>위쪽으로 검출된 입자만 골라 다시 측정하면 어떻게 될까?</p>
           <p class="inquiry-note">위쪽으로 검출된 입자만 골라 자석을 하나 더 지나가게 한다고 생각해 보세요. 두 경우를 각각 예측해 봅시다.</p>
-          <p class="next-lesson-note">여기서 한 예측은 다음 시간 <strong>‘양자 편광’ 시뮬레이션</strong>에서 자석을 두 개 이어 붙여 직접 확인합니다.
+          <p class="next-lesson-note">여기서 한 예측은 다음 시간 <strong>‘순차 측정’ 시뮬레이션</strong>에서 자석을 두 개 이어 붙여 직접 확인합니다.
             예측과 이유를 보고서에 꼭 남겨 두세요.</p>
           <fieldset class="model-options remeasure-options" id="remeasureSame">
             <legend>㉠ 같은 방향 자석으로 다시 측정 (z → z)</legend>
@@ -2403,7 +2439,7 @@
           <label class="writing-prompt" for="conclusion">㉠을 그렇게 예측한 이유는 무엇인가요?</label>
           <textarea id="conclusion" placeholder="힌트: 이 실험에서 확인한 것(측정값은 위·아래 두 가지, 각각 반반의 확률)을 바탕으로 예측해 보세요."></textarea>
           <fieldset class="model-options remeasure-options" id="remeasureRotated">
-            <legend>㉡ 90도 돌린 자석으로 측정 (z → x, 왼쪽·오른쪽으로 나뉨)</legend>
+            <legend>㉡ 90도 돌린 자석으로 측정 (z → x, 자석을 90도 돌려 좌우 방향으로 측정)</legend>
             <label><input type="radio" name="remeasureRotated" value="one100" />한쪽으로만</label>
             <label><input type="radio" name="remeasureRotated" value="half" />왼쪽·오른쪽 반반</label>
             <label><input type="radio" name="remeasureRotated" value="none" />나뉘지 않음</label>
@@ -2657,7 +2693,7 @@
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     } catch (err) {
-      console.warn("WebGL을 초기화할 수 없어 3D 장치 화면 없이 계속 진행합니다.", err);
+      console.warn("WebGL을 초기화할 수 없어 장치 화면 없이 계속 진행합니다.", err);
       webglAvailable = false;
       renderer = createStubRenderer();
     }
@@ -3332,7 +3368,7 @@
       } else {
         const notice = document.createElement("div");
         notice.style.cssText = "display:flex;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;color:#61768f;font-size:14px;line-height:1.6;";
-        notice.textContent = "이 브라우저/환경에서는 WebGL(3D 그래픽)을 사용할 수 없어 장치 그림을 표시할 수 없습니다. 그래픽 가속을 켜거나 다른 브라우저로 열어보세요. (다른 단계 진행과 데이터 확인은 그대로 가능합니다.)";
+        notice.textContent = "이 브라우저/환경에서는 WebGL(그래픽)을 사용할 수 없어 장치 그림을 표시할 수 없습니다. 그래픽 가속을 켜거나 다른 브라우저로 열어보세요. (다른 단계 진행과 데이터 확인은 그대로 가능합니다.)";
         ui.scene.appendChild(notice);
       }
       resizeScene();
@@ -4744,6 +4780,7 @@
     function buildReportHTML() {
       const escape = value => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
       const answer = id => escape(document.getElementById(id).value.trim() || "미작성");
+      const numAnswer = id => { const v = document.getElementById(id).value.trim(); return v === "" ? "미작성" : escape(v) + "개"; };
       // 비교하기 전이라도 그려 둔 그림이 있으면 보고서에 담습니다.
       const predictionReportImage = state.predictionImage || (predictionDrawing.hasInk ? predictionImageURL() : "");
       const question = id => document.querySelector(`label[for="${id}"]`).textContent.trim();
@@ -4841,6 +4878,10 @@ ${chart ? `<div class="chart-wrap">${chart}</div>` : '<p class="meta">아직 완
 
 <h2><span class="num">Ⅴ.</span> 고찰</h2>
 ${section("관찰 기록", question("collectionNote"), "collectionNote")}
+<h3>자료 분석 · 회차마다 달라진 개수</h3>
+<p class="question">같은 조건으로 1000개씩 보냈는데도 회차마다 위쪽 개수가 달랐습니다. ${escape(question("runRangeMax"))}</p>
+<p><strong>가장 많았던 회차:</strong> ${numAnswer("runRangeMax")} · <strong>가장 적었던 회차:</strong> ${numAnswer("runRangeMin")}</p>
+<p class="question">${escape(question("runVariationNote"))}</p><div class="answer">${answer("runVariationNote")}</div>
 
 <h2><span class="num">Ⅵ.</span> 결론</h2>
 ${section("결론 정리", question("postExperimentStateNote"), "postExperimentStateNote")}
@@ -4983,7 +5024,7 @@ ${section("결론 정리", question("postExperimentStateNote"), "postExperimentS
         bindSceneDrag();
         animate();
       } catch (err) {
-        console.warn("3D 장치 화면을 초기화하는 중 문제가 발생했습니다. 나머지 기능은 계속 사용할 수 있습니다.", err);
+        console.warn("장치 화면을 초기화하는 중 문제가 발생했습니다. 나머지 기능은 계속 사용할 수 있습니다.", err);
       }
       setMode("classical");
       setViewMode("simulation");
