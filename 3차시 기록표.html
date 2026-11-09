@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>양자컴퓨터 실험 보고서</title>
+	<meta name="description" content="IBM Quantum Platform에서 실제 양자컴퓨터로 순차 측정 회로를 실행하고 결과를 기록하는 보고서입니다." />
+	<style>
+		:root {
+			--text: #0f1f33;
+			--muted: #5d7087;
+			--line: #d8e1ec;
+			--accent: #2157d5;
+			--soft: rgba(148, 163, 184, 0.18);
+			--pred: #f2b84b;
+			--ideal: #94a3b8;
+			--qpu: #2157d5;
+			--bad-bg: #fdecef;
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		html {
+			background: #07111f;
+		}
+
+		body {
+			min-height: 100vh;
+			padding: 28px 16px;
+			color: var(--text);
+			font-family: "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			font-size: 14px;
+			line-height: 1.6;
+			background: radial-gradient(1100px 520px at 50% -8%, #14305a 0%, #07111f 62%) no-repeat, #07111f;
+		}
+
+		.sheet {
+			max-width: 980px;
+			margin: 0 auto;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 250, 255, 0.96) 100%);
+			border: 1px solid rgba(148, 163, 184, 0.22);
+			border-radius: 22px;
+			box-shadow: 0 22px 52px rgba(0, 0, 0, 0.35);
+			padding: 24px 28px 0;
+		}
+
+		/* ── 머리말 · 단계 표시 ── */
+		.top {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-end;
+			gap: 12px;
+			flex-wrap: wrap;
+		}
+
+		.title {
+			font-size: 24px;
+			font-weight: 900;
+			letter-spacing: -0.04em;
+			line-height: 1.1;
+		}
+
+		.sub {
+			font-size: 12.5px;
+			color: var(--muted);
+			margin-top: 6px;
+		}
+
+		.step-label {
+			font-size: 13px;
+			font-weight: 800;
+			color: var(--accent);
+		}
+
+		.step-progress {
+			display: flex;
+			gap: 5px;
+			margin: 12px 0 18px;
+		}
+
+		.step-progress span {
+			flex: 1;
+			height: 5px;
+			border-radius: 999px;
+			background: #dbe4f0;
+		}
+
+		.step-progress span.past {
+			background: #93b6f5;
+		}
+
+		.step-progress span.current {
+			background: #1d79d9;
+		}
+
+		section.step {
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+		}
+
+		section.step[hidden] {
+			display: none;
+		}
+
+		.block {
+			border: 1px solid rgba(148, 163, 184, 0.16);
+			border-radius: 18px;
+			padding: 16px 18px;
+			background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.88) 100%);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 6px 18px rgba(15, 23, 42, 0.04);
+		}
+
+		.block-head {
+			font-size: 15px;
+			font-weight: 800;
+			margin-bottom: 10px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			flex-wrap: wrap;
+		}
+
+		.block-head small {
+			font-size: 12px;
+			color: var(--muted);
+			font-weight: 500;
+		}
+
+		.note {
+			font-size: 13px;
+			color: var(--muted);
+			line-height: 1.65;
+			margin: 4px 0;
+		}
+
+		.note strong {
+			color: var(--text);
+		}
+
+		.key-question {
+			background: #eef4ff;
+			border-left: 3px solid var(--accent);
+			border-radius: 8px;
+			padding: 10px 12px;
+			font-size: 14.5px;
+			font-weight: 700;
+			line-height: 1.5;
+		}
+
+		.key-question span {
+			display: block;
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: 0.06em;
+			color: var(--accent);
+			margin-bottom: 2px;
+		}
+
+		.writing-prompt {
+			display: block;
+			font-size: 13.5px;
+			font-weight: 700;
+			line-height: 1.55;
+			margin: 12px 0 6px;
+		}
+
+		textarea,
+		.text-input,
+		select {
+			width: 100%;
+			border: 1px solid var(--line);
+			border-radius: 11px;
+			padding: 9px 11px;
+			font: inherit;
+			font-size: 14px;
+			color: var(--text);
+			background: #fff;
+		}
+
+		textarea {
+			min-height: 96px;
+			resize: vertical;
+			line-height: 1.6;
+		}
+
+		select {
+			cursor: pointer;
+		}
+
+		textarea:focus,
+		input:focus,
+		select:focus {
+			outline: none;
+			border-color: rgba(21, 101, 192, 0.45);
+			box-shadow: 0 0 0 3px rgba(33, 87, 213, 0.12);
+		}
+
+		input.bad {
+			border-color: #d9485f;
+			background: #fff5f6;
+		}
+
+		.author {
+			display: grid;
+			grid-template-columns: 180px 1fr;
+			gap: 8px 12px;
+		}
+
+		.author label {
+			display: block;
+			font-size: 12.5px;
+			font-weight: 700;
+			color: var(--muted);
+			margin-bottom: 4px;
+		}
+
+		.hint-fold {
+			margin: 6px 0 2px;
+			font-size: 12.5px;
+			line-height: 1.6;
+			color: var(--muted);
+		}
+
+		.hint-fold summary {
+			cursor: pointer;
+			font-weight: 700;
+			color: var(--accent);
+		}
+
+		.hint-fold p,
+		.hint-fold li {
+			margin: 5px 0 0;
+			padding-left: 8px;
+			border-left: 2px solid #dbe4f0;
+			list-style: none;
+		}
+
+		.hint-fold b {
+			color: var(--text);
+			margin-right: 4px;
+		}
+
+		.table-scroll {
+			overflow-x: auto;
+		}
+
+		table.std {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 13px;
+			background: #fff;
+		}
+
+		table.std th,
+		table.std td {
+			border: 1px solid #dce4ef;
+			padding: 6px 9px;
+			text-align: center;
+		}
+
+		table.std th {
+			background: #edf3fa;
+			font-weight: 700;
+		}
+
+		table.std td.left,
+		table.std th.left {
+			text-align: left;
+		}
+
+		table.std tr.forbidden td {
+			background: var(--bad-bg);
+		}
+
+		table.std tfoot td {
+			font-weight: 800;
+			background: #f8fafc;
+		}
+
+		.mono {
+			font-family: Consolas, "Courier New", monospace;
+			font-weight: 700;
+			letter-spacing: 0.06em;
+		}
+
+		.exp-tag {
+			display: inline-block;
+			padding: 2px 10px;
+			border-radius: 999px;
+			background: var(--text);
+			color: #fff;
+			font-size: 12px;
+			font-weight: 800;
+		}
+
+		.circuit {
+			overflow-x: auto;
+			background: #f8fafc;
+			border: 1px solid var(--soft);
+			border-radius: 12px;
+			padding: 6px 8px;
+			margin: 4px 0 12px;
+		}
+
+		.circuit svg {
+			display: block;
+		}
+
+		.sim-recall {
+			font-size: 13px;
+			background: #fff7ed;
+			border: 1px solid #fed7aa;
+			border-radius: 10px;
+			padding: 8px 11px;
+			margin-bottom: 10px;
+		}
+
+		/* ── 예측 입력 ── */
+		.pred-grid {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 8px;
+		}
+
+		.pred-cell {
+			border: 1px solid var(--line);
+			border-radius: 12px;
+			padding: 8px 10px;
+			background: #fff;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+
+		.pred-cell label {
+			font-size: 18px;
+			text-align: center;
+		}
+
+		.pin {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			font-weight: 700;
+			color: var(--muted);
+		}
+
+		.pin input {
+			width: 100%;
+			min-width: 0;
+			border: 1px solid var(--line);
+			border-radius: 9px;
+			padding: 6px 8px;
+			font: inherit;
+			font-size: 15px;
+			font-weight: 800;
+			text-align: right;
+			color: var(--text);
+		}
+
+		.pin input:disabled {
+			background: #f1f5f9;
+			color: var(--muted);
+		}
+
+		.pred-foot {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 8px;
+			flex-wrap: wrap;
+			margin-top: 10px;
+		}
+
+		.sum-badge {
+			font-weight: 800;
+			padding: 3px 11px;
+			border-radius: 999px;
+			font-size: 12.5px;
+			border: 1px solid;
+		}
+
+		.sum-badge.ok {
+			background: #f0fdf4;
+			color: #14532d;
+			border-color: #bbf7d0;
+		}
+
+		.sum-badge.no {
+			background: #fff7ed;
+			color: #9a3412;
+			border-color: #fed7aa;
+		}
+
+		.lock-note {
+			color: var(--accent);
+			font-weight: 700;
+			font-size: 12.5px;
+		}
+
+		/* ── 결과 문자열 읽는 법 ── */
+		.reading-rule {
+			display: flex;
+			align-items: flex-start;
+			gap: 8px;
+			flex-wrap: wrap;
+			margin: 8px 0;
+		}
+
+		.digit {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 4px;
+			width: 76px;
+		}
+
+		.digit b {
+			font-family: Consolas, "Courier New", monospace;
+			font-size: 24px;
+			width: 44px;
+			height: 46px;
+			display: grid;
+			place-items: center;
+			border-radius: 10px;
+			background: #fff;
+			border: 1px solid var(--line);
+		}
+
+		.digit small {
+			font-size: 11.5px;
+			color: var(--muted);
+			text-align: center;
+			line-height: 1.35;
+		}
+
+		.digit.first b {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px rgba(33, 87, 213, 0.15);
+		}
+
+		.digit.unused b {
+			border-style: dashed;
+			color: #94a3b8;
+			background: #f8fafc;
+		}
+
+		.read-arrow {
+			align-self: center;
+			margin-top: -18px;
+			font-size: 12.5px;
+			font-weight: 800;
+			color: var(--accent);
+		}
+
+		/* ── 결과 입력 ── */
+		.run-meta {
+			display: grid;
+			grid-template-columns: 1fr 180px;
+			gap: 8px 12px;
+			margin-bottom: 10px;
+		}
+
+		.run-meta label {
+			display: block;
+			font-size: 12.5px;
+			font-weight: 700;
+			color: var(--muted);
+			margin-bottom: 4px;
+		}
+
+		.run-grid {
+			display: grid;
+			grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+			gap: 14px;
+			align-items: start;
+		}
+
+		.count-input {
+			width: 100%;
+			max-width: 120px;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			padding: 5px 8px;
+			font: inherit;
+			font-size: 14px;
+			font-weight: 700;
+			text-align: right;
+		}
+
+		.warn {
+			font-size: 12.5px;
+			color: #9a3412;
+			margin-top: 6px;
+			min-height: 1em;
+		}
+
+		.helper {
+			border: 1px solid #c9d9fb;
+			background: #eef4ff;
+			border-radius: 14px;
+			padding: 12px;
+		}
+
+		.helper-title {
+			font-size: 13px;
+			font-weight: 800;
+			margin-bottom: 6px;
+		}
+
+		.helper-out {
+			margin-top: 10px;
+			font-size: 14px;
+			line-height: 1.7;
+		}
+
+		.helper-out .step-chip {
+			display: inline-block;
+			padding: 2px 8px;
+			margin: 2px 0;
+			border-radius: 8px;
+			background: #fff;
+			border: 1px solid var(--line);
+			font-weight: 700;
+		}
+
+		/* ── 비교와 분석 ── */
+		.chart-box {
+			background: #fff;
+			border: 1px solid var(--soft);
+			border-radius: 12px;
+			padding: 10px 12px;
+			margin-bottom: 10px;
+		}
+
+		.stat-row {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+			gap: 8px;
+			margin-top: 10px;
+		}
+
+		.stat {
+			border: 1px solid var(--soft);
+			border-radius: 12px;
+			padding: 9px 12px;
+			background: #fff;
+			font-size: 13px;
+		}
+
+		.stat b {
+			font-size: 18px;
+			font-weight: 900;
+			letter-spacing: -0.02em;
+		}
+
+		.stat.forb {
+			background: var(--bad-bg);
+			border-color: #f9c4cf;
+			color: #7f1d2d;
+		}
+
+		.pick-box {
+			background: #eef4ff;
+			border: 1px solid #c9d9fb;
+			border-radius: 12px;
+			padding: 12px 14px;
+			margin-top: 10px;
+			font-size: 13.5px;
+		}
+
+		.pick-bar {
+			display: flex;
+			height: 26px;
+			border-radius: 7px;
+			overflow: hidden;
+			margin: 4px 0 8px;
+			background: repeating-linear-gradient(45deg, #eef2f7 0 6px, #e2e8f0 6px 12px);
+		}
+
+		.pick-bar div {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #fff;
+			font-size: 12px;
+			font-weight: 800;
+			white-space: nowrap;
+			overflow: hidden;
+		}
+
+		.pick-label {
+			font-size: 12px;
+			font-weight: 700;
+			color: var(--muted);
+		}
+
+		.evidence-row {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+			gap: 8px;
+		}
+
+		.evidence-card {
+			border: 1px solid var(--soft);
+			border-radius: 12px;
+			padding: 10px 12px;
+			background: #fff;
+			font-size: 13px;
+			line-height: 1.6;
+		}
+
+		.evidence-card .evidence-label {
+			display: block;
+			font-weight: 800;
+			margin-bottom: 4px;
+		}
+
+		.recap-box {
+			padding: 10px 12px;
+			background: rgba(248, 250, 252, 0.9);
+			border: 1px solid var(--soft);
+			border-radius: 12px;
+			font-size: 13.5px;
+			white-space: pre-wrap;
+			overflow-wrap: anywhere;
+		}
+
+		.self-check {
+			border: 1px solid var(--soft);
+			border-radius: 14px;
+			padding: 12px 14px;
+			background: #fff;
+		}
+
+		.self-check>p {
+			font-size: 13.5px;
+			font-weight: 800;
+			margin-bottom: 6px;
+		}
+
+		.self-check label {
+			display: flex;
+			align-items: flex-start;
+			gap: 8px;
+			font-size: 13.5px;
+			margin: 7px 0;
+			cursor: pointer;
+			line-height: 1.5;
+		}
+
+		.self-check input {
+			margin-top: 4px;
+		}
+
+		.save-reminder,
+		.restore-note {
+			padding: 9px 12px;
+			border-radius: 10px;
+			background: #fff7ed;
+			border: 1px solid #fed7aa;
+			font-size: 13px;
+			line-height: 1.5;
+			color: #9a3412;
+		}
+
+		.restore-note {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 10px;
+			flex-wrap: wrap;
+			background: #f0fdf4;
+			border-color: #bbf7d0;
+			color: #14532d;
+			margin-bottom: 14px;
+		}
+
+		.restore-note[hidden] {
+			display: none;
+		}
+
+		/* ── 버튼 · 아래 이동 막대 ── */
+		button {
+			border: 1px solid transparent;
+			border-radius: 12px;
+			padding: 11px 12px;
+			font-weight: 700;
+			font-size: 13.5px;
+			cursor: pointer;
+			font-family: inherit;
+			transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
+			white-space: nowrap;
+		}
+
+		button:hover {
+			filter: brightness(0.98);
+			transform: translateY(-1px);
+		}
+
+		button:disabled {
+			opacity: 0.55;
+			cursor: not-allowed;
+			filter: none;
+			transform: none;
+		}
+
+		.btn-main {
+			background: linear-gradient(135deg, #2157d5 0%, #1d79d9 100%);
+			color: #fff;
+			box-shadow: 0 10px 18px rgba(29, 121, 217, 0.24);
+		}
+
+		.btn-sub {
+			background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+			color: var(--text);
+			border-color: rgba(148, 163, 184, 0.3);
+		}
+
+		.btn-small {
+			padding: 6px 10px;
+			font-size: 12.5px;
+		}
+
+		.nav {
+			position: sticky;
+			bottom: 0;
+			z-index: 5;
+			margin: 20px -28px 0;
+			padding: 10px 28px 14px;
+			background: rgba(255, 255, 255, 0.96);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			border-top: 1px solid var(--soft);
+			border-radius: 0 0 22px 22px;
+		}
+
+		.gate-hint {
+			font-size: 12.5px;
+			color: #9a3412;
+			min-height: 19px;
+			margin-bottom: 6px;
+			text-align: center;
+		}
+
+		.gate-hint.info {
+			color: var(--accent);
+		}
+
+		.gate-hint.flash {
+			animation: hint-flash 0.9s ease-out;
+			font-weight: 800;
+		}
+
+		@keyframes hint-flash {
+
+			0%,
+			40% {
+				background: #fed7aa;
+			}
+
+			100% {
+				background: transparent;
+			}
+		}
+
+		.btn-main.is-blocked {
+			opacity: 0.55;
+			box-shadow: none;
+		}
+
+		.confirm-bar {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 10px;
+			flex-wrap: wrap;
+			padding: 9px 12px;
+			margin-bottom: 8px;
+			border-radius: 10px;
+			background: #eef4ff;
+			border: 1px solid #c9d9fb;
+			font-size: 13px;
+			font-weight: 700;
+		}
+
+		.confirm-bar[hidden],
+		.confirm-actions[hidden] {
+			display: none;
+		}
+
+		.confirm-actions {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			flex-wrap: wrap;
+		}
+
+		.nav-row {
+			display: grid;
+			grid-template-columns: 1fr 1.2fr 1fr;
+			gap: 8px;
+		}
+
+		.storage-note {
+			font-size: 11.5px;
+			color: var(--muted);
+			text-align: center;
+			margin-top: 6px;
+		}
+
+		@media (max-width: 760px) {
+			body {
+				padding: 16px 10px;
+			}
+
+			.sheet {
+				padding: 18px 16px 0;
+			}
+
+			.nav {
+				margin: 20px -16px 0;
+				padding: 10px 16px 14px;
+			}
+
+			.title {
+				font-size: 20px;
+			}
+
+			.author,
+			.run-meta,
+			.run-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.pred-grid {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.nav-row {
+				grid-template-columns: 1fr 1fr;
+			}
+
+			.nav-row #saveBtn {
+				grid-column: 1 / -1;
+				order: 3;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="sheet">
+		<header>
+			<div class="top">
+				<div>
+					<div class="title">양자컴퓨터 실험 보고서</div>
+					<div class="sub">3차시 · IBM Quantum Platform에서 실제 양자컴퓨터(QPU)로 순차 측정 실험하기</div>
+				</div>
+				<div class="step-label" id="stepLabel">1 / 5 · 도입</div>
+			</div>
+			<div class="step-progress" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+		</header>
+
+		<div class="restore-note" id="restoreNote" hidden>
+			<span>지난번에 쓰던 내용을 불러왔어요.</span>
+			<button class="btn-sub btn-small" id="resetBtn" type="button">처음부터 새로 쓰기</button>
+			<span class="confirm-actions" id="resetAsk" hidden>
+				<b>쓴 내용을 모두 지울까요?</b>
+				<button class="btn-sub btn-small" id="resetNo" type="button">취소</button>
+				<button class="btn-main btn-small" id="resetYes" type="button">모두 지우기</button>
+			</span>
+		</div>
+
+		<main>
+			<!-- ① 도입 -->
+			<section class="step" data-step="1">
+				<div class="block">
+					<div class="block-head">작성자</div>
+					<div class="author">
+						<div><label for="sid">학번</label><input class="text-input" id="sid" maxlength="20" placeholder="예: 30305" autocomplete="off" /></div>
+						<div><label for="name">이름</label><input class="text-input" id="name" maxlength="40" placeholder="예: 김민수" autocomplete="off" /></div>
+					</div>
+				</div>
+
+				<div class="block">
+					<div class="block-head">① 도입</div>
+					<p class="key-question"><span>탐구 질문</span>시뮬레이션에서 찾은 규칙이 진짜 양자컴퓨터에서도 똑같이 나타날까?</p>
+					<p class="note" style="margin-top:10px">지난 시간 순차 측정 시뮬레이션 결과</p>
+					<div class="table-scroll">
+						<table class="std">
+							<thead>
+								<tr>
+									<th>실험</th>
+									<th class="left">분석기 배치</th>
+									<th class="left">결과</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr><td>①</td><td class="left">z↑ → z</td><td class="left">모두 z↑</td></tr>
+								<tr><td>②</td><td class="left">z↑ → x</td><td class="left">x+, x− 반반</td></tr>
+								<tr><td>③</td><td class="left">z↑ → x+ → z</td><td class="left">마지막 z가 다시 반반 (측정이 상태를 바꾼다)</td></tr>
+							</tbody>
+						</table>
+					</div>
+					<label class="writing-prompt" for="introNote">나의 예상과 그 까닭</label>
+					<textarea id="introNote" placeholder="예시 형식: 진짜 양자컴퓨터에서도 ~일 것 같다. 왜냐하면 ~"></textarea>
+				</div>
+
+				<div class="block">
+					<div class="block-head">시뮬레이션 → 양자컴퓨터 번역표</div>
+					<p class="note"><strong>0 = z↑, 1 = z↓</strong> · 큐비트는 <strong>|0⟩(z↑)</strong>에서 시작해요.</p>
+					<p class="note">분석기를 x쪽으로 돌리는 대신, <strong>큐비트를 반대로 90° 돌리고(RY(−90°)) z로 측정</strong>해요.</p>
+					<div class="table-scroll" style="margin-top:8px">
+						<table class="std">
+							<thead>
+								<tr>
+									<th class="left">순차 측정 시뮬레이션</th>
+									<th class="left">양자컴퓨터 회로</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr><td class="left">처음 z 확인</td><td class="left"><b>측정</b></td></tr>
+								<tr><td class="left">z축 분석기</td><td class="left"><b>측정</b></td></tr>
+								<tr><td class="left">x축 분석기</td><td class="left"><b>RY(−90°) → 측정</b> &nbsp;<span class="note">(0 = x+, 1 = x−)</span></td></tr>
+								<tr><td class="left">x 측정 뒤 원래 자리로</td><td class="left"><b>RY(+90°)</b></td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+
+			<!-- ② 예측 -->
+			<section class="step" data-step="2" hidden>
+				<div class="block">
+					<div class="block-head">결과 문자열 읽는 법 <small>왼쪽부터 = 측정 순서</small></div>
+					<p class="note">측정 결과는 <strong>c[0] → c[1] → c[2]</strong>에 차례로 저장하고, c[3]은 비워 둬요.</p>
+					<div class="reading-rule" aria-label="결과 문자열 0110 읽는 예">
+						<div class="digit first"><b>0</b><small>첫 측정<br />c[0]</small></div>
+						<div class="digit"><b>1</b><small>둘째 측정<br />c[1]</small></div>
+						<div class="digit"><b>1</b><small>셋째 측정<br />c[2]</small></div>
+						<div class="digit unused"><b>0</b><small>비움 (늘 0)<br />c[3]</small></div>
+						<span class="read-arrow">왼쪽부터 읽기 →</span>
+					</div>
+					<p class="note">예: ③의 <span class="mono">0110</span> = 첫 0(z↑) → 둘째 1(x−) → 셋째 1(z↓) · ①·②는 오른쪽 두 자리가 늘 <span class="mono">00</span></p>
+					<p class="note">⚠ <strong>실행 결과</strong> 히스토그램은 c[0]이 맨 왼쪽이에요. (실행 전 회로 화면에서는 맨 오른쪽)</p>
+					<details class="hint-fold">
+						<summary>Composer 회로 만들기 팁</summary>
+						<ul>
+							<li>큐비트 q[0] 하나, 고전 레지스터 c는 4비트</li>
+							<li>측정은 <b>c[0] → c[1] → c[2]</b> 순서로 연결 (c[3]은 비움)</li>
+							<li>RY 각도: <b>−π/2</b>(−90°), <b>π/2</b>(+90°)</li>
+							<li>확인: <b>Bit-by-bit outcomes</b> 탭에서 c[0]은 거의 0, c[3]은 늘 0</li>
+						</ul>
+					</details>
+				</div>
+				<p class="note">결과마다 몇 %가 나올지 예측해요. 합은 <strong>100%</strong>, 다음으로 넘어가면 <strong>잠겨요.</strong></p>
+				<div id="predCards" style="display:flex;flex-direction:column;gap:14px"></div>
+			</section>
+
+			<!-- ③ 결과 입력 -->
+			<section class="step" data-step="3" hidden>
+				<div class="block">
+					<div class="block-head">③ 결과 입력</div>
+					<p class="note">실제 QPU로 실행한 뒤, 히스토그램의 결과별 <strong>횟수</strong>를 보이는 그대로 적어요. 비율은 자동 계산돼요.</p>
+					<p class="note">1~2회짜리 작은 막대도 빠짐없이 적고, 없는 결과는 0으로 둬요.</p>
+					<details class="hint-fold">
+						<summary>맨 오른쪽이 1인 결과(예: 0001)가 보이면?</summary>
+						<p>c[3]에 측정이 연결된 거예요. 회로를 확인하고 선생님께 알려 주세요.</p>
+					</details>
+					<details class="hint-fold">
+						<summary>확률(%)만 보이면?</summary>
+						<p>확률 × shots를 반올림해 적어요. 예: 0.95 × 1024 ≈ 973</p>
+					</details>
+				</div>
+				<div id="runCards" style="display:flex;flex-direction:column;gap:14px"></div>
+			</section>
+
+			<!-- ④ 비교와 분석 -->
+			<section class="step" data-step="4" hidden>
+				<p class="key-question"><span>핵심 발문</span>QPU 결과에도 시뮬레이션의 규칙이 보일까? 다르다면 왜일까?</p>
+				<p class="note">막대: <strong>나의 예측 · 시뮬레이션(이상값) · QPU</strong> · 분홍 칸 = <strong>나오면 안 되는 결과</strong>(이상값 0%)</p>
+				<div id="analysisCards" style="display:flex;flex-direction:column;gap:14px"></div>
+
+				<div class="block">
+					<div class="block-head">생각해 보기</div>
+					<label class="writing-prompt" for="noteRule">(1) 시뮬레이션과 같은 규칙은 무엇인가요?</label>
+					<textarea id="noteRule" placeholder="예시 형식: 실험 ○에서 ~가 가장 많이 나왔다. 이것은 시뮬레이션의 ~와 같다."></textarea>
+					<details class="hint-fold">
+						<summary>도움이 필요하면 · 단계별 힌트</summary>
+						<p><b>힌트 1</b> 가장 많이 나온 결과를 이상값 막대와 비교해 보세요.</p>
+						<p><b>힌트 2</b> 실험 ②의 둘째 자리(x)에서 0(x+)과 1(x−)은 각각 몇 %인가요?</p>
+						<p><b>힌트 3</b> ③ ‘골라 보기’를 시뮬레이션 ③과 비교해 보세요.</p>
+					</details>
+
+					<label class="writing-prompt" for="noteNoise">(2) 처음 측정은 늘 0(z↑)이어야 하는데, 왜 가끔 1이 나왔을까요?</label>
+					<textarea id="noteNoise" placeholder="예시 형식: 나오면 안 되는 결과가 약 ○% 나왔다. 그 까닭은 ~"></textarea>
+					<details class="hint-fold">
+						<summary>도움이 필요하면 · 단계별 힌트</summary>
+						<p><b>힌트 1</b> ‘나오면 안 되는 결과’는 몇 %였나요?</p>
+						<p><b>힌트 2</b> 진짜 큐비트는 열·전자기 신호에 예민하고, 읽는 장치도 가끔 틀려요. 이것을 <b>노이즈</b>라고 해요.</p>
+						<p><b>힌트 3</b> 그 정도로 규칙이 뒤집힐까요?</p>
+					</details>
+
+					<label class="writing-prompt" for="noteDiff">(3) 실험 ①과 ③은 둘 다 z로 끝나는데, 마지막 결과가 왜 다를까요?</label>
+					<textarea id="noteDiff" placeholder="예시 형식: ③에서는 중간에 ~했기 때문에 마지막 결과가 ~"></textarea>
+					<details class="hint-fold">
+						<summary>도움이 필요하면 · 단계별 힌트</summary>
+						<p><b>힌트 1</b> ①과 ③의 마지막 z에서 0(z↑) 비율을 비교해 보세요.</p>
+						<p><b>힌트 2</b> ③은 두 z 측정 사이에 무엇을 했나요?</p>
+						<p><b>힌트 3</b> 측정이 상태를 그대로 둔다면 ③의 마지막 결과는?</p>
+					</details>
+				</div>
+			</section>
+
+			<!-- ⑤ 결론 -->
+			<section class="step" data-step="5" hidden>
+				<p class="key-question"><span>탐구 질문</span>시뮬레이션에서 찾은 규칙이 진짜 양자컴퓨터에서도 똑같이 나타날까?</p>
+				<div class="block">
+					<div class="block-head">내가 모은 증거 <small>QPU 결과에서 자동으로 정리</small></div>
+					<div class="evidence-row" id="evidenceCards"></div>
+				</div>
+
+				<div class="block">
+					<div class="block-head">⑤ 결론</div>
+					<label class="writing-prompt" for="conclusion">탐구 질문에 대한 나의 결론 (위 수치를 근거로)</label>
+					<textarea id="conclusion" placeholder="예시 형식: 진짜 양자컴퓨터에서도 ~ 규칙이 나타났다. 근거는 ~. 다만 ~% 정도는 노이즈 때문에 ~"></textarea>
+
+					<div class="writing-prompt">도입에서 쓴 나의 예상</div>
+					<div class="recap-box" id="recapIntro">—</div>
+					<label class="writing-prompt" for="compareNote">처음 예상과 비교하면? 맞은 점과 달라진 점</label>
+					<textarea id="compareNote" placeholder="예시 형식: 처음에는 ~라고 예상했는데, 실제로는 ~"></textarea>
+
+					<label class="writing-prompt" for="futureNote">노이즈가 없는 양자컴퓨터가 생긴다면 우리 생활은 무엇이 달라질까요?</label>
+					<textarea id="futureNote" placeholder="예시 형식: 노이즈가 없다면 ~를 할 수 있어서 ~가 달라질 것이다."></textarea>
+				</div>
+
+				<div class="self-check">
+					<p>스스로 점검하기</p>
+					<label><input type="checkbox" id="selfCheck1" /> 순차 측정 실험을 큐비트 회로로 옮길 수 있다</label>
+					<label><input type="checkbox" id="selfCheck2" /> 결과 문자열을 측정 순서대로 읽어 시뮬레이션과 비교할 수 있다</label>
+					<label><input type="checkbox" id="selfCheck3" /> 규칙의 일치와 노이즈를 구분해 설명할 수 있다</label>
+				</div>
+				<p class="save-reminder">수업이 끝나기 전 <strong>보고서 저장</strong>을 눌러 파일을 제출하세요. 임시 저장은 이 브라우저에만 남아요.</p>
+			</section>
+		</main>
+
+		<nav class="nav">
+			<div class="confirm-bar" id="lockConfirm" hidden>
+				<span>🔒 넘어가면 예측을 고칠 수 없어요. 넘어갈까요?</span>
+				<span class="confirm-actions">
+					<button class="btn-sub btn-small" id="lockCancel" type="button">예측 다시 보기</button>
+					<button class="btn-main btn-small" id="lockOk" type="button">잠그고 넘어가기</button>
+				</span>
+			</div>
+			<p class="gate-hint" id="gateHint" aria-live="polite"></p>
+			<div class="nav-row">
+				<button class="btn-sub" id="prevBtn" type="button">← 이전</button>
+				<button class="btn-sub" id="saveBtn" type="button">보고서 저장 (.html)</button>
+				<button class="btn-main" id="nextBtn" type="button">다음 →</button>
+			</div>
+			<p class="storage-note" id="storageNote">쓴 내용은 이 브라우저에 자동 임시 저장돼요.</p>
+		</nav>
+	</div>
+
+	<script>
+		(() => {
+			"use strict";
+
+			const DRAFT_KEY = "qpu-report-3-draft-v2";
+			// 수업 회로: 고전 레지스터 c는 4비트, 첫·둘째·셋째 측정을 c[0]·c[1]·c[2]에 연결하고 c[3]은 비워 둡니다.
+			// IBM Quantum Platform의 실행 결과 화면은 c[0] c[1] c[2] c[3] 순서(왼쪽부터)로 적으므로, 왼쪽부터 읽으면 측정 순서가 됩니다.
+			const REG_BITS = 4;
+			const MEAS_BITS = [0, 1, 2];
+			const STEP_LABELS = ["도입", "예측", "결과 입력", "비교와 분석", "결론"];
+			const TEXT_IDS = ["sid", "name", "introNote", "noteRule", "noteNoise", "noteDiff", "conclusion", "compareNote", "futureNote"];
+			const CHECK_IDS = ["selfCheck1", "selfCheck2", "selfCheck3"];
+			const ORD = ["첫", "둘째", "셋째"];
+			const RESULT_NAME = { z: ["z↑", "z↓"], x: ["x+", "x−"] };
+			const COLORS = { pred: "#f2b84b", ideal: "#94a3b8", qpu: "#2157d5", forb: "#fdecef", z0: "#d9485f", z1: "#3c82f6" };
+
+			// M = 측정, RYm = RY(−90°), RYp = RY(+90°)
+			const EXPS = [
+				{
+					id: "e1", label: "실험 ①", flow: "z↑ → z", ops: ["M", "M"], opsText: "측정 → 측정 · 결과를 c[0], c[1]에 저장",
+					ideal: { "0000": 100 }, simText: "2차시 결과: z↑ → z 는 모두 z↑"
+				},
+				{
+					id: "e2", label: "실험 ②", flow: "z↑ → x", ops: ["M", "RYm", "M"], opsText: "측정 → RY(−90°) → 측정 · 결과를 c[0], c[1]에 저장",
+					ideal: { "0000": 50, "0100": 50 }, simText: "2차시 결과: z↑ → x 는 x+, x− 반반"
+				},
+				{
+					id: "e3", label: "실험 ③", flow: "z↑ → x → z", ops: ["M", "RYm", "M", "RYp", "M"], opsText: "측정 → RY(−90°) → 측정 → RY(+90°) → 측정 · 결과를 c[0], c[1], c[2]에 저장",
+					ideal: { "0000": 25, "0010": 25, "0100": 25, "0110": 25 },
+					simText: "2차시 결과: z↑ → x+ → z 는 마지막 z가 반반 (여기서는 x+와 x− 모두 다음 측정으로 넘어가요)"
+				},
+			];
+
+			// ── 계산 ──
+			function axesOf(exp) {
+				const axes = [];
+				let rotated = false;
+				exp.ops.forEach(op => {
+					if (op === "RYm") rotated = true;
+					else if (op === "RYp") rotated = false;
+					else axes.push(rotated ? "x" : "z");
+				});
+				return axes;
+			}
+			// k번째 측정이 결과 문자열에서 차지하는 자리(왼쪽부터 0). 실행 결과 화면에서는 c[i]가 왼쪽에서 i번째입니다.
+			const measPos = k => MEAS_BITS[k];
+			// 측정에 쓰지 않은 비트는 늘 0이므로, 나올 수 있는 결과 문자열만 Composer처럼 작은 수부터 늘어놓습니다.
+			const outcomesOf = exp => {
+				const n = axesOf(exp).length;
+				return Array.from({ length: 2 ** n }, (_, i) => {
+					const s = Array(REG_BITS).fill("0");
+					for (let k = 0; k < n; k++) s[measPos(k)] = String((i >> (n - 1 - k)) & 1);
+					return s.join("");
+				}).sort();
+			};
+			const decode = (exp, s) => axesOf(exp).map((axis, k) => {
+				const bit = s[measPos(k)];
+				return { k, bit, axis, name: RESULT_NAME[axis][Number(bit)] };
+			});
+			const decodeText = (exp, s) => decode(exp, s).map(d => `${ORD[d.k]} 측정 ${d.bit}(${d.name})`).join(" → ");
+			const decodeShort = (exp, s) => decode(exp, s).map(d => d.name).join("→");
+
+			const validPred = v => v === "" || v == null || (Number.isFinite(Number(v)) && Number(v) >= 0 && Number(v) <= 100);
+			const validCount = v => v === "" || v == null || (Number.isInteger(Number(v)) && Number(v) >= 0);
+			const num = v => (v === "" || v == null ? 0 : Number(v));
+			const predSum = (exp, pred) => outcomesOf(exp).every(o => validPred(pred[o])) ? outcomesOf(exp).reduce((a, o) => a + num(pred[o]), 0) : NaN;
+			const countsTotal = (exp, counts) => outcomesOf(exp).every(o => validCount(counts[o])) ? outcomesOf(exp).reduce((a, o) => a + num(counts[o]), 0) : NaN;
+			function pctOf(exp, counts) {
+				const t = countsTotal(exp, counts);
+				const r = {};
+				outcomesOf(exp).forEach(o => { r[o] = t > 0 ? 100 * num(counts[o]) / t : 0; });
+				return r;
+			}
+			const predPct = (exp, pred) => Object.fromEntries(outcomesOf(exp).map(o => [o, validPred(pred[o]) ? num(pred[o]) : 0]));
+			const idealPct = exp => Object.fromEntries(outcomesOf(exp).map(o => [o, exp.ideal[o] || 0]));
+			const forbiddenOf = exp => outcomesOf(exp).filter(o => !exp.ideal[o]);
+			const forbiddenPct = (exp, counts) => { const p = pctOf(exp, counts); return forbiddenOf(exp).reduce((a, o) => a + p[o], 0); };
+			const forbiddenCount = (exp, counts) => forbiddenOf(exp).reduce((a, o) => a + num(counts[o]), 0);
+			const lastIndex = exp => axesOf(exp).length - 1;
+			// 마지막 측정이 0인 비율
+			function lastZeroPct(exp, counts) {
+				const t = countsTotal(exp, counts);
+				if (!(t > 0)) return null;
+				const pos = measPos(lastIndex(exp));
+				return 100 * outcomesOf(exp).filter(o => o[pos] === "0").reduce((a, o) => a + num(counts[o]), 0) / t;
+			}
+			// 실험 ③ 골라 보기: 첫 측정 0(z↑), 둘째 측정 0(x+)인 결과만 남기고 마지막 측정으로 나눕니다.
+			const pickedOutcomes = exp => outcomesOf(exp).filter(o => o[measPos(0)] === "0" && o[measPos(1)] === "0");
+			function pickE3(counts) {
+				const exp = EXPS[2], pos = measPos(lastIndex(exp));
+				const [s0, s1] = ["0", "1"].map(b => pickedOutcomes(exp).find(o => o[pos] === b));
+				const zero = num(counts[s0]), one = num(counts[s1]);
+				const n = zero + one;
+				return { n, zero, one, s0, s1, p0: n ? 100 * zero / n : null, p1: n ? 100 * one / n : null };
+			}
+			const f1 = v => (v == null || !Number.isFinite(v) ? "—" : v.toFixed(1));
+			const fSum = v => (Number.isFinite(v) ? String(Math.round(v * 10) / 10) : "?");
+
+			// ── 상태 · 임시 저장 ──
+			function blankState() {
+				return {
+					v: 1, step: 1, predLocked: false,
+					text: Object.fromEntries(TEXT_IDS.map(id => [id, ""])),
+					checks: Object.fromEntries(CHECK_IDS.map(id => [id, false])),
+					preds: Object.fromEntries(EXPS.map(e => [e.id, {}])),
+					runs: Object.fromEntries(EXPS.map(e => [e.id, { backend: "", shots: "", counts: {} }])),
+					helper: Object.fromEntries(EXPS.map(e => [e.id, ""])),
+				};
+			}
+			function mergeDraft(d) {
+				const s = blankState();
+				if (!d || typeof d !== "object") return s;
+				if (Number.isInteger(d.step)) s.step = Math.min(5, Math.max(1, d.step));
+				s.predLocked = d.predLocked === true;
+				TEXT_IDS.forEach(id => { if (typeof d.text?.[id] === "string") s.text[id] = d.text[id]; });
+				CHECK_IDS.forEach(id => { s.checks[id] = d.checks?.[id] === true; });
+				EXPS.forEach(e => {
+					outcomesOf(e).forEach(o => {
+						const p = d.preds?.[e.id]?.[o], c = d.runs?.[e.id]?.counts?.[o];
+						if (typeof p === "string") s.preds[e.id][o] = p;
+						if (typeof c === "string") s.runs[e.id].counts[o] = c;
+					});
+					["backend", "shots"].forEach(k => { const v = d.runs?.[e.id]?.[k]; if (typeof v === "string") s.runs[e.id][k] = v; });
+					const h = d.helper?.[e.id];
+					if (typeof h === "string" && outcomesOf(e).includes(h)) s.helper[e.id] = h;
+				});
+				return s;
+			}
+			const hasContent = s => TEXT_IDS.some(id => s.text[id].trim()) ||
+				EXPS.some(e => Object.values(s.preds[e.id]).some(v => v !== "") || Object.values(s.runs[e.id].counts).some(v => v !== "") || s.runs[e.id].backend);
+
+			let state = blankState();
+			let dirty = false;
+
+			function saveDraft() {
+				try {
+					localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+				} catch {
+					$("storageNote").textContent = "이 브라우저에서는 자동 임시 저장이 되지 않아요. 창을 닫기 전에 보고서를 꼭 저장하세요.";
+				}
+			}
+			function loadDraft() {
+				try {
+					const raw = localStorage.getItem(DRAFT_KEY);
+					return raw ? mergeDraft(JSON.parse(raw)) : null;
+				} catch {
+					return null;
+				}
+			}
+
+			const $ = id => document.getElementById(id);
+			function escapeHTML(value) {
+				return String(value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+			}
+
+			// ── 그림 (화면과 보고서에 함께 씁니다. 모든 스타일은 속성으로 넣어 보고서에서도 그대로 보입니다) ──
+			function circuitSVG(exp) {
+				const step = 96, L = 52, Y = 34, W = L + exp.ops.length * step + 20, H = 92;
+				const parts = [
+					`<text x="10" y="${Y + 5}" font-size="14" font-weight="700" fill="#0f1f33">|0⟩</text>`,
+					`<line x1="40" y1="${Y}" x2="${W - 8}" y2="${Y}" stroke="#94a3b8" stroke-width="2"/>`,
+				];
+				let k = 0, rotated = false;
+				exp.ops.forEach((op, i) => {
+					const cx = L + step * i + step / 2;
+					if (op === "M") {
+						const caption = k === 0 ? "처음 z 확인" : rotated ? "x 측정" : "z 측정";
+						parts.push(`<rect x="${cx - 22}" y="${Y - 18}" width="44" height="36" rx="6" fill="#ffffff" stroke="#0f1f33" stroke-width="1.5"/>`,
+							`<path d="M ${cx - 12} ${Y + 8} A 12 12 0 0 1 ${cx + 12} ${Y + 8}" fill="none" stroke="#0f1f33" stroke-width="1.5"/>`,
+							`<line x1="${cx}" y1="${Y + 8}" x2="${cx + 8}" y2="${Y - 7}" stroke="#0f1f33" stroke-width="1.5"/>`,
+							`<text x="${cx}" y="${Y + 36}" font-size="11.5" font-weight="700" fill="#0f1f33" text-anchor="middle">→ c[${MEAS_BITS[k]}]</text>`,
+							`<text x="${cx}" y="${Y + 52}" font-size="10.5" fill="#5d7087" text-anchor="middle">${caption}</text>`);
+						k++;
+					} else {
+						const minus = op === "RYm";
+						rotated = minus;
+						parts.push(`<rect x="${cx - 36}" y="${Y - 18}" width="72" height="36" rx="6" fill="${minus ? "#2157d5" : "#7c3aed"}"/>`,
+							`<text x="${cx}" y="${Y + 5}" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle">RY(${minus ? "−" : "+"}90°)</text>`,
+							`<text x="${cx}" y="${Y + 52}" font-size="10.5" fill="#5d7087" text-anchor="middle">${minus ? "x축 분석기로" : "원래 자리로"}</text>`);
+					}
+				});
+				return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;min-width:${Math.min(W, 420)}px;display:block" font-family="Malgun Gothic, sans-serif" role="img" aria-label="${escapeHTML(exp.label + " 회로: " + exp.opsText)}">${parts.join("")}</svg>`;
+			}
+
+			function legendHTML() {
+				const item = (color, text, border) => `<span style="display:inline-flex;align-items:center;gap:5px"><i style="display:inline-block;width:11px;height:11px;border-radius:3px;background:${color};${border ? "border:1px solid #f4a9b8" : ""}"></i>${text}</span>`;
+				return `<div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:#52657c;margin-top:6px">` +
+					item(COLORS.pred, "나의 예측") + item(COLORS.ideal, "시뮬레이션(이상값)") + item(COLORS.qpu, "QPU 결과 (숫자 = %)") + item(COLORS.forb, "나오면 안 되는 결과", true) + `</div>`;
+			}
+
+			function chartSVG(exp, series) {
+				const outs = outcomesOf(exp), n = outs.length;
+				const W = 700, H = 260, L = 40, R = 8, T = 16, B = 52;
+				const pw = W - L - R, ph = H - T - B, gw = pw / n;
+				const bw = Math.min(20, (gw * 0.8) / series.length);
+				const y = v => T + ph * (1 - Math.max(0, Math.min(100, v)) / 100);
+				const forb = new Set(forbiddenOf(exp));
+				const parts = [];
+				outs.forEach((o, i) => {
+					if (forb.has(o)) parts.push(`<rect x="${(L + gw * i + 1).toFixed(1)}" y="${T}" width="${(gw - 2).toFixed(1)}" height="${ph}" fill="${COLORS.forb}"/>`);
+				});
+				[0, 25, 50, 75, 100].forEach(t => {
+					parts.push(`<line x1="${L}" y1="${y(t)}" x2="${W - R}" y2="${y(t)}" stroke="#e2e8f0" stroke-width="1"/>`,
+						`<text x="${L - 6}" y="${y(t) + 4}" font-size="10" fill="#94a3b8" text-anchor="end">${t}%</text>`);
+				});
+				outs.forEach((o, i) => {
+					const cx = L + gw * (i + 0.5), start = cx - (bw * series.length) / 2;
+					series.forEach((s, j) => {
+						const v = s.values[o] || 0, x = start + bw * j;
+						parts.push(`<rect x="${(x + 1).toFixed(1)}" y="${y(v).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${(y(0) - y(v)).toFixed(1)}" rx="2" fill="${s.color}"><title>${o} · ${s.label} ${v.toFixed(1)}%</title></rect>`);
+						if (s.key === "qpu" && v > 0) {
+							parts.push(`<text x="${(x + bw / 2).toFixed(1)}" y="${(y(v) - 4).toFixed(1)}" font-size="10" font-weight="700" fill="${COLORS.qpu}" text-anchor="middle">${v.toFixed(1)}</text>`);
+						}
+					});
+					parts.push(`<text x="${cx.toFixed(1)}" y="${H - B + 18}" font-size="13.5" font-weight="700" fill="#0f1f33" text-anchor="middle" font-family="Consolas, Courier New, monospace">${o}</text>`,
+						`<text x="${cx.toFixed(1)}" y="${H - B + 34}" font-size="${n > 4 ? 9.5 : 10.5}" fill="#5d7087" text-anchor="middle">${decodeShort(exp, o)}</text>`);
+				});
+				parts.push(`<line x1="${L}" y1="${y(0)}" x2="${W - R}" y2="${y(0)}" stroke="#94a3b8" stroke-width="1.2"/>`);
+				return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block" font-family="Malgun Gothic, sans-serif" role="img" aria-label="${escapeHTML(exp.label)} 결과 문자열별 나의 예측, 시뮬레이션 이상값, QPU 결과 비율 막대그래프">${parts.join("")}</svg>` + legendHTML();
+			}
+
+			const chartSeries = exp => [
+				{ key: "pred", label: "나의 예측", color: COLORS.pred, values: predPct(exp, state.preds[exp.id]) },
+				{ key: "ideal", label: "시뮬레이션", color: COLORS.ideal, values: idealPct(exp) },
+				{ key: "qpu", label: "QPU", color: COLORS.qpu, values: pctOf(exp, state.runs[exp.id].counts) },
+			];
+
+			function pickHTML(counts) {
+				const p = pickE3(counts);
+				if (!p.n) return `<p>골라 볼 결과(${p.s0}, ${p.s1})가 아직 없어요.</p>`;
+				const seg = (w, color, text) => w > 0 ? `<div style="width:${w}%;background:${color};display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden">${w >= 12 ? text : ""}</div>` : "";
+				return `<p>남은 결과 <b>${p.n.toLocaleString()}회</b> 중 마지막 측정 <b>0(z↑) ${p.zero.toLocaleString()}회 · ${f1(p.p0)}%</b>, <b>1(z↓) ${p.one.toLocaleString()}회 · ${f1(p.p1)}%</b></p>` +
+					`<div class="pick-label" style="font-size:12px;font-weight:700;color:#5d7087">QPU 골라 보기</div>` +
+					`<div class="pick-bar" style="display:flex;height:26px;border-radius:7px;overflow:hidden;margin:4px 0 8px;color:#fff;font-size:12px;font-weight:800">${seg(p.p0, COLORS.z0, "z↑ " + f1(p.p0) + "%")}${seg(p.p1, COLORS.z1, "z↓ " + f1(p.p1) + "%")}</div>` +
+					`<div class="pick-label" style="font-size:12px;font-weight:700;color:#5d7087">2차시 시뮬레이션 ③ (x+만 통과 → z)</div>` +
+					`<div class="pick-bar" style="display:flex;height:26px;border-radius:7px;overflow:hidden;margin:4px 0 8px;color:#fff;font-size:12px;font-weight:800">${seg(50, COLORS.z0, "z↑ 50%")}${seg(50, COLORS.z1, "z↓ 50%")}</div>`;
+			}
+
+			function lastLabel(exp) {
+				const a = axesOf(exp), last = a[a.length - 1];
+				return [RESULT_NAME[last][0], RESULT_NAME[last][1], last];
+			}
+
+			// ── 화면 만들기 ──
+			function expHead(exp) {
+				return `<div class="block-head"><span class="exp-tag">${exp.label}</span>${escapeHTML(exp.flow)}<small>${escapeHTML(exp.opsText)}</small></div>`;
+			}
+
+			function buildPredCards() {
+				$("predCards").innerHTML = EXPS.map(exp => `<div class="block">${expHead(exp)}
+					<div class="circuit">${circuitSVG(exp)}</div>
+					<p class="sim-recall">${escapeHTML(exp.simText)}</p>
+					<div class="pred-grid">${outcomesOf(exp).map(o => `<div class="pred-cell">
+						<label class="mono" for="pred-${exp.id}-${o}">${o}</label>
+						<span class="pin"><input id="pred-${exp.id}-${o}" type="number" inputmode="decimal" min="0" max="100" step="1" placeholder="0" data-pred="${exp.id}|${o}" />%</span>
+					</div>`).join("")}</div>
+					<div class="pred-foot"><span class="sum-badge no" id="sum-${exp.id}">합계 0% / 100%</span><span class="lock-note" data-lock-note hidden>🔒 예측이 잠겼어요</span></div>
+				</div>`).join("");
+			}
+
+			function buildRunCards() {
+				$("runCards").innerHTML = EXPS.map(exp => `<div class="block">${expHead(exp)}
+					<div class="circuit">${circuitSVG(exp)}</div>
+					<div class="run-meta">
+						<div><label for="backend-${exp.id}">사용한 양자컴퓨터 이름</label><input class="text-input" id="backend-${exp.id}" maxlength="40" placeholder="예: ibm_brisbane" data-run="${exp.id}|backend" autocomplete="off" /></div>
+						<div><label for="shots-${exp.id}">실행 횟수 (shots)</label><input class="text-input" id="shots-${exp.id}" type="number" inputmode="numeric" min="1" step="1" placeholder="예: 1024" data-run="${exp.id}|shots" /></div>
+					</div>
+					<div class="run-grid">
+						<div class="table-scroll"><table class="std">
+							<thead><tr><th>결과 문자열</th><th>횟수</th><th>비율</th></tr></thead>
+							<tbody>${outcomesOf(exp).map(o => `<tr><td><label class="mono" for="cnt-${exp.id}-${o}">${o}</label></td>
+								<td><input class="count-input" id="cnt-${exp.id}-${o}" type="number" inputmode="numeric" min="0" step="1" placeholder="0" data-count="${exp.id}|${o}" /></td>
+								<td id="pct-${exp.id}-${o}">—</td></tr>`).join("")}</tbody>
+							<tfoot><tr><td>전체</td><td id="total-${exp.id}">0</td><td id="totalPct-${exp.id}">—</td></tr></tfoot>
+						</table></div>
+						<div class="helper">
+							<div class="helper-title">결과 읽기 도우미</div>
+							<label class="note" for="helper-${exp.id}">결과 문자열 하나를 골라 보세요.</label>
+							<select id="helper-${exp.id}" data-helper="${exp.id}">
+								<option value="">— 고르기 —</option>
+								${outcomesOf(exp).map(o => `<option value="${o}">${o}</option>`).join("")}
+							</select>
+							<div class="helper-out" id="helperOut-${exp.id}"></div>
+						</div>
+					</div>
+					<p class="warn" id="warn-${exp.id}"></p>
+				</div>`).join("");
+			}
+
+			function renderAnalysis() {
+				$("analysisCards").innerHTML = EXPS.map(exp => {
+					const run = state.runs[exp.id], counts = run.counts;
+					const total = countsTotal(exp, counts);
+					const qpu = pctOf(exp, counts), pred = predPct(exp, state.preds[exp.id]), ideal = idealPct(exp);
+					const forb = forbiddenOf(exp);
+					const [l0, l1, lastAxis] = lastLabel(exp);
+					const lz = lastZeroPct(exp, counts);
+					const rows = outcomesOf(exp).map(o => `<tr class="${exp.ideal[o] ? "" : "forbidden"}"><td class="mono">${o}</td><td class="left">${decodeText(exp, o)}</td>
+						<td>${f1(pred[o])}%</td><td>${f1(ideal[o])}%</td><td>${num(counts[o]).toLocaleString()}</td><td><b>${f1(qpu[o])}%</b></td></tr>`).join("");
+					return `<div class="block">${expHead(exp)}
+						<p class="note">${escapeHTML(run.backend.trim() || "양자컴퓨터 이름 미작성")} · 전체 ${Number.isFinite(total) ? total.toLocaleString() : "—"}회</p>
+						<div class="chart-box">${chartSVG(exp, chartSeries(exp))}</div>
+						<div class="table-scroll"><table class="std">
+							<thead><tr><th>결과</th><th class="left">뜻 (왼쪽부터 읽기)</th><th>나의 예측</th><th>시뮬레이션</th><th>QPU 횟수</th><th>QPU 비율</th></tr></thead>
+							<tbody>${rows}</tbody></table></div>
+						<div class="stat-row">
+							<div class="stat forb">나오면 안 되는 결과 (${forb.join(", ")}) 합계<br /><b>${f1(forbiddenPct(exp, counts))}%</b> · ${forbiddenCount(exp, counts).toLocaleString()}회</div>
+							<div class="stat">마지막 ${lastAxis} 측정 (왼쪽에서 ${measPos(lastIndex(exp)) + 1}번째 자리)<br /><b>${l0} ${f1(lz)}%</b> · ${l1} ${f1(lz == null ? null : 100 - lz)}%</div>
+						</div>
+						${exp.id === "e3" ? `<div class="pick-box"><div class="block-head" style="margin-bottom:4px">골라 보기 <small>첫 측정 z↑, 둘째 측정 x+인 결과만 →${pickedOutcomes(exp).map(o => `<span class="mono">${o}</span>`).join(", ")}</small></div>${pickHTML(counts)}</div>` : ""}
+					</div>`;
+				}).join("");
+			}
+
+			function evidenceItems() {
+				return EXPS.map(exp => {
+					const counts = state.runs[exp.id].counts;
+					const [l0, l1, lastAxis] = lastLabel(exp);
+					const lz = lastZeroPct(exp, counts);
+					const lines = [`마지막 ${lastAxis} 측정: <b>${l0} ${f1(lz)}%</b> · ${l1} ${f1(lz == null ? null : 100 - lz)}%`,
+					`나오면 안 되는 결과: <b>${f1(forbiddenPct(exp, counts))}%</b>`];
+					if (exp.id === "e3") {
+						const p = pickE3(counts);
+						lines.push(`골라 보기(x+만): z↑ <b>${f1(p.p0)}%</b> · z↓ ${f1(p.p1)}%`);
+					}
+					return { label: `${exp.label} ${exp.flow}`, lines };
+				});
+			}
+			function renderConclusionInfo() {
+				$("evidenceCards").innerHTML = evidenceItems().map(it =>
+					`<div class="evidence-card"><span class="evidence-label">${escapeHTML(it.label)}</span>${it.lines.join("<br />")}</div>`).join("");
+				$("recapIntro").textContent = state.text.introNote.trim() || "(도입에서 적지 않음)";
+			}
+
+			// ── 갱신 ──
+			function updatePredUI() {
+				EXPS.forEach(exp => {
+					const s = predSum(exp, state.preds[exp.id]);
+					const badge = $(`sum-${exp.id}`);
+					const ok = Number.isFinite(s) && Math.abs(s - 100) < 1e-6;
+					badge.textContent = `합계 ${fSum(s)}% / 100%`;
+					badge.className = `sum-badge ${ok ? "ok" : "no"}`;
+					outcomesOf(exp).forEach(o => {
+						const el = $(`pred-${exp.id}-${o}`);
+						el.classList.toggle("bad", !validPred(el.value));
+						el.disabled = state.predLocked;
+					});
+				});
+				document.querySelectorAll("[data-lock-note]").forEach(el => { el.hidden = !state.predLocked; });
+			}
+
+			function updateRunUI() {
+				EXPS.forEach(exp => {
+					const run = state.runs[exp.id];
+					const total = countsTotal(exp, run.counts);
+					const pct = pctOf(exp, run.counts);
+					outcomesOf(exp).forEach(o => {
+						$(`cnt-${exp.id}-${o}`).classList.toggle("bad", !validCount(run.counts[o]));
+						$(`pct-${exp.id}-${o}`).textContent = total > 0 ? `${f1(pct[o])}%` : "—";
+					});
+					$(`total-${exp.id}`).textContent = Number.isFinite(total) ? total.toLocaleString() : "?";
+					$(`totalPct-${exp.id}`).textContent = total > 0 ? "100%" : "—";
+					const shots = Number(run.shots);
+					let warn = "";
+					if (!Number.isFinite(total)) warn = "횟수는 0 이상의 정수로 적어 주세요.";
+					else if (run.shots !== "" && Number.isInteger(shots) && shots > 0 && total > 0 && total !== shots)
+						warn = `입력한 횟수의 합(${total.toLocaleString()})이 shots(${shots.toLocaleString()})와 달라요. 히스토그램을 다시 확인해 보세요.`;
+					$(`warn-${exp.id}`).textContent = warn;
+					const h = state.helper[exp.id];
+					$(`helperOut-${exp.id}`).innerHTML = h
+						? `<span class="mono" style="font-size:18px">${h}</span><br />` + decode(exp, h).map(d => `<span class="step-chip">${ORD[d.k]} 측정 ${d.bit} (${d.name})</span>`).join(" → ")
+						: "";
+				});
+			}
+
+			function gate(step) {
+				if (step === 1) {
+					if (!state.text.sid.trim() || !state.text.name.trim()) return "학번과 이름을 적어 주세요.";
+					if (!state.text.introNote.trim()) return "나의 예상과 그 까닭을 적으면 넘어갈 수 있어요.";
+				}
+				if (step === 2 && !state.predLocked) {
+					for (const exp of EXPS) {
+						const s = predSum(exp, state.preds[exp.id]);
+						if (!Number.isFinite(s)) return `${exp.label}: 0~100 사이의 숫자만 넣어 주세요.`;
+						if (Math.abs(s - 100) > 1e-6) return `${exp.label}의 예측 합이 ${fSum(s)}%예요. 100%가 되어야 넘어갈 수 있어요.`;
+					}
+				}
+				if (step === 3) {
+					for (const exp of EXPS) {
+						const t = countsTotal(exp, state.runs[exp.id].counts);
+						if (!Number.isFinite(t)) return `${exp.label}: 횟수는 0 이상의 정수로 적어 주세요.`;
+						if (t <= 0) return `${exp.label}의 결과 횟수를 입력해 주세요.`;
+					}
+				}
+				return "";
+			}
+			function maxReachable() {
+				let k = 1;
+				while (k < 5 && !gate(k) && (k !== 2 || state.predLocked)) k++;
+				return k;
+			}
+
+			function updateGateUI() {
+				const msg = state.step < 5 ? gate(state.step) : "";
+				const hint = $("gateHint");
+				// 다음 버튼은 막아 두지 않고, 눌렀을 때 무엇이 부족한지 알려 줍니다(goNext).
+				$("nextBtn").disabled = state.step === 5;
+				$("nextBtn").classList.toggle("is-blocked", !!msg);
+				if (msg) { hint.textContent = msg; hint.className = "gate-hint"; }
+				else if (state.step === 2 && !state.predLocked) { hint.textContent = "다음으로 넘어가면 예측이 잠겨요."; hint.className = "gate-hint info"; }
+				else { hint.textContent = ""; hint.className = "gate-hint"; }
+			}
+
+			function showStep(step) {
+				state.step = Math.max(1, Math.min(5, step));
+				$("lockConfirm").hidden = true;
+				document.querySelectorAll("section.step").forEach(p => { p.hidden = Number(p.dataset.step) !== state.step; });
+				document.querySelectorAll(".step-progress span").forEach((dot, i) => {
+					dot.classList.toggle("current", i + 1 === state.step);
+					dot.classList.toggle("past", i + 1 < state.step);
+				});
+				$("stepLabel").textContent = `${state.step} / 5 · ${STEP_LABELS[state.step - 1]}`;
+				$("prevBtn").disabled = state.step === 1;
+				$("nextBtn").textContent = state.step === 5 ? "마지막 단계" : `다음 · ${STEP_LABELS[state.step]} →`;
+				if (state.step === 4) renderAnalysis();
+				if (state.step === 5) renderConclusionInfo();
+				updateGateUI();
+				saveDraft();
+				window.scrollTo(0, 0);
+			}
+
+			function fillInputs() {
+				TEXT_IDS.forEach(id => { $(id).value = state.text[id]; });
+				CHECK_IDS.forEach(id => { $(id).checked = state.checks[id]; });
+				EXPS.forEach(exp => {
+					outcomesOf(exp).forEach(o => {
+						$(`pred-${exp.id}-${o}`).value = state.preds[exp.id][o] ?? "";
+						$(`cnt-${exp.id}-${o}`).value = state.runs[exp.id].counts[o] ?? "";
+					});
+					$(`backend-${exp.id}`).value = state.runs[exp.id].backend;
+					$(`shots-${exp.id}`).value = state.runs[exp.id].shots;
+					$(`helper-${exp.id}`).value = state.helper[exp.id];
+				});
+				updatePredUI();
+				updateRunUI();
+			}
+
+			function onInput(e) {
+				const t = e.target;
+				if (TEXT_IDS.includes(t.id)) state.text[t.id] = t.value;
+				else if (CHECK_IDS.includes(t.id)) state.checks[t.id] = t.checked;
+				else if (t.dataset.pred) {
+					if (state.predLocked) return;
+					const [id, o] = t.dataset.pred.split("|");
+					state.preds[id][o] = t.value;
+					updatePredUI();
+				} else if (t.dataset.count) {
+					const [id, o] = t.dataset.count.split("|");
+					state.runs[id].counts[o] = t.value;
+					updateRunUI();
+				} else if (t.dataset.run) {
+					const [id, k] = t.dataset.run.split("|");
+					state.runs[id][k] = t.value;
+					updateRunUI();
+				} else if (t.dataset.helper) {
+					state.helper[t.dataset.helper] = t.value;
+					updateRunUI();
+				} else return;
+				dirty = true;
+				saveDraft();
+				updateGateUI();
+			}
+
+			// 확인창(confirm)은 VS Code 미리보기 같은 일부 환경에서 막혀 있어 페이지 안의 확인 막대를 씁니다.
+			function goNext() {
+				if (state.step >= 5) return;
+				if (gate(state.step)) {
+					updateGateUI();
+					const hint = $("gateHint");
+					hint.classList.remove("flash");
+					void hint.offsetWidth;
+					hint.classList.add("flash");
+					return;
+				}
+				if (state.step === 2 && !state.predLocked) {
+					$("lockConfirm").hidden = false;
+					$("lockOk").focus();
+					return;
+				}
+				showStep(state.step + 1);
+			}
+
+			function lockAndGo() {
+				$("lockConfirm").hidden = true;
+				if (state.step !== 2 || gate(2)) return;
+				state.predLocked = true;
+				updatePredUI();
+				showStep(3);
+			}
+
+			// ── 보고서 저장 ──
+			function buildReportHTML() {
+				const esc = escapeHTML;
+				const answer = id => esc(state.text[id].trim() || "미작성");
+				const question = id => {
+					const l = document.querySelector(`label[for="${id}"]`);
+					return l ? esc(l.textContent.trim().replace(/\s+/g, " ")) : "";
+				};
+				const section = (title, id) => `<h3>${title}</h3>${question(id) && question(id) !== title ? `<p class="question">${question(id)}</p>` : ""}<div class="answer">${answer(id)}</div>`;
+				const today = new Date();
+				const dateStr = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}.`;
+				const author = [state.text.sid.trim(), state.text.name.trim()].filter(Boolean).join(" ") || "미작성";
+
+				const design = EXPS.map(exp => `<div class="exp"><h3>${exp.label} · ${esc(exp.flow)}</h3><p class="meta">${esc(exp.opsText)}</p><div class="circuit">${circuitSVG(exp)}</div></div>`).join("");
+
+				const predTables = EXPS.map(exp => {
+					const outs = outcomesOf(exp), p = state.preds[exp.id];
+					return `<h3>${exp.label} · ${esc(exp.flow)}</h3><div class="scroll"><table class="log"><thead><tr><th>결과 문자열</th>${outs.map(o => `<th class="mono">${o}</th>`).join("")}<th>합계</th></tr></thead>` +
+						`<tbody><tr><td>나의 예측</td>${outs.map(o => `<td>${validPred(p[o]) ? fSum(num(p[o])) : "?"}%</td>`).join("")}<td>${fSum(predSum(exp, p))}%</td></tr></tbody></table></div>`;
+				}).join("");
+
+				const results = EXPS.map(exp => {
+					const run = state.runs[exp.id], counts = run.counts, total = countsTotal(exp, counts);
+					const qpu = pctOf(exp, counts), pred = predPct(exp, state.preds[exp.id]), ideal = idealPct(exp);
+					const rows = outcomesOf(exp).map(o => `<tr class="${exp.ideal[o] ? "" : "forbidden"}"><td class="mono">${o}</td><td class="left">${decodeText(exp, o)}</td><td>${f1(pred[o])}%</td><td>${f1(ideal[o])}%</td><td>${num(counts[o]).toLocaleString()}</td><td><b>${f1(qpu[o])}%</b></td></tr>`).join("");
+					return `<h3>${exp.label} · ${esc(exp.flow)}</h3>
+<p class="meta">사용한 양자컴퓨터: <b>${esc(run.backend.trim() || "미작성")}</b> · shots: <b>${esc(run.shots || "미작성")}</b> · 입력한 횟수 합계: <b>${Number.isFinite(total) ? total.toLocaleString() : "—"}</b></p>
+<div class="scroll"><table class="log"><thead><tr><th>결과</th><th class="left">뜻 (왼쪽부터 읽기)</th><th>나의 예측</th><th>시뮬레이션</th><th>QPU 횟수</th><th>QPU 비율</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+				}).join("");
+
+				const analysis = EXPS.map(exp => {
+					const counts = state.runs[exp.id].counts;
+					const [l0, l1, lastAxis] = lastLabel(exp);
+					const lz = lastZeroPct(exp, counts);
+					return `<h3>${exp.label} · ${esc(exp.flow)}</h3><div class="chart-wrap">${chartSVG(exp, chartSeries(exp))}</div>
+<p class="stats"><span class="forb">나오면 안 되는 결과 (${forbiddenOf(exp).join(", ")}) 합계 <b>${f1(forbiddenPct(exp, counts))}%</b> · ${forbiddenCount(exp, counts).toLocaleString()}회</span>
+<span>마지막 ${lastAxis} 측정: <b>${l0} ${f1(lz)}%</b> · ${l1} ${f1(lz == null ? null : 100 - lz)}%</span></p>
+${exp.id === "e3" ? `<div class="pick"><b>골라 보기</b> — 첫 측정 z↑, 둘째 측정 x+인 결과(${pickedOutcomes(exp).join(", ")})만 남겼을 때${pickHTML(counts)}</div>` : ""}`;
+				}).join("");
+
+				const evidence = evidenceItems().map(it => `<li><b>${esc(it.label)}</b> — ${it.lines.join(" · ")}</li>`).join("");
+				const selfCheck = [
+					["selfCheck1", "순차 측정 실험을 큐비트 회로로 옮길 수 있다"],
+					["selfCheck2", "결과 문자열을 측정 순서대로 읽어 시뮬레이션과 비교할 수 있다"],
+					["selfCheck3", "규칙의 일치와 노이즈를 구분해 설명할 수 있다"],
+				].map(([id, label]) => `<li class="${state.checks[id] ? "checked" : ""}">${label}</li>`).join("");
+
+				return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>양자컴퓨터 실험 보고서 · ${esc(author)}</title>
+<style>
+:root{--ink:#17212f;--sub:#52657c;--line:#dce4ef;--panel:#f4f7fb;--accent:#2157d5}
+*{box-sizing:border-box}
+body{font:15px/1.7 -apple-system,"Malgun Gothic",system-ui,sans-serif;color:var(--ink);max-width:900px;margin:0 auto;padding:0 28px 60px;background:#fff}
+.cover{padding:64px 0 40px;text-align:center;border-bottom:3px solid var(--ink);margin-bottom:32px}
+.cover .kicker{font-size:13px;letter-spacing:0.12em;color:var(--sub);font-weight:700;margin-bottom:14px}
+.cover h1{font-size:30px;font-weight:900;letter-spacing:-0.02em;margin:0 0 22px}
+.cover-meta{display:inline-flex;flex-direction:column;gap:6px;font-size:14px;color:var(--sub);text-align:left}
+.cover-meta b{color:var(--ink);display:inline-block;width:92px}
+h2{font-size:20px;font-weight:800;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--ink);display:flex;align-items:baseline;gap:8px}
+h2 .num{color:var(--accent)}
+h3{font-size:15px;font-weight:700;margin:20px 0 6px}
+p{margin:0 0 10px}
+.question{color:var(--sub);font-size:13px}
+.answer{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;min-height:22px;font-size:14px}
+.meta{color:var(--sub);font-size:13px}
+.meta b{color:var(--ink)}
+.mono{font-family:Consolas,"Courier New",monospace;font-weight:700;letter-spacing:0.06em}
+.theory-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-size:14px}
+.scroll{overflow-x:auto}
+table.log{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 12px}
+table.log th,table.log td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+table.log th{background:var(--panel)}
+table.log .left{text-align:left}
+table.log tr.forbidden td{background:#fdecef}
+.circuit{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;overflow-x:auto}
+.chart-wrap{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13.5px;margin-top:8px}
+.stats .forb{color:#7f1d2d}
+.pick{background:#eef4ff;border:1px solid #c9d9fb;border-radius:10px;padding:12px 14px;font-size:13.5px;margin-top:8px}
+.pick p{margin:6px 0}
+ul.ev{padding-left:20px;font-size:14px}
+.selfcheck-list{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.selfcheck-list li{padding-left:26px;position:relative;color:var(--sub)}
+.selfcheck-list li::before{content:"☐";position:absolute;left:0;font-size:15px}
+.selfcheck-list li.checked{color:var(--ink);font-weight:600}
+.selfcheck-list li.checked::before{content:"☑";color:var(--accent)}
+@media print{.cover{padding-top:20px}.chart-wrap,.pick,.exp{break-inside:avoid}}
+</style></head><body>
+
+<div class="cover">
+	<div class="kicker">과학 탐구 실험 보고서 · 전자기와 양자</div>
+	<h1>실제 양자컴퓨터로 순차 측정 규칙 확인하기</h1>
+	<div class="cover-meta">
+		<div><b>작성자</b>${esc(author)}</div>
+		<div><b>작성일</b>${esc(dateStr)}</div>
+		<div><b>실험 도구</b>IBM Quantum Platform (Composer) · 실제 양자컴퓨터(QPU)</div>
+		<div><b>탐구 질문</b>시뮬레이션에서 찾은 규칙이 진짜 양자컴퓨터에서도 똑같이 나타날까?</div>
+	</div>
+</div>
+
+<h2><span class="num">Ⅰ.</span> 문제 인식</h2>
+<div class="theory-box">지난 시간 순차 측정 시뮬레이션 결과: ① z↑ → z 는 모두 z↑ · ② z↑ → x 는 x+, x− 반반 · ③ z↑ → x+ → z 는 마지막 z가 다시 반반 (측정이 상태를 바꾼다)</div>
+${section("나의 예상과 그 까닭", "introNote")}
+
+<h2><span class="num">Ⅱ.</span> 실험 설계</h2>
+<div class="theory-box">
+	<p>큐비트의 측정 결과 0 = z↑, 1 = z↓이며, 큐비트는 |0⟩(= z↑)에서 시작한다. 분석기를 x쪽으로 90° 돌리는 대신 큐비트를 반대 방향으로 90° 돌린 뒤(RY(−90°)) z로 측정한다.</p>
+	<table class="log"><thead><tr><th class="left">순차 측정 시뮬레이션</th><th class="left">양자컴퓨터 회로</th></tr></thead><tbody>
+	<tr><td class="left">처음 z 확인</td><td class="left">측정</td></tr>
+	<tr><td class="left">z축 분석기</td><td class="left">측정</td></tr>
+	<tr><td class="left">x축 분석기</td><td class="left">RY(−90°) → 측정 (0 = x+, 1 = x−)</td></tr>
+	<tr><td class="left">원래 자리로</td><td class="left">RY(+90°)</td></tr>
+	</tbody></table>
+	<p style="margin:0">측정 결과는 c[0]→c[1]→c[2]에 저장했다(c[3]은 비움). 실행 결과 화면은 c[0]을 맨 왼쪽에 적으므로 <b>왼쪽부터 읽으면 측정 순서</b>이다. 예: 실험 ③의 <span class="mono">0110</span> = 첫 측정 0(z↑) → 둘째 측정 1(x−) → 셋째 측정 1(z↓)</p>
+</div>
+${design}
+
+<h2><span class="num">Ⅲ.</span> 예측</h2>
+<p class="meta">${state.predLocked ? "아래 예측은 결과를 입력하기 전에 잠근 값입니다." : "예측이 아직 잠기지 않았습니다."}</p>
+${predTables}
+
+<h2><span class="num">Ⅳ.</span> 실험 결과</h2>
+<p class="meta">분홍색 줄은 시뮬레이션(이상값)에서 0%인, 나오면 안 되는 결과입니다.</p>
+${results}
+
+<h2><span class="num">Ⅴ.</span> 자료 분석과 토의</h2>
+${analysis}
+${section("(1) 시뮬레이션과 같은 규칙", "noteRule")}
+${section("(2) 처음 측정에서 가끔 1이 나온 까닭", "noteNoise")}
+${section("(3) 실험 ①과 ③의 마지막 결과가 다른 까닭", "noteDiff")}
+
+<h2><span class="num">Ⅵ.</span> 결론</h2>
+<h3>내가 모은 증거</h3>
+<ul class="ev">${evidence}</ul>
+${section("탐구 질문에 대한 나의 결론", "conclusion")}
+<h3>도입에서 쓴 나의 예상</h3>
+<div class="answer">${answer("introNote")}</div>
+${section("처음 예상과 비교 — 맞은 점과 달라진 점", "compareNote")}
+${section("노이즈가 없는 양자컴퓨터가 생긴다면", "futureNote")}
+
+<h2><span class="num">Ⅶ.</span> 스스로 점검</h2>
+<ul class="selfcheck-list">${selfCheck}</ul>
+
+<p class="meta" style="margin-top:32px;padding-top:14px;border-top:1px solid var(--line)">보고서 저장 시각: ${esc(new Date().toLocaleString("ko-KR"))}</p>
+</body></html>`;
+			}
+
+			function downloadReport() {
+				const clean = v => (v.trim() || "").replace(/[\\/:*?"<>|\x00-\x1f]/g, "_").replace(/\s+/g, "");
+				const blob = new Blob([buildReportHTML()], { type: "text/html;charset=utf-8" });
+				const url = URL.createObjectURL(blob);
+				const link = document.createElement("a");
+				link.href = url;
+				link.download = `3차시_실험보고서_${clean(state.text.sid) || "학번없음"}_${clean(state.text.name) || "이름없음"}.html`;
+				document.body.appendChild(link);
+				link.click();
+				link.remove();
+				setTimeout(() => URL.revokeObjectURL(url), 1000);
+				dirty = false;
+			}
+
+			function askReset(show) {
+				$("resetAsk").hidden = !show;
+				$("resetBtn").hidden = show;
+			}
+
+			function resetAll() {
+				askReset(false);
+				try { localStorage.removeItem(DRAFT_KEY); } catch { }
+				state = blankState();
+				dirty = false;
+				fillInputs();
+				$("restoreNote").hidden = true;
+				showStep(1);
+			}
+
+			// ── 시작 ──
+			function init() {
+				buildPredCards();
+				buildRunCards();
+				const draft = loadDraft();
+				if (draft && hasContent(draft)) {
+					state = draft;
+					$("restoreNote").hidden = false;
+				}
+				state.step = Math.min(state.step, maxReachable());
+				fillInputs();
+				document.addEventListener("input", onInput);
+				document.addEventListener("change", e => { if (CHECK_IDS.includes(e.target.id) || e.target.dataset.helper) onInput(e); });
+				$("prevBtn").addEventListener("click", () => showStep(state.step - 1));
+				$("nextBtn").addEventListener("click", goNext);
+				$("saveBtn").addEventListener("click", downloadReport);
+				$("lockOk").addEventListener("click", lockAndGo);
+				$("lockCancel").addEventListener("click", () => { $("lockConfirm").hidden = true; });
+				$("resetBtn").addEventListener("click", () => askReset(true));
+				$("resetNo").addEventListener("click", () => askReset(false));
+				$("resetYes").addEventListener("click", resetAll);
+				window.addEventListener("beforeunload", e => {
+					if (!dirty) return;
+					e.preventDefault();
+					e.returnValue = "";
+				});
+				showStep(state.step);
+			}
+
+			init();
+		})();
+	</script>
+</body>
+
+</html>

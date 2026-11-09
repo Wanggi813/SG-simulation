@@ -2499,20 +2499,29 @@
 					<div class="ctrl-head">① 문제 인식</div>
 					<label class="writing-prompt" for="studentName">보고서 작성자 · 학번 / 이름</label>
 					<input id="studentName" type="text" maxlength="80" placeholder="예: 30305 김민수" />
-					<p class="key-question"><span>탐구 질문</span>z↑ 입자를 x축으로 측정하면, 그 결과는 이미 정해져 있을까, 측정하는 순간 정해질까?</p>
+					<p class="key-question"><span>탐구 질문</span>z↑ 입자를 x축으로 측정하기 전과 후, 입자의 스핀은 각각 어떤 상태일까?</p>
 					<p class="sb-note">지난 시간에 입자는 위(z↑)·아래(z↓) 두 곳에만 검출되었습니다.
 						오늘은 그중 <strong>z↑ 입자</strong>만 골라 분석기를 이어 붙여 다시 측정합니다.
 						분석기를 90° 돌리면 <strong>x축(좌우) 방향</strong>으로도 측정할 수 있습니다.</p>
-					<fieldset class="model-options" id="firstHypothesisChoices">
-						<legend>z↑ 입자를 x축으로 측정한 결과 — 나의 첫 예상</legend>
-						<label><input type="radio" name="firstHypothesis" value="A" /><span><strong>가설 A</strong> · 이미 정해져
-								있다<small>z↑ 입자를 x축으로 측정한 결과는 측정 전에 이미 어느 한쪽으로 정해져 있고, 분석기는 그것을 확인만 한다.</small></span></label>
-						<label><input type="radio" name="firstHypothesis" value="B" /><span><strong>가설 B</strong> · 측정하는 순간
-								정해진다<small>z↑ 입자를 x축으로 측정한 결과는 측정 전에는 어느 쪽으로도 정해져 있지 않다가, 측정하는 순간 하나로 정해진다.</small></span></label>
+					<p class="key-question"><span>상황</span>z축 스핀을 측정하였을 때 +ħ/2(z↑)로 측정된 입자를 다시 x축 스핀으로 측정하는 상황이다.</p>
+					<div class="recap-box">
+						<p id="firstAnswerSentence">—</p>
+					</div>
+					<fieldset class="model-options" id="firstWhenChoices">
+						<legend>( ① )에 들어갈 말 — 나의 첫 예상</legend>
+						<label><input type="radio" name="firstWhen" value="z" /><span>z축과 나란하다</span></label>
+						<label><input type="radio" name="firstWhen" value="x" /><span>x축과 나란하다</span></label>
+						<label><input type="radio" name="firstWhen" value="none" /><span>정해져 있지 않다</span></label>
+					</fieldset>
+					<fieldset class="model-options" id="firstSpinChoices">
+						<legend>( ② )에 들어갈 말 — 나의 첫 예상</legend>
+						<label><input type="radio" name="firstSpin" value="z" /><span>z축과 나란하다</span></label>
+						<label><input type="radio" name="firstSpin" value="x" /><span>x축과 나란하다</span></label>
+						<label><input type="radio" name="firstSpin" value="none" /><span>정해져 있지 않다</span></label>
 					</fieldset>
 					<label class="writing-prompt" for="firstHypothesisNote">왜 그렇게 예상했나요? (정답을 몰라도 괜찮아요)</label>
 					<textarea id="firstHypothesisNote"
-						placeholder="예시 형식: ~라고 생각하기 때문에 가설 ○가 맞다고 예상한다."></textarea>
+						placeholder="예시 형식: ~라고 생각하기 때문에 ( ① )과 ( ② )를 이렇게 골랐다."></textarea>
 				</section>
 
 				<!-- ② 가설 설정 (전개1) -->
@@ -2531,7 +2540,7 @@
 					<p class="sb-note pred-lock-note" id="predLockNote" hidden>측정을 시작한 실험의 예측은 고정되어 바꿀 수 없습니다.</p>
 					<label class="writing-prompt" for="hypothesisNote">왜 그렇게 예상했나요?</label>
 					<textarea id="hypothesisNote"
-						placeholder="예시 형식: 가설 ○가 맞다면 ~이기 때문에 ~일 것이라고 예상했다."></textarea>
+						placeholder="예시 형식: 내 첫 예상이 맞다면 ~이기 때문에 ~일 것이라고 예상했다."></textarea>
 					<div class="btn-row btn-stack">
 						<button class="btn-sub" id="previewSameAxisBtn" disabled>실험 ① 배치 미리보기 · z → z</button>
 						<button class="btn-sub" id="previewDiffAxisBtn" disabled>실험 ② 배치 미리보기 · z → x</button>
@@ -2642,7 +2651,7 @@
 								<summary>도움이 필요하면 · 단계별 힌트</summary>
 								<p><b>힌트 1</b> 결과 그래프에서 ①과 ②의 색 막대 길이를 비교해 보세요.</p>
 								<p><b>힌트 2</b> 같은 축으로 다시 측정할 때와 다른 축으로 측정할 때, 각각 어떤 규칙이 보이나요?</p>
-								<p><b>힌트 3</b> 첫 번째 측정 뒤 입자의 상태가 어느 방향으로 정해졌는지를 근거로 두 결과의 차이를 설명해 보세요.</p>
+								<p><b>힌트 3</b> z↑로 측정된 입자를 같은 축으로 다시 측정할 때와 다른 축으로 측정할 때 각각 무엇이 나오는지를 근거로 두 결과의 차이를 설명해 보세요.</p>
 							</details>
 						</div>
 					</details>
@@ -2651,7 +2660,7 @@
 				<!-- ④ 자료 분석 (전개2) -->
 				<section class="ctrl-block" data-step="4" hidden>
 					<div class="ctrl-head">④ 자료 분석 · 결과 비교와 토의</div>
-					<p class="key-question"><span>핵심 발문</span>마지막 분석기가 똑같이 z축인데, 중간에 x를 측정하면(③) 결과가 달라졌다. 측정은 입자의 상태에 어떤 영향을 줄까?</p>
+					<p class="key-question"><span>핵심 발문</span>마지막 분석기가 똑같이 z축인데, 중간에 x를 측정하면(③) 결과가 달라졌다. 중간의 측정은 원자의 스핀에 어떤 변화를 주었을까?</p>
 					<p class="sb-note">③ 단계에서 측정한 결과가 조건별로 합산되어 있습니다. 옅은 빗금 막대가 <strong>내 예측</strong>, 진한 막대가
 						<strong>실제 결과</strong>입니다. (모두 검출기에 도달한 입자 기준)</p>
 					<div id="runLogEmpty" class="sb-note">아직 기록된 실행이 없습니다. ③ 단계로 돌아가 실행해 보세요.</div>
@@ -2668,8 +2677,8 @@
 					<details class="hint-fold">
 						<summary>도움이 필요하면 · 단계별 힌트</summary>
 						<p><b>힌트 1</b> 결과 그래프에서 ①과 ③의 마지막 z 막대를 비교해 보세요.</p>
-						<p><b>힌트 2</b> 중간에 x를 측정한 뒤, 입자의 상태는 어느 방향으로 정해졌을까요?</p>
-						<p><b>힌트 3</b> 측정이 값을 확인만 한다면, ③의 마지막 z 결과는 어떻게 나와야 할까요?</p>
+						<p><b>힌트 2</b> 중간에 x+로 측정된 입자를 다시 x축으로 측정하면 무엇이 나올까요? 그 입자를 아직 z↑ 입자라고 할 수 있을까요?</p>
+						<p><b>힌트 3</b> 측정이 스핀을 측정 전 그대로 둔다면, ③의 마지막 z 결과는 어떻게 나와야 할까요?</p>
 					</details>
 
 				</section>
@@ -2677,11 +2686,11 @@
 				<!-- ⑤ 결론 도출 (정리) -->
 				<section class="ctrl-block" data-step="5" hidden id="conclusionPanel">
 					<div class="ctrl-head">⑤ 결론 도출</div>
-					<label class="writing-prompt" for="conclusion">① 결론 정리 — 측정은 입자의 상태에 어떤 영향을 주나요?</label>
+					<label class="writing-prompt" for="conclusion">① 결론 정리 — 측정은 원자의 스핀에 어떤 변화를 주나요?</label>
 					<textarea id="conclusion"
 						placeholder="힌트: 실험 ①과 ③의 차이를 근거로 적어 보세요."></textarea>
 
-					<div class="question-label">② z↑ 입자를 x축으로 측정한 결과는 이미 정해져 있었을까, 측정하는 순간 정해졌을까?</div>
+					<div class="question-label">② 실험 결과를 보고, 첫 예상의 응답 문구를 다시 완성해 보세요.</div>
 
 					<div class="evidence-step">
 						<span class="evidence-num">1</span>
@@ -2705,10 +2714,20 @@
 						<span class="evidence-num">3</span>
 						<div class="evidence-body">
 							<p class="evidence-title">위 증거를 바탕으로 내가 내리는 판단</p>
-							<fieldset class="model-options" id="conclusionChoices">
-								<legend>z↑ 입자를 x축으로 측정한 결과 — 지금의 판단</legend>
-								<label><input type="radio" name="conclusionChoice" value="A" /><span><strong>가설 A</strong> · 이미 정해져 있다<small>측정은 확인만 한다</small></span></label>
-								<label><input type="radio" name="conclusionChoice" value="B" /><span><strong>가설 B</strong> · 측정하는 순간 정해진다<small>다른 축 측정이 상태를 바꾼다</small></span></label>
+							<div class="recap-box">
+								<p id="conclusionAnswerSentence">—</p>
+							</div>
+							<fieldset class="model-options" id="conclusionWhenChoices">
+								<legend>( ① )에 들어갈 말 — 지금의 판단</legend>
+								<label><input type="radio" name="conclusionWhen" value="z" /><span>z축과 나란하다</span></label>
+								<label><input type="radio" name="conclusionWhen" value="x" /><span>x축과 나란하다</span></label>
+								<label><input type="radio" name="conclusionWhen" value="none" /><span>정해져 있지 않다</span></label>
+							</fieldset>
+							<fieldset class="model-options" id="conclusionSpinChoices">
+								<legend>( ② )에 들어갈 말 — 지금의 판단</legend>
+								<label><input type="radio" name="conclusionSpin" value="z" /><span>z축과 나란하다</span></label>
+								<label><input type="radio" name="conclusionSpin" value="x" /><span>x축과 나란하다</span></label>
+								<label><input type="radio" name="conclusionSpin" value="none" /><span>정해져 있지 않다</span></label>
 							</fieldset>
 							<label class="writing-prompt" for="reflectionNote">그렇게 고른 근거는 무엇인가요?</label>
 							<textarea id="reflectionNote"
@@ -2716,17 +2735,18 @@
 						</div>
 					</div>
 
-					<div class="sec-label">③ 원리 보기 — 측정에 의한 상태 변화</div>
+					<div class="sec-label">③ 원리 보기 — 측정이 스핀을 바꾸는 까닭</div>
 					<button class="btn-sub" id="principleBtn" style="width:100%" disabled>원리 보기</button>
 					<p class="sb-note" id="principleLockNote">②의 판단과 근거를 먼저 적으면 열립니다.</p>
 					<div id="afterPrincipleBlock" hidden>
 						<label class="writing-prompt" for="afterPrincipleNote">원리를 보고 새로 알게 되거나 달라진 생각을 적어 보세요. (‘다른 축으로 측정하면 상태가
 							바뀐다’는 내용을 넣어서)</label>
 						<textarea id="afterPrincipleNote"
-							placeholder="예시 형식: 측정이 값을 확인만 한다면 ③은 ~였을 텐데, 실제로는 ~였다. 그러므로 측정은 ~."></textarea>
+							placeholder="예시 형식: 측정이 스핀을 그대로 둔다면 ③은 ~였을 텐데, 실제로는 ~였다. 그러므로 측정은 ~."></textarea>
 					</div>
 
-					<div class="self-check" id="selfCheck">
+					<!-- 스스로 점검·다음 시간 예고는 '상태'라는 말을 쓰므로, 원리 보기에서 그 말을 배운 뒤에만 보여 줍니다. -->
+					<div class="self-check" id="selfCheck" hidden>
 						<p>스스로 점검해보기 (점수가 아니라 체크만 해도 됩니다)</p>
 						<label><input type="checkbox" id="selfCheck1" /> 같은 축으로 다시 측정하면 결과가 유지되고, 다른 축으로 측정하면 반반이 되는 규칙을 찾았다</label>
 						<label><input type="checkbox" id="selfCheck2" /> 측정 후 상태가 측정한 축 방향으로 정해진다는 것을 근거로 두 결과의 차이를 설명할 수
@@ -2735,7 +2755,7 @@
 					</div>
 
 					<!-- 다음 차시(양자컴퓨터·큐비트)로 이어지는 예고: 결론을 모두 마친 뒤 맨 마지막에만 둡니다. -->
-					<div class="next-lesson" id="nextLesson">
+					<div class="next-lesson" id="nextLesson" hidden>
 						<div class="sec-label">④ 다음 시간 예고 — 양자컴퓨터와 큐비트</div>
 						<p class="sb-note">오늘 확인한 <strong>두 결과, 확률적인 측정 결과, 측정에 의한 상태 변화</strong>는 양자컴퓨터의 정보 단위인
 							<strong>큐비트</strong>에서도 그대로 나타납니다.</p>
@@ -2918,7 +2938,8 @@
 						<text x="324" y="78" font-size="9" fill="#94a3b8" text-anchor="middle">→ 항상 z↑ (실험 ①)</text>
 					</svg>
 					<figcaption>
-						z↑로 측정된 입자는 <strong>z↑ 상태</strong>가 됩니다.
+						z↑로 측정된 입자는 다시 z축으로 측정해도 항상 z↑가 나옵니다. 이처럼 다음 측정에서 어떤 결과가 얼마나 나올지를 정하는 입자의 성질을
+						<strong>상태</strong>라고 부릅니다. z↑로 측정된 입자는 <strong>z↑ 상태</strong>가 된 것입니다.
 					</figcaption>
 				</figure>
 			</div>
@@ -2940,6 +2961,7 @@
 					</svg>
 					<figcaption>
 						같은 입자라도 어느 축으로 측정하느냐에 따라 결과가 <strong>확실할 수도(z), 확률적일 수도(x)</strong> 있어요.
+						x 측정 전 스핀은 <strong>z축과 나란합니다(z↑)</strong>. 이 상태에서는 x 결과가 아직 정해져 있지 않아 x+·x−가 반반 나와요.
 					</figcaption>
 				</figure>
 			</div>
@@ -2984,7 +3006,8 @@
 					</svg>
 					<figcaption>
 						③에서는 중간의 x 측정이 상태를 <strong>x+로 바꿨고</strong>, 아무것도 측정하지 않은 ①에서는 z↑가 그대로였어요.
-						측정이 <em>확인만</em> 한다면(가설 A) ③도 모두 z↑여야 하지만 z↓가 절반 나왔습니다. 그러므로 <strong>다른 축으로 측정하면 상태가 바뀝니다</strong>.
+						측정이 스핀을 <em>그대로 둔다면</em> ③도 모두 z↑여야 하지만 z↓가 절반 나왔습니다. 중간의 x 측정이 스핀을 측정 결과(x+)와 같은 값으로 바꾼 것이고, 이처럼 <strong>다른 축으로 측정하면 상태가 바뀝니다</strong>.
+						정리하면, x축 스핀을 측정하기 전 입자의 스핀은 <strong>z축과 나란하고</strong>(실험 ①), x축 스핀을 측정한 후 입자의 스핀은 <strong>x축과 나란합니다</strong>(x+ 또는 x−, 실험 ③).
 					</figcaption>
 				</figure>
 			</div>
@@ -3063,8 +3086,13 @@
 		const lastAxisOf = analyzers => [...analyzers].reverse().find(a => a.axis !== "none")?.axis || "z";
 		const PRESET_SIGS = Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, sigOf(presetAnalyzers(p))]));
 		const FINAL_AXIS = Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, lastAxisOf(presetAnalyzers(p))]));
-		const hypothesisLabels = { A: "가설 A — z↑ 입자의 x축 측정 결과는 이미 정해져 있다", B: "가설 B — z↑ 입자의 x축 측정 결과는 측정하는 순간 정해진다" };
-		const hypothesisLabel = v => hypothesisLabels[v] || "미선택";
+		// 응답 문구의 ①(x 측정 전 스핀)과 ②(x 측정 후 스핀)는 같은 선지에서 고릅니다. when = ①, spin = ②
+		const whenLabels = { z: "z축과 나란하다", x: "x축과 나란하다", none: "정해져 있지 않다" };
+		const spinLabels = whenLabels;
+		// 고른 답을 응답 문구에 넣습니다. 고르지 않은 칸은 ( ① ), ( ② )로 남습니다.
+		const answerSentence = ({ when, spin }, wrap = v => v) =>
+			`x축 스핀을 측정하기 전 입자의 스핀은 ${wrap(whenLabels[when] || "( ① )")}. 그리고 x축 스핀을 측정한 후 입자의 스핀은 ${wrap(spinLabels[spin] || "( ② )")}.`;
+		const answerText = choice => (choice.when || choice.spin) ? answerSentence(choice) : "미선택";
 
 		// Scene layout constants
 		const GEO = {
@@ -3206,8 +3234,22 @@
 			ui.hudReportStatus.textContent = text;
 		}
 
+		function radioValue(name) {
+			return document.querySelector(`input[name="${name}"]:checked`)?.value;
+		}
+
+		function firstChoiceValue() {
+			return { when: radioValue("firstWhen"), spin: radioValue("firstSpin") };
+		}
+
 		function conclusionChoiceValue() {
-			return document.querySelector('input[name="conclusionChoice"]:checked')?.value;
+			return { when: radioValue("conclusionWhen"), spin: radioValue("conclusionSpin") };
+		}
+
+		function updateAnswerSentences() {
+			const bold = v => `<strong>${v}</strong>`;
+			document.getElementById("firstAnswerSentence").innerHTML = answerSentence(firstChoiceValue(), bold);
+			document.getElementById("conclusionAnswerSentence").innerHTML = answerSentence(conclusionChoiceValue(), bold);
 		}
 
 		function applyConfiguration(config) {
@@ -3445,7 +3487,7 @@
 			};
 		}
 
-		// ② 가설 설정의 실험 ②·③ 예측. 여기서 정한 값이 곧 ③ 단계 측정 전 예측이 됩니다.
+		// ② 가설 설정의 실험 ①·② 예측. 여기서 정한 값이 곧 ③ 단계 측정 전 예측이 됩니다.
 		const step2Widgets = {};
 		let modalPredWidget = null;
 
@@ -4101,7 +4143,7 @@
 		}
 
 		// 첫 측정 전에는 스핀 방향 화살표를 보여 주지 않습니다(null). 예전처럼 화살표가 특정 방향을
-		// 가리키며 돌면 "측정 전에도 방향이 정해져 있다(가설 A)"는 인상을 주기 때문입니다.
+		// 가리키며 돌면 "측정 전에도 방향이 정해져 있다"는 인상을 주기 때문입니다.
 		function getSpinDirAtFrac(spinStops, frac) {
 			let current = spinStops[0];
 			for (const stop of spinStops) {
@@ -4324,7 +4366,8 @@
 
 		// 예상(예측)을 적기 전에는 실행/다음 단계로 넘어가는 버튼이 눌리지 않도록 막습니다.
 		function updateGates() {
-			const firstFilled = !!document.querySelector('input[name="firstHypothesis"]:checked')
+			const firstChoice = firstChoiceValue();
+			const firstFilled = !!firstChoice.when && !!firstChoice.spin
 				&& document.getElementById("firstHypothesisNote").value.trim() !== "";
 			const predsFilled = ["sameAxis", "basisChange"].every(k => state.predictions[PRESET_SIGS[k]]);
 			const ready2 = step2Ready();
@@ -4365,10 +4408,10 @@
 			if (stepState.step === 2) syncStep2Widgets();
 
 			if (stepState.step === 5) {
-				const choice = document.querySelector('input[name="firstHypothesis"]:checked')?.value;
+				const choice = firstChoiceValue();
 				const note = document.getElementById("firstHypothesisNote").value.trim();
 				document.getElementById("recapFirstHypothesis").textContent =
-					choice ? `${hypothesisLabel(choice)}${note ? " · " + note : ""}` : "(① 문제 인식에서 고르지 않음)";
+					(choice.when || choice.spin) ? `${answerSentence(choice)}${note ? " · " + note : ""}` : "(① 문제 인식에서 고르지 않음)";
 				renderEvidence();
 				updatePrincipleLock();
 			}
@@ -4475,7 +4518,8 @@
 		// 처음 여는 순간의 판단을 기록해 둡니다(원리를 본 뒤 답을 고치지 않고 판단이 남도록).
 		function updatePrincipleLock() {
 			const opened = !!state.judgmentSnapshot;
-			const ready = !!conclusionChoiceValue() && document.getElementById("reflectionNote").value.trim() !== "";
+			const choice = conclusionChoiceValue();
+			const ready = !!choice.when && !!choice.spin && document.getElementById("reflectionNote").value.trim() !== "";
 			document.getElementById("principleBtn").disabled = !opened && !ready;
 			document.getElementById("principleLockNote").textContent = opened
 				? "원리 보기 전의 판단이 기록되었습니다. 원리를 보고 달라진 생각은 아래에 적어 보세요."
@@ -4486,9 +4530,11 @@
 		function openPrinciple() {
 			if (!state.judgmentSnapshot) {
 				state.judgmentSnapshot = { choice: conclusionChoiceValue(), note: document.getElementById("reflectionNote").value.trim() };
-				document.querySelectorAll('input[name="conclusionChoice"]').forEach(el => { el.disabled = true; });
+				document.querySelectorAll('input[name="conclusionWhen"], input[name="conclusionSpin"]').forEach(el => { el.disabled = true; });
 				document.getElementById("reflectionNote").readOnly = true;
 				document.getElementById("afterPrincipleBlock").hidden = false;
+				document.getElementById("selfCheck").hidden = false;
+				document.getElementById("nextLesson").hidden = false;
 				state.dirty = true;
 			}
 			updatePrincipleLock();
@@ -4514,7 +4560,7 @@
 			const chart = reportChartSVG(groups);
 			const today = new Date();
 			const dateStr = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}.`;
-			const firstChoice = document.querySelector('input[name="firstHypothesis"]:checked')?.value;
+			const firstChoice = firstChoiceValue();
 			const snap = state.judgmentSnapshot;
 			const judgedChoice = snap ? snap.choice : conclusionChoiceValue();
 			const judgedNote = snap ? snap.note : document.getElementById("reflectionNote").value.trim();
@@ -4574,13 +4620,14 @@ table.log th{background:var(--panel)}
 	<div class="cover-meta">
 		<div><b>작성자</b>${answer("studentName")}</div>
 		<div><b>작성일</b>${escape(dateStr)}</div>
-		<div><b>탐구 질문</b>z↑ 입자를 x축으로 측정하면, 그 결과는 이미 정해져 있을까, 측정하는 순간 정해질까?</div>
+		<div><b>탐구 질문</b>z↑ 입자를 x축으로 측정하기 전과 후, 입자의 스핀은 각각 어떤 상태일까?</div>
 	</div>
 </div>
 
 <h2><span class="num">Ⅰ.</span> 문제 인식</h2>
-<h3>z↑ 입자를 x축으로 측정한 결과 — 나의 첫 예상</h3>
-<p><strong>${escape(hypothesisLabel(firstChoice))}</strong></p>
+<p class="question">상황: z축 스핀을 측정하였을 때 +ħ/2(z↑)로 측정된 입자를 다시 x축 스핀으로 측정하는 상황이다.</p>
+<h3>x축 스핀을 측정하기 전과 후 입자의 스핀 — 나의 첫 예상</h3>
+<p><strong>${escape(answerText(firstChoice))}</strong></p>
 ${section("그렇게 예상한 까닭", "firstHypothesisNote")}
 
 <h2><span class="num">Ⅱ.</span> 가설 설정</h2>
@@ -4615,8 +4662,9 @@ ${section("실험 ①·③ 비교 — 중간 측정 유무에 따라 결과가 �
 
 <h2><span class="num">Ⅵ.</span> 결론</h2>
 ${section("결론 정리", "conclusion")}
-<h3>z↑ 입자를 x축으로 측정한 결과 — 원리 보기 전 나의 판단</h3>
-<p><strong>${escape(hypothesisLabel(judgedChoice))}</strong> (첫 예상: ${escape(hypothesisLabel(firstChoice))})</p>
+<h3>x축 스핀을 측정하기 전과 후 입자의 스핀 — 원리 보기 전 나의 판단</h3>
+<p><strong>${escape(answerText(judgedChoice))}</strong></p>
+<p>첫 예상: ${escape(answerText(firstChoice))}</p>
 <div class="answer">${escape(judgedNote || "미작성")}</div>
 ${section("원리를 본 뒤 새로 알게 되거나 달라진 생각", "afterPrincipleNote")}
 
@@ -4624,8 +4672,9 @@ ${section("원리를 본 뒤 새로 알게 되거나 달라진 생각", "afterPr
 <div class="theory-box">
 	<ul>
 		<li>측정하면 입자의 상태는 측정한 축 방향으로 정해집니다. 그래서 z↑로 측정된 입자를 같은 축으로 곧바로 다시 측정하면 항상 z↑가 나옵니다(실험 ①). 중간에 다른 축을 측정하지 않으면 상태는 그대로입니다.</li>
-		<li>z↑ 상태를 x축으로 측정하면 x+와 x−가 반반 나옵니다(실험 ②).</li>
-		<li>중간에 x축 측정을 거치면 입자의 상태가 x+로 바뀌어, 마지막 z 측정이 다시 반반이 됩니다(실험 ③). 측정이 이미 정해진 값을 확인하기만 한다면 ③에서도 z↑만 나와야 하므로, <strong>다른 축으로 측정하면 상태가 바뀝니다</strong>.</li>
+		<li>z↑ 상태를 x축으로 측정하면 x+와 x−가 반반 나옵니다(실험 ②). x 측정 전 스핀은 z축과 나란하며(z↑), 이 상태에서는 x 결과가 아직 정해져 있지 않습니다.</li>
+		<li>중간에 x축 측정을 거치면 입자의 상태가 x+로 바뀌어, 마지막 z 측정이 다시 반반이 됩니다(실험 ③). 측정이 스핀을 그대로 둔다면 ③에서도 z↑만 나와야 하므로, 측정은 스핀을 측정 결과와 같은 값으로 바꿉니다. 이처럼 <strong>다른 축으로 측정하면 상태가 바뀝니다</strong>.</li>
+		<li>정리하면, x축 스핀을 측정하기 전 입자의 스핀은 <strong>z축과 나란하고</strong>(실험 ①), x축 스핀을 측정한 후 입자의 스핀은 <strong>x축과 나란합니다</strong>(x+ 또는 x−, 실험 ③).</li>
 	</ul>
 </div>
 
@@ -5143,10 +5192,11 @@ ${section("오늘의 실험, 진짜 양자컴퓨터에서도 똑같이 나올까
 			document.getElementById("principleClose").addEventListener("click", () => closeModal("principleModal"));
 			document.getElementById("principleCancel").addEventListener("click", () => closeModal("principleModal"));
 			document.getElementById("firstHypothesisNote").addEventListener("input", updateGates);
-			document.querySelectorAll('input[name="firstHypothesis"]').forEach(el => el.addEventListener("change", updateGates));
+			document.querySelectorAll('input[name="firstWhen"], input[name="firstSpin"]').forEach(el => el.addEventListener("change", () => { updateAnswerSentences(); updateGates(); }));
 			document.getElementById("hypothesisNote").addEventListener("input", updateGates);
 			document.getElementById("reflectionNote").addEventListener("input", updatePrincipleLock);
-			document.querySelectorAll('input[name="conclusionChoice"]').forEach(el => el.addEventListener("change", updatePrincipleLock));
+			document.querySelectorAll('input[name="conclusionWhen"], input[name="conclusionSpin"]').forEach(el => el.addEventListener("change", () => { updateAnswerSentences(); updatePrincipleLock(); }));
+			updateAnswerSentences();
 
 			["principleModal", "resultsModal"].forEach(id => {
 				document.getElementById(id).addEventListener("click", e => {
