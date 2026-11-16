@@ -3476,12 +3476,12 @@
   </div>
 
   <!-- 스핀 설명 문구 수정: 아래 제목·문단·그림을 수정하면 팝업에 반영됩니다.
-       이야기 순서: ① 어떻게 측정할까 → ② 예상 → ③ 결과(양자화) → ④ 확률 → ⑤ 남은 질문.
+       이야기 순서: ① 어떻게 측정할까 → ② 결과(양자화) → ③ 확률 → ④ 남은 질문. (전자의 스핀만 설명하고, 은 원자를 쓰는 이유는 다루지 않습니다.)
        화살표 = 전자 스핀의 방향. 전자는 음전하라서 전자의 작은 자석(자기 모멘트)은 스핀과 반대 방향입니다.
        장치: 위쪽 칼날 = N극, 아래쪽 평평한 극 = S극 → 자기장은 위 → 아래, 위쪽일수록 셉니다. 그래서 스핀 위(+ħ/2)는 위로 휩니다.
        data-report가 붙은 그림은 보고서 Ⅶ에도 그대로 들어갑니다. -->
   <template id="spinExplanationTemplate">
-    <h4 style="margin:0 0 4px">작은 자석처럼 행동하는 스핀을 측정하기</h4>
+    <h4 style="margin:0 0 4px">전자의 스핀을 측정하기</h4>
 
     <div style="margin:16px 0 6px;font-size:13.5px;font-weight:800;color:#1d4ed8">① 스핀을 어떻게 측정할까?</div>
     <figure style="margin:0 0 12px;padding:12px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc">
@@ -3515,19 +3515,12 @@
             <text x="52" y="138" font-size="10" fill="#64748b" text-anchor="middle">→ 아래로 휨</text>
           </g>
         </svg>
-      <figcaption style="font-size:13px;line-height:1.65">스핀은 눈으로 볼 수 없어요. 그래서 스핀을 가진 입자를 <strong>불균일한 자기장</strong> 속으로 지나가게 해요.
-        이 장치는 위쪽 칼날이 N극이라 자기장이 위에서 아래로 향하고, 위쪽일수록 세요. 여기서 스핀이 위를 향한 입자는 위로, 아래를 향한 입자는 아래로 힘을 받아 휘어요. 그러니 <strong>입자가 검출면에 도착한 위치가 곧 스핀의 측정 결과</strong>예요.</figcaption>
+      <figcaption style="font-size:13px;line-height:1.65">전자는 스핀 때문에 아주 작은 자석처럼 행동해서, <strong>불균일한 자기장</strong>을 지나면 스핀 방향에 따라 휘어요.
+        이 장치에서는 스핀이 위면 위로, 아래면 아래로 휘므로 <strong>검출면에 도착한 위치가 곧 스핀의 측정 결과</strong>예요.</figcaption>
     </figure>
-    <p style="margin:0 0 10px;font-size:13px;line-height:1.65">그런데 전자를 그대로 보내면, 전자가 띤 전하 때문에 생기는 힘이 훨씬 커서 스핀에 의한 힘을 알아볼 수 없어요.
-      그래서 전자 대신 <strong>은 원자</strong>를 보내요. 은 원자는 전기적으로 중성이고, 전자 47개 중 46개는 둘씩 짝을 지어 자석의 성질이 서로 상쇄돼요.
-      따라서 은 원자는 <strong>남은 전자 하나의 스핀</strong> 때문에 작은 자석처럼 행동해요.</p>
-    <p style="margin:0 0 10px;font-size:13px;line-height:1.65">주의할 점이 있어요. 전자는 음(−)전하를 띠어서, 전자의 작은 자석은 <strong>스핀과 반대 방향</strong>을 향해요.
-      스핀이 위를 향한 원자는 작은 자석이 아래를 향하고, 이 작은 자석이 자기장(위 → 아래)과 같은 방향이 되어 자기장이 센 위쪽으로 끌려가요. 그래서 스핀이 위인 원자가 위로 휘는 거예요.</p>
+    <p style="margin:0 0 10px;font-size:13px;line-height:1.65">전자는 음(−)전하라서 전자의 작은 자석은 <strong>스핀과 반대 방향</strong>을 향해요. 그래서 ‘먼저 해 보기’에서 본 작은 자석과는 휘는 방향이 반대예요.</p>
 
-    <div style="margin:16px 0 6px;font-size:13.5px;font-weight:800;color:#1d4ed8">② 예상: 방향이 제각각이라면?</div>
-    <p style="margin:0 0 10px;font-size:13px;line-height:1.65">원자마다 작은 자석의 방향이 제각각이라면, 휘는 정도도 제각각이어서 검출면에는 위아래로 이어진 <strong>꽉 찬 띠</strong>가 생길 거예요.</p>
-
-    <div style="margin:16px 0 6px;font-size:13.5px;font-weight:800;color:#1d4ed8">③ 결과: 두 값뿐이에요 (양자화)</div>
+    <div style="margin:16px 0 6px;font-size:13.5px;font-weight:800;color:#1d4ed8">② 결과: 두 값뿐이에요 (양자화)</div>
     <figure data-report="quantization" style="margin:0 0 12px;padding:12px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:260px;margin:0 auto 10px;text-align:center;font-size:12.5px;font-weight:700;color:#334155">
         <div>
@@ -3559,11 +3552,11 @@
           <text x="150" y="62" font-size="11" fill="#94a3b8" font-weight="700">그 사이 값은 없음</text>
           <text x="150" y="100" font-size="13" fill="#3c82f6" font-weight="800">−ħ/2 (아래)</text>
         </svg>
-      <figcaption style="font-size:13px;line-height:1.65">실제로는 <strong>딱 두 갈래</strong>였어요. 스핀을 위아래 방향(z축)으로 측정하면 <strong>+ħ/2(위) 또는 −ħ/2(아래), 두 값 중 하나만</strong>
-        나와요. 그 사이의 값은 나오지 않아요. 이것이 스핀의 <strong>양자화</strong>예요.</figcaption>
+      <figcaption style="font-size:13px;line-height:1.65">작은 자석의 방향이 제각각이라면 꽉 찬 띠가 생겨야 하지만, 실제로는 <strong>딱 두 갈래</strong>였어요.
+        스핀을 z축으로 측정하면 <strong>+ħ/2(위) 또는 −ħ/2(아래)</strong> 두 값만 나와요. 이것이 스핀의 <strong>양자화</strong>예요.</figcaption>
     </figure>
 
-    <div style="margin:16px 0 6px;font-size:13.5px;font-weight:800;color:#1d4ed8">④ 어느 쪽으로 갈지는 확률로 정해져요</div>
+    <div style="margin:16px 0 6px;font-size:13.5px;font-weight:800;color:#1d4ed8">③ 어느 쪽으로 갈지는 확률로 정해져요</div>
     <figure data-report="probability" style="margin:0 0 12px;padding:12px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc">
       <svg viewBox="0 0 300 30" role="img" aria-label="원자 오븐에서 나온 원자는 위와 아래가 각각 50%의 확률로 나온다" style="width:100%;max-width:340px;display:block;margin:0 auto 10px">
         <rect x="0" y="0" width="150" height="30" rx="8" fill="#e23a5c" />
@@ -3573,16 +3566,16 @@
         <text x="75" y="20" font-size="13" fill="white" text-anchor="middle" font-weight="800">위 50%</text>
         <text x="225" y="20" font-size="13" fill="white" text-anchor="middle" font-weight="800">아래 50%</text>
       </svg>
-      <figcaption style="font-size:13px;line-height:1.65">원자 오븐에서 나온 원자는 각각 50%의 확률로 위 또는 아래에 도착해요. 원자 하나가 어느 쪽으로 갈지는
-        미리 알 수 없고, 많이 모았을 때의 비율만 예측할 수 있어요. 여러분이 1000개씩 보내 직접 확인한 것처럼요.</figcaption>
+      <figcaption style="font-size:13px;line-height:1.65">원자 오븐에서 나온 원자는 위와 아래에 각각 50%의 확률로 도착해요. 원자 하나가 어느 쪽으로 갈지는
+        미리 알 수 없고, 많이 모았을 때의 비율만 예측할 수 있어요.</figcaption>
     </figure>
 
-    <div style="margin:16px 0 6px;font-size:13.5px;font-weight:800;color:#1d4ed8">⑤ 남은 질문</div>
+    <div style="margin:16px 0 6px;font-size:13.5px;font-weight:800;color:#1d4ed8">④ 남은 질문</div>
     <div id="spinDemoCanvas"
       style="width:100%;height:280px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;margin-bottom:10px;overflow:hidden;">
     </div>
-    <p style="margin:0">측정 전에 원자의 작은 자석은 정말 방향이 제각각이었을까요? 검출점은 측정 결과일 뿐이라, 이것만으로는 알 수 없어요.
-      다음 시간 ‘순차 측정’에서 자석을 이어 붙여 이 질문을 탐구해요.</p>
+    <p style="margin:0">측정 전 원자의 작은 자석은 정말 방향이 제각각이었을까요? 검출점은 측정 결과일 뿐이라 이것만으로는 알 수 없어요.
+      다음 시간 ‘순차 측정’에서 자석을 이어 붙여 탐구해요.</p>
   </template>
 
 
@@ -3742,7 +3735,7 @@
         title: "고전 물리학의 예측",
         body: `
 <p style="margin:0 0 14px; font-size:14px; color:#334155; line-height:1.7;">
-  고전 이론에서는 은 원자를 '작은 자석'으로 봅니다. 이 자석들의 방향은 3차원 공간에서 무작위이므로 원자들이 자기장 속에서 받는 힘의 크기도 연속적으로 분포합니다. 따라서 고전 이론은 스크린에 <strong>길게 이어진 하나의 띠</strong>가 나타날 것이라고 예측합니다.
+  고전 물리학에서는 은 원자를 방향이 제각각인 작은 자석으로 봐요. 방향이 제각각이면 자기장 속에서 받는 힘의 크기도 제각각이므로, 검출면에는 위아래로 이어진 <strong>꽉 찬 띠</strong>가 생길 것이라고 예측해요.
 </p>
 <div id="theoryClassicalCanvas" style="width:100%;height:220px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;overflow:hidden;"></div>
 `
@@ -4180,7 +4173,7 @@
         ctx.fillStyle = "#1e293b";
         ctx.font = "bold 12px 'Malgun Gothic', sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("고전 예측: 원자마다 자기모멘트 방향이 다름 → 검출기에 꽉 찬 무늬", w / 2, titleH);
+        ctx.fillText("고전 예측: 원자마다 작은 자석의 방향이 다름 → 검출면에 꽉 찬 띠", w / 2, titleH);
 
         // 레이아웃 영역
         const srcX = 36;
