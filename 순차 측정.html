@@ -4919,14 +4919,16 @@
 			group.position.copy(frame.pos);
 
 			const isZ = axis !== "x";
-			// Pole colors: Z = blue/red, X = green/purple
-			const northColor = isZ ? 0x1e40af : 0x14532d;
-			const southColor = isZ ? 0x9f1239 : 0x581c87;
-			const northEmissive = isZ ? 0x1e3a8a : 0x14532d;
-			const southEmissive = isZ ? 0x7f1238 : 0x4a1066;
+			// 극 색: 위쪽 칼날 = N극, 아래쪽 = S극. z축은 슈테른-게를라흐 시뮬레이션처럼 N극 붉은색·S극 파란색, x축은 초록/보라.
+			const northColor = isZ ? 0x9f1239 : 0x14532d;
+			const southColor = isZ ? 0x1e40af : 0x581c87;
+			const northEmissive = isZ ? 0x7f1238 : 0x14532d;
+			const southEmissive = isZ ? 0x1e3a8a : 0x4a1066;
 
-			// 자석 모양은 슈테른-게를라흐 시뮬레이션과 같습니다: 위쪽은 칼날(쐐기) 모양 S극, 아래쪽은 평평한 N극.
-			// 자기장은 N극(아래) → S극(위)으로 향하고 칼날 쪽(위)일수록 세서, 작은 자석이 위를 향한 입자는 위로 휩니다(수업의 약속).
+			// 자석 모양과 극은 슈테른-게를라흐 시뮬레이션과 같습니다: 위쪽은 칼날(쐐기) 모양 N극, 아래쪽은 평평한 S극.
+			// 자기장은 N극(위) → S극(아래)으로 향하고 칼날 쪽(위)일수록 셉니다. 전자의 작은 자석(자기 모멘트)은 스핀과
+			// 반대 방향이라, 스핀 위(+ħ/2, z↑)인 입자는 작은 자석이 자기장과 같은 방향이 되어 센 쪽(위)으로 휩니다.
+			// x축 분석기는 그룹 전체를 빔 축 둘레로 90° 돌린 같은 자석이므로, 같은 이유로 x+가 +x 쪽으로 휩니다.
 			// 단면(빔에 수직인 평면)을 그린 뒤 빔 방향(z)으로 1.6만큼 밀어 만듭니다. x축 분석기는 아래에서 그룹 전체를 90° 돌립니다.
 			const MAG_W = 1.3;          // 자석 반폭
 			const MAG_TOP = 2.225;      // 위쪽 자석 윗면
@@ -4970,7 +4972,7 @@
 
 			// 자기장선: 슈테른-게를라흐 시뮬레이션과 같은 방식으로 그립니다(빔 방향 3줄 × 가로 3줄).
 			// 위쪽 칼날 면에서 면에 수직으로 나와 아래쪽 평평한 극으로 들어가며, 칼날 근처에서 촘촘하고 아래로 갈수록 퍼집니다.
-			// 화살표는 자기장 방향인 N극(아래) → S극(위)을 가리킵니다.
+			// 화살표는 자기장 방향인 N극(위, 칼날) → S극(아래)을 가리킵니다.
 			const slope = (MAG_SIDE - MAG_TIP) / MAG_W;
 			const across = [-0.32, 0, 0.32];      // 빔에 수직인 가로 방향(로컬 x): 슈테른-게를라흐처럼 한 묶음으로 좁게
 			const along = [-0.6, 0, 0.6];         // 빔 방향(로컬 z): 묶음 3개
@@ -4993,7 +4995,7 @@
 						new THREE.LineBasicMaterial({ color: 0x4678ea, transparent: true, opacity })
 					));
 					const arrowPos = curve.getPointAt(0.6);
-					const dir = arrowPos.clone().sub(curve.getPointAt(0.64)).normalize();
+					const dir = curve.getPointAt(0.64).sub(arrowPos).normalize();
 					const cone = new THREE.Mesh(
 						new THREE.ConeGeometry(0.05, 0.17, 10),
 						new THREE.MeshBasicMaterial({ color: 0x3566d8, transparent: true, opacity: opacity * 0.96 })
