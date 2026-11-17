@@ -1514,7 +1514,7 @@
 			flex: 1;
 		}
 
-		/* ⑤ 결론 도출: 줄글 대신 단계별 카드로 증거→판단 흐름을 보여줍니다 */
+		/* Ⅴ 결론 도출: 줄글 대신 단계별 카드로 증거→판단 흐름을 보여줍니다 */
 		.evidence-step {
 			display: flex;
 			gap: 12px;
@@ -2306,12 +2306,21 @@
 		}
 
 		@keyframes challenge-flash {
-			0%, 40% { box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.35); }
-			100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+
+			0%,
+			40% {
+				box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.35);
+			}
+
+			100% {
+				box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+			}
 		}
 
 		@media (prefers-reduced-motion: reduce) {
-			.challenge-card.flash { animation: none; }
+			.challenge-card.flash {
+				animation: none;
+			}
 		}
 
 		.collection-stop {
@@ -2634,11 +2643,14 @@
 		}
 
 		@keyframes rotate-hint {
-			0%, 20% {
+
+			0%,
+			20% {
 				transform: rotate(0deg);
 			}
 
-			50%, 80% {
+			50%,
+			80% {
 				transform: rotate(-90deg);
 			}
 
@@ -3150,7 +3162,22 @@
 			min-width: 110px;
 		}
 
-		/* ── ④ 자유 탐구 도전 과제 ── */
+		/* ── 글 속 축 이름 색 구분: z축 = 보라, x축 = 초록 (span 규칙과 겹치지 않도록 전용 태그 사용) ── */
+		ax-w.axis-z,
+		tspan.axis-z {
+			color: #7c3aed;
+			fill: #7c3aed;
+			font-weight: 700;
+		}
+
+		ax-w.axis-x,
+		tspan.axis-x {
+			color: #15803d;
+			fill: #15803d;
+			font-weight: 700;
+		}
+
+		/* ── Ⅲ 자유 탐구 미션 ── */
 		.pf-challenge {
 			--pf-accent: #7c3aed;
 			--pf-tint: #f5f3ff;
@@ -3433,10 +3460,10 @@
 			// ‘데스크톱 사이트 보기’로 화면 폭이 넓게 잡혀도 실제 기기 크기·기기 정보로 휴대폰을 알아봅니다.
 			const portrait = window.matchMedia("(orientation: portrait)");
 			const updateRotateNotice = () => {
-			  const shortSide = Math.min(screen.width, screen.height);
-			  const touch = window.matchMedia("(any-pointer: coarse)").matches || navigator.maxTouchPoints > 0;
-			  const phone = /Android.+Mobile|iPhone|iPod|Windows Phone/i.test(navigator.userAgent) || (touch && shortSide <= 600);
-			  document.documentElement.classList.toggle("needs-rotate", portrait.matches && (phone || window.innerWidth <= 600));
+				const shortSide = Math.min(screen.width, screen.height);
+				const touch = window.matchMedia("(any-pointer: coarse)").matches || navigator.maxTouchPoints > 0;
+				const phone = /Android.+Mobile|iPhone|iPod|Windows Phone/i.test(navigator.userAgent) || (touch && shortSide <= 600);
+				document.documentElement.classList.toggle("needs-rotate", portrait.matches && (phone || window.innerWidth <= 600));
 			};
 			updateRotateNotice();
 			portrait.addEventListener?.("change", updateRotateNotice);
@@ -3466,14 +3493,16 @@
 			</div>
 
 			<div class="step-content" id="stepContent">
-				<!-- ① 문제 인식 (전개1) -->
+				<!-- Ⅰ 문제 인식 (전개1) -->
 				<section class="ctrl-block" data-step="1">
-					<div class="ctrl-head">① 문제 인식</div>
+					<div class="ctrl-head">Ⅰ 문제 인식</div>
 					<label class="writing-prompt" for="studentName">보고서 작성자 · 학번 / 이름</label>
 					<input id="studentName" type="text" maxlength="80" placeholder="예: 30305 김민수" />
-					<p class="key-question"><span>탐구 질문</span>z↑ 입자를 x축으로 측정하기 전과 후, 입자의 스핀은 각각 어떤 상태일까?</p>
-					<p class="sb-note">지난 시간에 은 원자(이제부터 ‘입자’라고 불러요)는 위(z↑)·아래(z↓) 두 곳에만 검출되었습니다. 분석기를 90° 돌리면 <strong>x축(좌우) 방향</strong>으로도 측정할 수 있습니다.</p>
+					<p class="key-question"><span>탐구 질문</span>z↑ 입자를 x축으로 측정하기 전과 후, 입자의 스핀은 각각 어느 축과 나란할까?</p>
+					<p class="sb-note">지난 시간에 은 원자(이제부터 ‘입자’라고 불러요)는 위(z↑)·아래(z↓) 두 곳에만 검출되었습니다. 분석기를 90° 돌리면
+						<strong>x축(좌우) 방향</strong>으로도 측정할 수 있습니다.</p>
 					<p class="key-question"><span>상황</span>z축 스핀을 측정하였을 때 +ħ/2(z↑)로 측정된 입자의 스핀을 다시 x축으로 측정하는 상황이다.</p>
+					<p class="sb-note">‘스핀이 z축과 나란하다’는 그 입자를 z축으로 측정하면 언제나 같은 값(z↑ 또는 z↓ 중 하나)이 나온다는 뜻이에요.</p>
 					<div class="recap-box">
 						<p id="firstAnswerSentence">—</p>
 					</div>
@@ -3494,76 +3523,54 @@
 						placeholder="예시 형식: ~라고 생각하기 때문에 ( ① )과 ( ② )를 이렇게 골랐다."></textarea>
 				</section>
 
-				<!-- ② 가설 설정 (전개1) -->
+				<!-- Ⅱ 가설 설정 (전개1) -->
 				<section class="ctrl-block" data-step="2" hidden>
-					<div class="ctrl-head">② 가설 설정</div>
+					<div class="ctrl-head">Ⅱ 가설 설정</div>
 					<p class="sb-note">첫 분석기(z축)에서 <strong>z↑로 측정된 입자만</strong> 통과시켜 두 번째 분석기로 다시 측정합니다.
-						검출기에 도달한 입자 중 실험 ①에서는 <b>z↑·z↓</b>가, 실험 ②에서는 <b>x+·x−</b>가 각각 몇 %일지 막대를 움직여 예상해 보세요.</p>
-					<p class="sb-note">지난 시간 ⑤ 결론 도출의 ‘다음 시간 예고’(㉠ 같은 방향 자석, ㉡ 90도 돌린 자석)에서 보고서에 남긴 예측을 떠올려 보세요. 그 예측을 오늘은 비율(%)로 정해 봅니다.</p>
+						검출기에 도달한 입자 중 미션 1에서는 <b>z↑·z↓</b>가, 미션 2에서는 <b>x+·x−</b>가 각각 몇 %일지 막대를 움직여 예상해 보세요.</p>
 					<div class="pred-card">
-						<div class="pred-title"><span class="mini-exp-tag">실험 ①</span>z↑ 입자를 <b>z축</b>으로 다시 측정</div>
+						<div class="pred-title"><span class="mini-exp-tag">미션 1</span>z↑ 입자를 <b>z축</b>으로 다시 측정</div>
 						<div id="predSameAxis"></div>
 					</div>
 					<div class="pred-card">
-						<div class="pred-title"><span class="mini-exp-tag">실험 ②</span>z↑ 입자를 <b>x축</b>으로 측정</div>
+						<div class="pred-title"><span class="mini-exp-tag">미션 2</span>z↑ 입자를 <b>x축</b>으로 측정</div>
 						<div id="predBasisChange"></div>
 					</div>
-					<p class="sb-note pred-lock-note" id="predLockNote" hidden>측정을 시작한 실험의 예측은 고정되어 바꿀 수 없습니다.</p>
+					<p class="sb-note pred-lock-note" id="predLockNote" hidden>측정을 시작한 미션의 예측은 고정되어 바꿀 수 없습니다.</p>
 					<label class="writing-prompt" for="hypothesisNote">왜 그렇게 예상했나요?</label>
-					<textarea id="hypothesisNote"
-						placeholder="예시 형식: 실험 ①은 ~, 실험 ②는 ~일 것 같다. 그렇게 생각한 까닭은 ~"></textarea>
+					<textarea id="hypothesisNote" placeholder="예시 형식: 미션 1은 ~, 미션 2는 ~일 것 같다. 그렇게 생각한 까닭은 ~"></textarea>
 					<div class="btn-row btn-stack">
-						<button class="btn-sub" id="previewSameAxisBtn" disabled>실험 ① 배치 미리보기 · z → z</button>
-						<button class="btn-sub" id="previewDiffAxisBtn" disabled>실험 ② 배치 미리보기 · z → x</button>
+						<button class="btn-sub" id="previewSameAxisBtn" disabled>① 미션 1 배치 미리보기 · z → z</button>
+						<button class="btn-sub" id="previewDiffAxisBtn" disabled>② 미션 2 배치 미리보기 · z → x</button>
 					</div>
-					<p class="sb-note" id="previewStatus">실험 ①·②의 결과를 먼저 예상해 주세요.</p>
+					<p class="sb-note" id="previewStatus">미션 1·2의 결과를 먼저 예상해 주세요.</p>
 				</section>
 
-				<!-- ③ 자료 수집 (전개1) -->
+				<!-- Ⅲ 자료 수집 (전개1) -->
 				<section class="ctrl-block" data-step="3" hidden>
 					<!-- 입자원은 항상 원자 오븐(방향 없음)으로 고정합니다. -->
 					<select id="sourcePreset" style="display:none">
 						<option value="mixed" selected>원자 오븐</option>
 					</select>
-					<div class="ctrl-head">③ 자료 수집 · 비교 실험</div>
-					<p class="key-question"><span>핵심 발문</span>z↑로 측정된 입자를 다시 측정하면 어떤 값이 나올까? z축으로 다시 측정한 경우, x축으로 측정한 경우, 중간에 x축 측정을 거친 경우를 비교해 보자.</p>
-					<details class="info-fold"><summary>ⓘ 참고 · 화면 속 움직임은 모형이에요</summary><p class="sb-note model-note">화면 속 입자의 이동 경로와, 입자 색이 자석 가운데서 바뀌는 것은 이해를 돕기 위한 <strong>모형</strong>이에요. 실제 측정 결과는 입자가 <strong>차단판에 막히거나 검출기에 찍힐 때</strong> 확인됩니다.</p><p class="sb-note model-note">뒤쪽 분석기가 조금 기울어진 것은 휘어진 빔을 따라 놓았기 때문이에요. 실제 장치에서는 이 기울기가 아주 작아서, 각 분석기는 z축(또는 x축)으로 측정한다고 봐요.</p></details>
-					<label class="writing-prompt" for="experimentPlan">실험 선택</label>
-					<select id="experimentPlan">
-						<option value="sameAxis">① z축으로 다시 측정 · z↑ → z</option>
-						<option value="basisChange">② x축으로 측정 · z↑ → x</option>
-						<option value="collapse">③ 중간에 x축 측정 · z↑ → x+ → z</option>
-						<option value="free">④ 자유 탐구</option>
-					</select>
-					<p class="sb-note" id="experimentQuestion"></p>
+					<div class="ctrl-head">Ⅲ 자료 수집 · 자유 탐구</div>
+					<p class="key-question"><span>핵심 발문</span>z↑로 측정된 입자를 다시 측정하면 어떤 값이 나올까? z축으로 다시 측정한 경우, x축으로 측정한
+						경우, 중간에 x축 측정을 거친 경우를 비교해 보자.</p>
+					<details class="info-fold">
+						<summary>ⓘ 참고 · 화면 속 움직임은 모형이에요</summary>
+						<p class="sb-note model-note">화면 속 입자의 이동 경로와, 입자 색이 자석 가운데서 바뀌는 것은 이해를 돕기 위한
+							<strong>모형</strong>이에요. 실제 측정 결과는 입자가 <strong>차단판에 막히거나 검출기에 찍힐 때</strong> 확인됩니다.</p>
+						<p class="sb-note model-note">뒤쪽 분석기가 조금 기울어진 것은 휘어진 빔을 따라 놓았기 때문이에요. 실제 장치에서는 이 기울기가 아주 작아서, 각
+							분석기는 z축(또는 x축)으로 측정한다고 봐요.</p>
+					</details>
+					<p class="sb-note" id="experimentQuestion">분석기 설정을 자유롭게 바꿔 가며 측정해 보세요. 아래 미션은 스스로 해결해 보세요.</p>
 					<p class="sb-note" id="experimentProgress" role="status"></p>
-					<div class="challenge-card" id="challengeCard" hidden>
-						<div class="challenge-head">🏆 도전 과제 <span id="challengeCount">0/3</span></div>
+					<div class="challenge-card" id="challengeCard">
+						<div class="challenge-head">🏆 미션 <span id="challengeCount">0/3</span></div>
 						<ol class="challenge-list" id="challengeList"></ol>
-						<p class="challenge-note">마지막 분석기는 ‘전체 통과’로 두고 측정하세요. 측정을 마치고 결과를 확인하면 자동으로 체크돼요.</p>
+						<p class="challenge-note">해결한 미션은 결과를 확인하면 자동으로 체크돼요.</p>
 					</div>
-					<div class="collection-action" id="collectionActionPanel">
-						<div class="action-path" aria-label="실험 진행 순서"><span data-action-phase="ready">1 예측</span><span
-								data-action-phase="running">2 측정</span><span data-action-phase="results">3 결과</span>
-						</div>
-						<p id="collectionActionHint" class="action-hint" aria-live="polite"></p>
-						<button class="btn-main collection-primary" id="collectionActionBtn"
-							aria-describedby="collectionActionHint">예측하고 측정 시작 →</button>
-						<button class="btn-sub collection-more" id="moreChallengeBtn" type="button" hidden>🏆 도전 과제 더 해결하기</button>
-						<progress id="measurementProgress" max="1000" value="0" hidden
-							aria-label="현재 회차 발사 진행률"></progress>
-						<p id="measurementProgressText" class="action-progress" hidden></p>
-						<button class="btn-sub collection-stop" id="stopMeasureBtn" type="button" hidden>■ 측정 중단</button>
-						<div class="stop-confirm" id="stopConfirm" role="alertdialog" aria-labelledby="stopConfirmMsg" hidden>
-							<p id="stopConfirmMsg">측정을 중단할까요? 이번 측정(1,000개 × 3회)에서 지금까지 쌓인 기록은 모두 지워지고, 분석기 설정을 바꿔 다시 측정할 수 있어요.</p>
-							<div class="stop-row">
-								<button class="btn-sub" id="stopCancelBtn" type="button">계속 측정</button>
-								<button class="btn-sub" id="stopConfirmBtn" type="button">중단하기</button>
-							</div>
-						</div>
-					</div>
-					<details class="collection-fold" id="analyzerSettingsFold" hidden>
-						<summary>분석기 설정 확인·변경</summary>
+					<details class="collection-fold" id="analyzerSettingsFold" open>
+						<summary>분석기 설정</summary>
 						<p class="sb-note" id="filterRuleNote">A → B → C 순서로 측정합니다. 중간 분석기는 한쪽 경로만 통과시킬 수 있어요.</p>
 						<div class="ctrl-block" style="margin:10px 0">
 							<div class="ctrl-head">분석기 설정<span>A → B → C</span></div>
@@ -3611,8 +3618,31 @@
 						</div>
 
 					</details>
+					<div class="collection-action" id="collectionActionPanel">
+						<div class="action-path" aria-label="실험 진행 순서"><span data-action-phase="ready">1 예측</span><span
+								data-action-phase="running">2 측정</span><span data-action-phase="results">3 결과</span>
+						</div>
+						<p id="collectionActionHint" class="action-hint" aria-live="polite"></p>
+						<button class="btn-main collection-primary" id="collectionActionBtn"
+							aria-describedby="collectionActionHint">① 예측하고 측정 시작 →</button>
+						<progress id="measurementProgress" max="1000" value="0" hidden
+							aria-label="현재 회차 발사 진행률"></progress>
+						<p id="measurementProgressText" class="action-progress" hidden></p>
+						<button class="btn-sub collection-stop" id="stopMeasureBtn" type="button" hidden>■ 측정
+							중단</button>
+						<div class="stop-confirm" id="stopConfirm" role="alertdialog" aria-labelledby="stopConfirmMsg"
+							hidden>
+							<p id="stopConfirmMsg">측정을 중단할까요? 이번 측정(1,000개 × 3회)에서 지금까지 쌓인 기록은 모두 지워지고, 분석기 설정을 바꿔 다시
+								측정할 수 있어요.</p>
+							<div class="stop-row">
+								<button class="btn-sub" id="stopCancelBtn" type="button">계속 측정</button>
+								<button class="btn-sub" id="stopConfirmBtn" type="button">중단하기</button>
+							</div>
+						</div>
+					</div>
 					<div class="observation-tools"><span class="tool-label">경로 살펴보기 · 집계에 포함되지 않아요</span>
-						<button class="btn-sub" id="singleShotBtn" style="width:100%;margin-bottom:8px">＋ 입자 한 개 발사</button>
+						<button class="btn-sub" id="singleShotBtn" style="width:100%;margin-bottom:8px">＋ 입자 한 개
+							발사</button>
 						<div class="ctrl-row"><label for="playbackSpeed">재생 속도</label>
 							<select id="playbackSpeed">
 								<option value="0.1">0.1배 · 아주 느리게</option>
@@ -3623,61 +3653,46 @@
 						</div>
 						<p class="sb-note" id="observationReadout">관찰 0개</p>
 					</div>
-					<button class="btn-sub" id="expandResultsBtn" style="width:100%">▦ 조건별 측정 결과 보기</button>
+					<button class="btn-sub" id="expandResultsBtn" style="width:100%">② ▦ 조건별 측정 결과 보기</button>
 					<details class="collection-fold" id="observationNotesFold" open>
 						<summary>✎ 관찰 내용 작성하기</summary>
 						<div id="observationNotesHome">
-							<label class="writing-prompt" for="observationNote">실험 ①~③에서 마지막 분석기의 결과는 각각 어떻게 나왔나요? 결과가 한 가지로만 나온 실험과 두 가지로 나뉜 실험을 구분해 보세요.</label>
+							<label class="writing-prompt" for="observationNote">미션 1~3에서 검출기에 나타난 값은 각각 무엇이 몇 %씩이었나요?</label>
 							<textarea id="observationNote"
-								placeholder="예시 형식: 실험 ①은 ○○가 약 ○%로 나왔고, 실험 ②는 ~."></textarea>
+								placeholder="예시 형식: 미션 1은 ○○가 약 ○%로 나왔고, 미션 2는 ~."></textarea>
 						</div>
 					</details>
 				</section>
 
-				<!-- ④ 자료 분석 (전개2) -->
+				<!-- Ⅳ 자료 분석 (전개2) -->
 				<section class="ctrl-block" data-step="4" hidden>
-					<div class="ctrl-head">④ 자료 분석 · 결과 비교와 토의</div>
-					<p class="key-question"><span>핵심 발문</span>마지막 분석기가 똑같이 z축인데, 중간에 x축으로 측정하자(③) 결과가 달라졌다. 중간의 측정은 입자의 스핀에 어떤 변화를 주었을까?</p>
-					<p class="sb-note">③ 단계 결과를 조건별로 합산했어요. 옅은 빗금 = <strong>내 예측</strong>, 진한 막대 = <strong>실제</strong> (검출기에 도달한 입자 기준)</p>
-					<div id="runLogEmpty" class="sb-note">아직 기록된 실행이 없습니다. ③ 단계로 돌아가 실행해 보세요.</div>
+					<div class="ctrl-head">Ⅳ 자료 분석 · 결과 비교와 토의</div>
+					<p class="key-question"><span>핵심 발문</span>미션 1과 미션 3은 마지막 분석기가 똑같이 z축이다. 중간에 x축 측정을 거치면 검출기에 나타나는 값은 어떻게 달라질까?</p>
+					<p class="sb-note">Ⅲ 단계 결과를 조건별로 합산했어요. 옅은 빗금 = <strong>내 예측</strong>, 진한 막대 = <strong>실제</strong>
+						(검출기에 도달한 입자 기준)</p>
+					<div id="runLogEmpty" class="sb-note">아직 기록된 실행이 없습니다. Ⅲ 단계로 돌아가 실행해 보세요.</div>
 					<div id="runLogTable"></div>
-					<button class="btn-sub" id="runLogExpandBtn" style="width:100%" hidden>▦ 조건별 측정 결과 크게 보기</button>
+					<button class="btn-sub" id="runLogExpandBtn" style="width:100%" hidden>① ▦ 조건별 측정 결과 크게 보기</button>
 
-					<label class="writing-prompt" for="stateExplanationNote">예측과 가장 크게 어긋난 실험은 무엇인가요? 그때 내 예측은 어떤 생각에서 나왔고, 실제 결과는 그 생각과 어디가 달랐나요?</label>
+										<label class="writing-prompt" for="missionCompareNote">미션 1과 미션 3에서 검출기에 나타난 값은 각각 무엇이 몇 %씩이었고, 무엇이 달랐나요?</label>
+					<textarea id="missionCompareNote"
+						placeholder="예시 형식: 미션 1에서는 ○○가 약 ○%였고, 미션 3에서는 ~였다. 중간에 x축 측정을 거치자 ~"></textarea>
+
+					<label class="writing-prompt" for="stateExplanationNote">내 예측과 실제 값이 가장 많이 달랐던 미션은 무엇이고, 왜 다르게 나왔다고 생각하나요?</label>
 					<textarea id="stateExplanationNote"
-						placeholder="예시 형식: 실험 ○이 가장 크게 어긋났다. 나는 ~라고 생각해서 ~로 예측했는데, 실제로는 ~였다."></textarea>
-
-					<label class="writing-prompt" for="detectedRatioNote">실험 ①(z↑ → z)과 ②(z↑ → x)는 두 번째 분석기의 축만 다릅니다. z↑ 입자를 z축으로 다시 측정할 때와 x축으로 측정할 때, 결과는 어떻게 다르고 왜 그럴까요?</label>
-					<textarea id="detectedRatioNote"
-						placeholder="예시 형식: 내가 본 차이는 ~이다. 이런 차이가 생긴 까닭은 ~라고 생각한다."></textarea>
-					<details class="hint-fold">
-						<summary>도움이 필요하면 · 단계별 힌트</summary>
-						<p><b>힌트 1</b> 결과 그래프에서 ①과 ②의 색 막대 길이를 비교해 보세요.</p>
-						<p><b>힌트 2</b> z↑ 입자를 z축으로 다시 측정할 때와 x축으로 측정할 때, 각각 어떤 규칙이 보이나요?</p>
-						<p><b>힌트 3</b> z↑ 입자 하나가 x+로 나올지 x−로 나올지 미리 알 수 있었나요? z축으로 다시 측정할 때는 어땠나요?</p>
-					</details>
-
-					<label class="writing-prompt" for="changedConditionNote">실험 ①(z↑ → z)과 ③(z↑ → x+ → z)은 중간에 x축으로 측정했는지만 다릅니다. 마지막 z축 측정 결과가 왜 달라졌을까요?</label>
-					<textarea id="changedConditionNote"
-						placeholder="예시 형식: 두 실험의 마지막 결과는 ~이 달랐다. 내 생각에 그 까닭은 ~"></textarea>
-					<details class="hint-fold">
-						<summary>도움이 필요하면 · 단계별 힌트</summary>
-						<p><b>힌트 1</b> 결과 그래프에서 ①과 ③의 마지막 z축 측정 결과 막대를 비교해 보세요.</p>
-						<p><b>힌트 2</b> 중간에 x+로 측정된 입자를 다시 x축으로 측정하면 무엇이 나올까요? 그 입자를 아직 z↑ 입자라고 할 수 있을까요?</p>
-						<p><b>힌트 3</b> 측정이 스핀을 바꾸지 않고 그대로 둔다면, ③의 마지막 z축 측정 결과는 어떻게 나와야 할까요?</p>
-					</details>
+						placeholder="예시 형식: 미션 ○이 가장 많이 달랐다. 나는 ○○가 약 ○%일 거라고 예측했는데, 실제로는 약 ○%였다. 다르게 나온 까닭은 ~라고 생각한다."></textarea>
 
 				</section>
 
-				<!-- ⑤ 결론 도출 (정리) -->
+				<!-- Ⅴ 결론 도출 (정리) -->
 				<section class="ctrl-block" data-step="5" hidden id="conclusionPanel">
-					<div class="ctrl-head">⑤ 결론 도출</div>
-					<div class="question-label">① 실험 결과를 보고, 첫 예상의 응답 문구를 다시 완성해 보세요.</div>
+					<div class="ctrl-head">Ⅴ 결론 도출</div>
+					<div class="question-label">1. 실험 결과를 보고, 첫 예상의 응답 문구를 다시 완성해 보세요.</div>
 
 					<div class="evidence-step">
 						<span class="evidence-num">1</span>
 						<div class="evidence-body">
-							<p class="evidence-title">내 첫 예상 (① 문제 인식)</p>
+							<p class="evidence-title">내 첫 예상 (Ⅰ 문제 인식)</p>
 							<div class="recap-box">
 								<p id="recapFirstHypothesis">—</p>
 							</div>
@@ -3701,48 +3716,52 @@
 							</div>
 							<fieldset class="model-options" id="conclusionWhenChoices">
 								<legend>( ① )에 들어갈 말 — 지금의 판단</legend>
-								<label><input type="radio" name="conclusionWhen" value="z" /><span>z축과 나란하다</span></label>
-								<label><input type="radio" name="conclusionWhen" value="x" /><span>x축과 나란하다</span></label>
-								<label><input type="radio" name="conclusionWhen" value="none" /><span>정해져 있지 않다</span></label>
+								<label><input type="radio" name="conclusionWhen" value="z" /><span>z축과
+										나란하다</span></label>
+								<label><input type="radio" name="conclusionWhen" value="x" /><span>x축과
+										나란하다</span></label>
+								<label><input type="radio" name="conclusionWhen" value="none" /><span>정해져 있지
+										않다</span></label>
 							</fieldset>
 							<fieldset class="model-options" id="conclusionSpinChoices">
 								<legend>( ② )에 들어갈 말 — 지금의 판단</legend>
-								<label><input type="radio" name="conclusionSpin" value="z" /><span>z축과 나란하다</span></label>
-								<label><input type="radio" name="conclusionSpin" value="x" /><span>x축과 나란하다</span></label>
-								<label><input type="radio" name="conclusionSpin" value="none" /><span>정해져 있지 않다</span></label>
+								<label><input type="radio" name="conclusionSpin" value="z" /><span>z축과
+										나란하다</span></label>
+								<label><input type="radio" name="conclusionSpin" value="x" /><span>x축과
+										나란하다</span></label>
+								<label><input type="radio" name="conclusionSpin" value="none" /><span>정해져 있지
+										않다</span></label>
 							</fieldset>
 							<label class="writing-prompt" for="reflectionNote">그렇게 고른 근거는 무엇인가요?</label>
 							<textarea id="reflectionNote"
-								placeholder="힌트: 원리 보기를 열기 전에, 위 증거 가운데 내 판단을 뒷받침하는 것을 골라 먼저 적어 보세요."></textarea>
+								placeholder="예시 형식: 미션 ○에서 ○○가 약 ○%로 나온 것을 보고 ( ① )을 ~로 골랐다. ( ② )은 미션 ○에서 ~였기 때문에 ~로 골랐다."></textarea>
 						</div>
 					</div>
 
-					<label class="writing-prompt" for="conclusion">② 결론 정리 — 측정은 입자의 스핀에 어떤 변화를 주나요?</label>
-					<textarea id="conclusion"
-						placeholder="힌트: 내가 모은 증거 가운데 이 질문에 답하는 데 가장 중요하다고 생각하는 것을 근거로 적어 보세요."></textarea>
-
-					<div class="sec-label">③ 원리 보기 — 내 결론과 비교하기</div>
-					<button class="btn-sub" id="principleBtn" style="width:100%" disabled>원리 보기</button>
-					<p class="sb-note" id="principleLockNote">①의 판단과 근거, ②의 결론을 먼저 적으면 열립니다.</p>
+					<div class="sec-label">2. 원리 보기 — 내 판단과 비교하기</div>
+					<button class="btn-sub" id="principleBtn" style="width:100%" disabled>① 원리 보기</button>
+					<p class="sb-note" id="principleLockNote">1번의 판단과 근거를 먼저 적으면 열립니다.</p>
 					<div id="afterPrincipleBlock" hidden>
-						<label class="writing-prompt" for="afterPrincipleNote">원리를 보고 새로 알게 된 것이나 달라진 생각을 적어 보세요. (‘다른 축으로 측정하면 상태가
-							바뀐다’는 내용을 넣어서)</label>
-						<textarea id="afterPrincipleNote"
-							placeholder="예시 형식: 원리를 보고 새로 알게 된 것은 ~이다. 처음에는 ~라고 생각했는데, 지금은 ~"></textarea>
+						<label class="writing-prompt" for="conclusion">3. 결론 정리 — 원리 보기를 바탕으로, 중간에 x축으로 측정하면 그 뒤 z축 측정값이 왜 달라지는지 미션 1과 미션 3의 결과로 설명해 보세요.</label>
+						<textarea id="conclusion"
+							placeholder="예시 형식: 중간에 x축으로 측정하면 입자는 ( ) 상태가 된다. 그래서 그 뒤 z축으로 측정하면 ~. 근거: 미션 1에서는 ~였고, 미션 3에서는 ~였다."></textarea>
 					</div>
 
 					<!-- 스스로 점검·다음 시간 예고는 '상태'라는 말을 쓰므로, 원리 보기에서 그 말을 배운 뒤에만 보여 줍니다. -->
 					<div class="self-check" id="selfCheck" hidden>
 						<p>스스로 점검해 보기 (점수를 매기는 것이 아니니, 해당하는 항목에 체크만 하세요)</p>
-						<label><input type="checkbox" id="selfCheck1" /> 같은 축으로 다시 측정하면 결과가 유지되고, 다른 축으로 측정하면 두 결과가 각각 약 50% 나오는 규칙을 찾을 수 있다</label>
-						<label><input type="checkbox" id="selfCheck2" /> 측정하면 입자가 측정 결과에 해당하는 상태가 된다는 것을 근거로 실험 ①과 ②의 결과 차이를 설명할 수
+						<label><input type="checkbox" id="selfCheck1" /> 같은 축으로 다시 측정하면 결과가 유지되고, 다른 축으로 측정하면 두 결과가 각각 약
+							50% 나오는 규칙을 찾을 수 있다</label>
+						<label><input type="checkbox" id="selfCheck2" /> 측정하면 입자가 측정 결과에 해당하는 상태가 된다는 것을 근거로 미션 1과 2의 결과
+							차이를 설명할 수
 							있다</label>
-						<label><input type="checkbox" id="selfCheck3" /> 실험 ①과 ③의 결과 차이를, 측정하지 않으면 상태가 그대로이고 다른 축으로 측정하면 상태가 바뀐다는 것과 연결해 설명할 수 있다</label>
+						<label><input type="checkbox" id="selfCheck3" /> 미션 1과 3의 결과 차이를, 측정하지 않으면 상태가 그대로이고 다른 축으로 측정하면
+							상태가 바뀐다는 것과 연결해 설명할 수 있다</label>
 					</div>
 
 					<!-- 다음 차시(양자컴퓨터·큐비트)로 이어지는 예고: 결론을 모두 마친 뒤 맨 마지막에만 둡니다. -->
 					<div class="next-lesson" id="nextLesson" hidden>
-						<div class="sec-label">④ 다음 시간 예고 — 양자컴퓨터와 큐비트</div>
+						<div class="sec-label">4. 다음 시간 예고 — 양자컴퓨터와 큐비트</div>
 						<p class="sb-note">오늘 실험과 양자컴퓨터의 <strong>큐비트</strong>를 비교해 보세요.</p>
 						<table class="qubit-table">
 							<thead>
@@ -3766,12 +3785,12 @@
 								</tr>
 							</tbody>
 						</table>
-						<p class="key-question"><span>생각해 보기</span>오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 나올까?</p>
+						<p class="key-question"><span>생각해 보기</span>오늘 미션처럼 큐비트를 차례로 측정하면, 진짜 양자컴퓨터에서도 오늘 검출기에 나타난 것과 같은 비율로 0과 1이 나올까?</p>
 						<label class="writing-prompt" for="qcPredictionNote">나의 예상과 그 까닭</label>
-						<textarea id="qcPredictionNote" placeholder="예시 형식: 진짜 양자컴퓨터에서는 ~일 것 같다. 왜냐하면 ~"></textarea>
+						<textarea id="qcPredictionNote" placeholder="예시 형식: 미션 ○처럼 측정하면 진짜 양자컴퓨터에서도 0과 1이 ~일 것 같다. 왜냐하면 ~"></textarea>
 						<p class="sb-note">다음 시간에 실제 양자컴퓨터로 직접 확인해 봅니다.</p>
 					</div>
-					<button class="btn-main finish-btn" id="finishBtn" type="button">🎉 탐구 마치기</button>
+					<button class="btn-main finish-btn" id="finishBtn" type="button">② 🎉 탐구 마치기</button>
 					<p class="save-reminder">수업이 끝나기 전에 아래 <strong>보고서 저장</strong>을 꼭 눌러 주세요. 페이지를 닫으면 기록이 사라집니다.</p>
 				</section>
 			</div>
@@ -3863,183 +3882,179 @@
 			<div class="modal-title">원리 보기</div>
 			<div class="modal-sub">순차 측정으로 보는 측정과 상태 변화</div>
 
-			<!-- 1. 빔 분리 -->
-			<div class="help-sec">
-				<div class="help-sec-label">① 분석기는 입자를 두 갈래로 나눠요</div>
-				<figure class="principle-card">
-					<svg viewBox="0 0 380 140" width="100%" style="display:block;margin-bottom:10px" role="img"
-						aria-label="원자 오븐에서 나온 입자가 슬릿을 지나 z축 분석기를 통과하면 위쪽(z↑)과 아래쪽(z↓) 두 경로로만 갈라진다">
-						<defs>
-							<marker id="beamArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
-								orient="auto-start-reverse">
-								<path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8" />
-							</marker>
-						</defs>
-						<rect x="10" y="55" width="46" height="36" rx="6" fill="#57534e" />
-						<circle cx="53" cy="73" r="3.5" fill="#ff7a1a" />
-						<text x="33" y="77" font-size="10" fill="white" text-anchor="middle" font-weight="700">오븐</text>
-						<rect x="66" y="55" width="4" height="15" fill="#64748b" />
-						<rect x="66" y="76" width="4" height="15" fill="#64748b" />
-						<text x="68" y="46" font-size="9.5" fill="#64748b" text-anchor="middle" font-weight="700">슬릿</text>
-						<circle cx="88" cy="73" r="5" fill="#94a3b8" />
-						<circle cx="105" cy="73" r="5" fill="#94a3b8" />
-						<circle cx="122" cy="73" r="5" fill="#94a3b8" />
-						<rect x="144" y="30" width="48" height="36" rx="8" fill="#d9485f" />
-						<rect x="144" y="80" width="48" height="36" rx="8" fill="#3b82f6" />
-						<text x="168" y="20" font-size="10.5" fill="#64748b" text-anchor="middle" font-weight="700">z축 분석기</text>
-						<text x="168" y="76" font-size="10" fill="#475569" text-anchor="middle">자석</text>
-						<path d="M192 73 C210 73 220 40 236 40" fill="none" stroke="#d9485f" stroke-width="3"
-							stroke-linecap="round" marker-end="url(#beamArrow)" />
-						<circle cx="256" cy="40" r="16" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
-						<text x="256" y="45" font-size="12" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
-						<path d="M192 73 C210 73 220 106 236 106" fill="none" stroke="#3b82f6" stroke-width="3"
-							stroke-linecap="round" marker-end="url(#beamArrow)" />
-						<circle cx="256" cy="106" r="16" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
-						<text x="256" y="111" font-size="12" fill="#3b82f6" text-anchor="middle" font-weight="800">z↓</text>
-						<text x="290" y="70" font-size="10" fill="#64748b">두 갈래뿐,</text>
-						<text x="290" y="83" font-size="10" fill="#64748b">중간은 없음</text>
-					</svg>
-					<figcaption>
-						불균일한 자기장이 입자를 z↑·z↓ 두 경로로만 나눠요(스핀의 양자화).
-					</figcaption>
-				</figure>
-			</div>
-
 			<!-- 2. 측정 후 상태 -->
 			<div class="help-sec">
-				<div class="help-sec-label">② 측정하면 입자는 측정 결과에 해당하는 상태가 돼요</div>
+				<div class="help-sec-label">① 측정하면 입자는 측정값에 해당하는 상태가 돼요</div>
 				<figure class="principle-card">
 					<svg viewBox="0 0 380 110" width="100%" style="display:block;margin-bottom:10px" role="img"
 						aria-label="입자가 z축 분석기에서 z↑로 측정되면 그 뒤로는 z↑ 상태가 되어, 다시 z축으로 측정하면 항상 z↑가 나온다">
 						<defs>
-							<marker id="collapseArrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
-								orient="auto-start-reverse">
+							<marker id="collapseArrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6"
+								markerHeight="6" orient="auto-start-reverse">
 								<path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8" />
 							</marker>
 						</defs>
-						<rect x="6" y="34" width="88" height="42" rx="12" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1.5" />
-						<text x="50" y="59" font-size="10" fill="#64748b" text-anchor="middle" font-weight="700">오븐의 입자</text>
-						<line x1="98" y1="55" x2="128" y2="55" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#collapseArrow2)" />
-						<rect x="140" y="24" width="88" height="62" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
-						<text x="184" y="50" font-size="10" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축 측정</text>
+						<rect x="6" y="34" width="88" height="42" rx="12" fill="#f1f5f9" stroke="#e2e8f0"
+							stroke-width="1.5" />
+						<text x="50" y="59" font-size="10" fill="#64748b" text-anchor="middle" font-weight="700">오븐의
+							입자</text>
+						<line x1="98" y1="55" x2="128" y2="55" stroke="#94a3b8" stroke-width="1.6"
+							marker-end="url(#collapseArrow2)" />
+						<rect x="140" y="24" width="88" height="62" rx="12" fill="#eff6ff" stroke="#3b82f6"
+							stroke-width="2" />
+						<text x="184" y="50" font-size="10" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축
+							측정</text>
 						<text x="184" y="66" font-size="9" fill="#1d4ed8" text-anchor="middle">z↑ 경로만 통과</text>
-						<line x1="232" y1="55" x2="262" y2="55" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#collapseArrow2)" />
-						<rect x="274" y="24" width="100" height="62" rx="12" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
-						<text x="324" y="48" font-size="11" fill="#d9485f" text-anchor="middle" font-weight="800">z↑ 상태</text>
+						<line x1="232" y1="55" x2="262" y2="55" stroke="#94a3b8" stroke-width="1.6"
+							marker-end="url(#collapseArrow2)" />
+						<rect x="274" y="24" width="100" height="62" rx="12" fill="#fef2f2" stroke="#d9485f"
+							stroke-width="2" />
+						<text x="324" y="48" font-size="11" fill="#d9485f" text-anchor="middle" font-weight="800">z↑
+							상태</text>
 						<text x="324" y="66" font-size="9" fill="#94a3b8" text-anchor="middle">다시 z축으로 측정하면</text>
-						<text x="324" y="78" font-size="9" fill="#94a3b8" text-anchor="middle">→ 항상 z↑ (실험 ①)</text>
+						<text x="324" y="78" font-size="9" fill="#94a3b8" text-anchor="middle">→ 항상 z↑ (미션 1)</text>
 					</svg>
 					<figcaption>
-						입자의 <strong>상태</strong>란, 그 입자를 <strong>어느 축으로 측정하든 각 결과가 나올 확률</strong>을 알려 주는 정보예요.
-						<strong>z↑ 상태</strong>는 z축으로 측정하면 z↑가 <strong>100%의 확률로</strong> 나오는 상태예요.
-						그래서 z↑로 측정된 입자는 다시 z축으로 측정해도 항상 z↑가 나와요(실험 ①).
+						z축으로 측정해 z↑가 나온 입자는 <strong>z↑ 상태</strong>가 돼요. 그래서 다시 z축으로 측정하면 언제나 z↑가 나와요(미션 1).
 					</figcaption>
 				</figure>
 			</div>
 
 			<!-- 3. 다른 축 -->
 			<div class="help-sec">
-				<div class="help-sec-label">③ z↑ 입자를 x축으로 측정하면 x+·x−가 각각 50%의 확률로 나와요</div>
+				<div class="help-sec-label">② z↑ 입자를 x축으로 측정하면 x+·x−가 각각 50%의 확률로 나와요</div>
 				<figure class="principle-card">
 					<svg viewBox="0 0 380 104" width="100%" style="display:block;margin-bottom:10px" role="img"
 						aria-label="z↑ 입자를 z축으로 다시 측정하면 z↑가 100%로 확실하게 나오지만, x축으로 측정하면 x+와 x−가 각각 50%의 확률로 나온다">
-						<text x="0" y="16" font-size="10.5" fill="#475569" font-weight="700">z축으로 다시 측정 (실험 ① · z↑ → z)</text>
+						<text x="0" y="16" font-size="10.5" fill="#475569" font-weight="700">z축으로 다시 측정 (미션 1 · z↑ →
+							z)</text>
 						<rect x="0" y="24" width="300" height="20" rx="6" fill="#d9485f" />
-						<text x="150" y="38" font-size="11" fill="white" text-anchor="middle" font-weight="800">z↑ 100%</text>
+						<text x="150" y="38" font-size="11" fill="white" text-anchor="middle" font-weight="800">z↑
+							100%</text>
 						<text x="312" y="38" font-size="12" fill="#b91c1c" font-weight="800">확실</text>
-						<text x="0" y="70" font-size="10.5" fill="#475569" font-weight="700">x축으로 측정 (실험 ② · z↑ → x)</text>
+						<text x="0" y="70" font-size="10.5" fill="#475569" font-weight="700">x축으로 측정 (미션 2 · z↑ →
+							x)</text>
 						<rect x="0" y="78" width="150" height="20" fill="#22c55e" />
-						<text x="75" y="92" font-size="11" fill="white" text-anchor="middle" font-weight="800">x+ 50%</text>
+						<text x="75" y="92" font-size="11" fill="white" text-anchor="middle" font-weight="800">x+
+							50%</text>
 						<rect x="150" y="78" width="150" height="20" fill="#a855f7" />
-						<text x="225" y="92" font-size="11" fill="white" text-anchor="middle" font-weight="800">x− 50%</text>
+						<text x="225" y="92" font-size="11" fill="white" text-anchor="middle" font-weight="800">x−
+							50%</text>
 						<text x="312" y="92" font-size="12" fill="#7e22ce" font-weight="800">확률적</text>
 					</svg>
 					<figcaption>
-						x축 측정 전 입자는 <strong>z축과 나란한(z↑) 상태</strong>예요. 이 상태는 x축 측정 결과를 하나로 정해 주지 않아서, 결과가 확률로만 정해져요.
+						z↑ 상태를 z축으로 측정하면 z↑가 <strong>100%의 확률</strong>로 나오므로 결과가 확실해요. 그러나 x축으로 측정하면 x+와 x−가 <strong>각각 50%의 확률</strong>로 나오므로, 입자 하나하나가 어느 쪽으로 나올지는 미리 알 수 없어요(미션 2).
 					</figcaption>
 				</figure>
 			</div>
 
 			<!-- 4. 중간 측정 -->
 			<div class="help-sec">
-				<div class="help-sec-label">④ 중간에 다른 축으로 측정하면 상태가 바뀌어요</div>
+				<div class="help-sec-label">③ 중간에 x축으로 측정하면 z↑ 상태가 x+ 상태로 바뀌어요</div>
 				<figure class="principle-card">
 					<svg viewBox="0 0 420 222" width="100%" style="display:block;margin-bottom:10px" role="img"
-						aria-label="z↑ 입자가 x축 분석기에서 x+로 측정된 뒤 다시 z축으로 측정하면 z↑와 z↓가 각각 50%의 확률로 나온다. 측정이 상태를 그대로 둔다면 z↑만 100% 나와야 한다">
+						aria-label="z↑ 입자가 x축 분석기에서 x+로 측정된 뒤 다시 z축으로 측정하면 z↑와 z↓가 각각 50%의 확률로 나온다. 만약 x축 측정이 z↑ 상태를 바꾸지 않는다면 z↑만 100% 나와야 한다">
 						<defs>
-							<marker id="eraserArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
-								orient="auto-start-reverse">
+							<marker id="eraserArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6"
+								markerHeight="6" orient="auto-start-reverse">
 								<path d="M0 0 L10 5 L0 10 Z" fill="#94a3b8" />
 							</marker>
 						</defs>
-						<rect x="4" y="52" width="58" height="42" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
-						<text x="33" y="70" font-size="9.5" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축</text>
+						<rect x="4" y="52" width="58" height="42" rx="10" fill="#eff6ff" stroke="#3b82f6"
+							stroke-width="1.5" />
+						<text x="33" y="70" font-size="9.5" fill="#1d4ed8" text-anchor="middle"
+							font-weight="700">z축</text>
 						<text x="33" y="83" font-size="9" fill="#1d4ed8" text-anchor="middle">↑만 통과</text>
-						<line x1="66" y1="73" x2="94" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
+						<line x1="66" y1="73" x2="94" y2="73" stroke="#94a3b8" stroke-width="1.6"
+							marker-end="url(#eraserArrow)" />
 						<circle cx="112" cy="73" r="14" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
-						<text x="112" y="78" font-size="10.5" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
-						<line x1="126" y1="73" x2="154" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
-						<rect x="164" y="52" width="58" height="42" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5" />
-						<text x="193" y="70" font-size="9.5" fill="#15803d" text-anchor="middle" font-weight="700">x축</text>
+						<text x="112" y="78" font-size="10.5" fill="#d9485f" text-anchor="middle"
+							font-weight="800">z↑</text>
+						<line x1="126" y1="73" x2="154" y2="73" stroke="#94a3b8" stroke-width="1.6"
+							marker-end="url(#eraserArrow)" />
+						<rect x="164" y="52" width="58" height="42" rx="10" fill="#f0fdf4" stroke="#22c55e"
+							stroke-width="1.5" />
+						<text x="193" y="70" font-size="9.5" fill="#15803d" text-anchor="middle"
+							font-weight="700">x축</text>
 						<text x="193" y="83" font-size="9" fill="#15803d" text-anchor="middle">+만 통과</text>
-						<line x1="226" y1="73" x2="254" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
+						<line x1="226" y1="73" x2="254" y2="73" stroke="#94a3b8" stroke-width="1.6"
+							marker-end="url(#eraserArrow)" />
 						<circle cx="272" cy="73" r="14" fill="#f0fdf4" stroke="#22c55e" stroke-width="2" />
-						<text x="272" y="78" font-size="10.5" fill="#22c55e" text-anchor="middle" font-weight="800">x+</text>
+						<text x="272" y="78" font-size="10.5" fill="#22c55e" text-anchor="middle"
+							font-weight="800">x+</text>
 						<text x="272" y="104" font-size="9" fill="#d97706" text-anchor="middle">(x−는 차단)</text>
-						<line x1="286" y1="73" x2="314" y2="73" stroke="#94a3b8" stroke-width="1.6" marker-end="url(#eraserArrow)" />
-						<rect x="324" y="52" width="58" height="42" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
-						<text x="353" y="70" font-size="9.5" fill="#1d4ed8" text-anchor="middle" font-weight="700">z축</text>
+						<line x1="286" y1="73" x2="314" y2="73" stroke="#94a3b8" stroke-width="1.6"
+							marker-end="url(#eraserArrow)" />
+						<rect x="324" y="52" width="58" height="42" rx="10" fill="#eff6ff" stroke="#3b82f6"
+							stroke-width="1.5" />
+						<text x="353" y="70" font-size="9.5" fill="#1d4ed8" text-anchor="middle"
+							font-weight="700">z축</text>
 						<text x="353" y="83" font-size="9" fill="#1d4ed8" text-anchor="middle">전체 통과</text>
 						<circle cx="404" cy="52" r="12" fill="#fef2f2" stroke="#d9485f" stroke-width="2" />
-						<text x="404" y="56" font-size="9" fill="#d9485f" text-anchor="middle" font-weight="800">z↑</text>
-						<text x="404" y="34" font-size="9" fill="#d9485f" text-anchor="middle" font-weight="700">50%</text>
+						<text x="404" y="56" font-size="9" fill="#d9485f" text-anchor="middle"
+							font-weight="800">z↑</text>
+						<text x="404" y="34" font-size="9" fill="#d9485f" text-anchor="middle"
+							font-weight="700">50%</text>
 						<circle cx="404" cy="94" r="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
-						<text x="404" y="98" font-size="9" fill="#3b82f6" text-anchor="middle" font-weight="800">z↓</text>
-						<text x="404" y="116" font-size="9" fill="#3b82f6" text-anchor="middle" font-weight="700">50%</text>
+						<text x="404" y="98" font-size="9" fill="#3b82f6" text-anchor="middle"
+							font-weight="800">z↓</text>
+						<text x="404" y="116" font-size="9" fill="#3b82f6" text-anchor="middle"
+							font-weight="700">50%</text>
 						<line x1="0" y1="128" x2="420" y2="128" stroke="#e2e8f0" stroke-width="1" />
-						<text x="0" y="150" font-size="11.5" fill="#475569" font-weight="700">만약 측정이 상태를 그대로 둔다면</text>
+						<text x="0" y="150" font-size="11.5" fill="#475569" font-weight="700">만약 x축 측정이 z↑ 상태를 바꾸지 않는다면</text>
 						<rect x="0" y="158" width="420" height="20" rx="6" fill="#d9485f" opacity="0.35" />
-						<text x="210" y="172" font-size="11.5" fill="#9f1239" text-anchor="middle" font-weight="800">z↑ 100%</text>
-						<text x="0" y="198" font-size="11.5" fill="#475569" font-weight="700">실제 (실험 ③)</text>
+						<text x="210" y="172" font-size="11.5" fill="#9f1239" text-anchor="middle" font-weight="800">z↑
+							100%</text>
+						<text x="0" y="198" font-size="11.5" fill="#475569" font-weight="700">실제 (미션 3)</text>
 						<rect x="0" y="204" width="210" height="18" fill="#d9485f" />
-						<text x="105" y="217" font-size="11.5" fill="white" text-anchor="middle" font-weight="800">z↑ 50%</text>
+						<text x="105" y="217" font-size="11.5" fill="white" text-anchor="middle" font-weight="800">z↑
+							50%</text>
 						<rect x="210" y="204" width="210" height="18" fill="#3b82f6" />
-						<text x="315" y="217" font-size="11.5" fill="white" text-anchor="middle" font-weight="800">z↓ 50%</text>
+						<text x="315" y="217" font-size="11.5" fill="white" text-anchor="middle" font-weight="800">z↓
+							50%</text>
 					</svg>
 					<figcaption>
-						중간의 x축 측정이 상태를 z↑에서 <strong>x+로 바꿨기 때문에</strong>, 마지막 z축 측정에서 z↓도 나왔어요.
+						중간에 x축으로 측정해 x+가 나온 입자는 ①에 따라 <strong>x+ 상태</strong>가 돼요. x+ 상태를 z축으로 측정하면 z↑와 z↓가 <strong>각각 50%의 확률</strong>로 나와요. 그래서 처음에 z↑였던 입자에서도 z↓가 나온 거예요(미션 3).
 					</figcaption>
 				</figure>
 			</div>
 
 			<!-- 5. 정리 -->
 			<div class="help-sec">
-				<div class="help-sec-label">⑤ 정리</div>
+				<div class="help-sec-label">④ 정리</div>
 				<figure class="principle-card">
-					<svg viewBox="0 0 420 104" width="100%" style="display:block;margin-bottom:10px" role="img"
-						aria-label="x축 측정 전 입자의 스핀은 z축과 나란하고(z↑, 실험 ①), x축 측정 후 입자의 스핀은 x축과 나란하다(x+ 또는 x−, 실험 ③)">
+					<svg viewBox="0 0 420 88" width="100%" style="display:block;margin-bottom:10px" role="img"
+						aria-label="x축 측정 전 입자의 스핀은 z축과 나란하고(z↑), x축 측정 후 입자의 스핀은 x축과 나란하다(x+ 또는 x−)">
 						<defs>
-							<marker id="summaryArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
-								orient="auto-start-reverse">
+							<marker id="summaryArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+								markerHeight="7" orient="auto-start-reverse">
 								<path d="M0 0 L10 5 L0 10 Z" fill="#15803d" />
 							</marker>
 						</defs>
-						<rect x="2" y="10" width="148" height="88" rx="12" fill="#fef2f2" stroke="#d9485f" stroke-width="1.5" />
-						<text x="76" y="32" font-size="12" fill="#9f1239" text-anchor="middle" font-weight="800">x축 측정 전</text>
-						<text x="76" y="54" font-size="12" fill="#17212f" text-anchor="middle" font-weight="700">z축과 나란함</text>
-						<text x="76" y="70" font-size="11.5" fill="#d9485f" text-anchor="middle" font-weight="800">(z↑)</text>
-						<text x="76" y="89" font-size="11" fill="#64748b" text-anchor="middle">근거: 실험 ①</text>
-						<text x="210" y="44" font-size="11.5" fill="#15803d" text-anchor="middle" font-weight="800">x축 측정</text>
-						<line x1="156" y1="56" x2="262" y2="56" stroke="#15803d" stroke-width="2" marker-end="url(#summaryArrow)" />
-						<rect x="270" y="10" width="148" height="88" rx="12" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5" />
-						<text x="344" y="32" font-size="12" fill="#15803d" text-anchor="middle" font-weight="800">x축 측정 후</text>
-						<text x="344" y="54" font-size="12" fill="#17212f" text-anchor="middle" font-weight="700">x축과 나란함</text>
-						<text x="344" y="70" font-size="11.5" fill="#15803d" text-anchor="middle" font-weight="800">(x+ 또는 x−)</text>
-						<text x="344" y="89" font-size="11" fill="#64748b" text-anchor="middle">근거: 실험 ③</text>
+						<rect x="2" y="10" width="148" height="72" rx="12" fill="#fef2f2" stroke="#d9485f"
+							stroke-width="1.5" />
+						<text x="76" y="32" font-size="12" fill="#9f1239" text-anchor="middle" font-weight="800">x축 측정
+							전</text>
+						<text x="76" y="54" font-size="12" fill="#17212f" text-anchor="middle" font-weight="700">z축과
+							나란함</text>
+						<text x="76" y="70" font-size="11.5" fill="#d9485f" text-anchor="middle"
+							font-weight="800">(z↑)</text>
+						
+						<text x="210" y="44" font-size="11.5" fill="#15803d" text-anchor="middle" font-weight="800">x축
+							측정</text>
+						<line x1="156" y1="56" x2="262" y2="56" stroke="#15803d" stroke-width="2"
+							marker-end="url(#summaryArrow)" />
+						<rect x="270" y="10" width="148" height="72" rx="12" fill="#f0fdf4" stroke="#22c55e"
+							stroke-width="1.5" />
+						<text x="344" y="32" font-size="12" fill="#15803d" text-anchor="middle" font-weight="800">x축 측정
+							후</text>
+						<text x="344" y="54" font-size="12" fill="#17212f" text-anchor="middle" font-weight="700">x축과
+							나란함</text>
+						<text x="344" y="70" font-size="11.5" fill="#15803d" text-anchor="middle" font-weight="800">(x+
+							또는 x−)</text>
+						
 					</svg>
-					<figcaption>
-						x축 스핀을 측정하기 전 입자의 스핀은 <strong>z축과 나란하고</strong>, x축 스핀을 측정한 후 입자의 스핀은 <strong>x축과 나란해요</strong>.
-					</figcaption>
+					
 				</figure>
 			</div>
 
@@ -4086,10 +4101,10 @@
 		const signMark = (axis, sign) => (SIGN_MARK[axis] || SIGN_MARK.z)[sign] || "";
 		const outcomeLabel = (axis, sign) => axis + signMark(axis, sign);
 		const filterLabel = (axis, filter) => filter === "both" ? filterLabels[filter] : signMark(axis, filter) + " 경로만";
-		// 결과표/그래프에서 각 조건이 ③ 자료 수집의 몇 번 실험이었는지 표시하기 위한 라벨.
+		// 결과표/그래프에서 각 조건이 Ⅲ 자료 수집의 몇 번 실험이었는지 표시하기 위한 라벨.
 		const experimentLabels = {
-			sameAxis: "① z축으로 다시 측정", basisChange: "② x축으로 측정",
-			collapse: "③ 중간에 x축 측정", free: "④ 자유 탐구"
+			sameAxis: "미션 1 · z축으로 다시 측정", basisChange: "미션 2 · x축으로 측정",
+			collapse: "미션 3 · 중간에 x축 측정", free: "자유 탐구"
 		};
 		const SPIN_COLORS = {
 			z: {
@@ -4104,8 +4119,8 @@
 		const LOST_COLOR = { hex: 0xd97706, cssHex: "#d97706" };
 		const GRAY_COLOR = { hex: 0x909090, cssHex: "#909090" };
 
-		// ③ 자료 수집의 정해진 실험 ①~③. 예측·결과는 분석기 배치(signature) 단위로 기록하므로,
-		// 2단계에서 적은 ②·③ 예측도 같은 signature로 저장해 ③ 단계 측정에 그대로 이어 씁니다.
+		// Ⅲ 자료 수집의 정해진 미션 1~3. 예측·결과는 분석기 배치(signature) 단위로 기록하므로,
+		// 2단계에서 적은 2·3 예측도 같은 signature로 저장해 Ⅲ 단계 측정에 그대로 이어 씁니다.
 		const PRESETS = {
 			sameAxis: { src: "mixed", aA: "z", fA: "plus", aB: "z", fB: "both", aC: "none", fC: "both" },
 			basisChange: { src: "mixed", aA: "z", fA: "plus", aB: "x", fB: "both", aC: "none", fC: "both" },
@@ -4113,9 +4128,12 @@
 			collapse: { src: "mixed", aA: "z", fA: "plus", aB: "x", fB: "plus", aC: "z", fC: "both" },
 		};
 		const presetAnalyzers = p => [{ axis: p.aA, filter: p.fA }, { axis: p.aB, filter: p.fB }, { axis: p.aC, filter: p.fC }];
-		const sigOf = analyzers => JSON.stringify(analyzers.map(a => [a.axis, a.axis === "none" ? "both" : a.filter]));
+		// 꺼진 분석기는 빼고 켜진 분석기만 순서대로 적습니다(예: A·C만 켠 배치와 A·B만 켠 배치는 같은 조건).
+		const sigOf = analyzers => JSON.stringify(analyzers.filter(a => a.axis !== "none").map(a => [a.axis, a.filter]));
 		const lastAxisOf = analyzers => [...analyzers].reverse().find(a => a.axis !== "none")?.axis || "z";
 		const PRESET_SIGS = Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, sigOf(presetAnalyzers(p))]));
+		// 측정한 배치가 정해진 미션 1~3과 같으면 그 실험 이름으로, 아니면 '자유 탐구'로 기록합니다.
+		const experimentKeyOf = sig => Object.keys(PRESET_SIGS).find(k => PRESET_SIGS[k] === sig) || "free";
 		const FINAL_AXIS = Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, lastAxisOf(presetAnalyzers(p))]));
 		// 응답 문구의 ①(x 측정 전 스핀)과 ②(x 측정 후 스핀)는 같은 선지에서 고릅니다. when = ①, spin = ②
 		const whenLabels = { z: "z축과 나란하다", x: "x축과 나란하다", none: "정해져 있지 않다" };
@@ -4333,8 +4351,8 @@
 
 		function updateAnswerSentences() {
 			const bold = v => `<strong>${v}</strong>`;
-			document.getElementById("firstAnswerSentence").innerHTML = answerSentence(firstChoiceValue(), bold);
-			document.getElementById("conclusionAnswerSentence").innerHTML = answerSentence(conclusionChoiceValue(), bold);
+			document.getElementById("firstAnswerSentence").innerHTML = answerSentence({}, bold); // Ⅰ 문제 인식의 문구는 골라도 ( ① ), ( ② ) 그대로 둡니다.
+			document.getElementById("conclusionAnswerSentence").innerHTML = answerSentence({}, bold); // Ⅴ 결론 도출의 문구도 골라도 ( ① ), ( ② ) 그대로 둡니다.
 		}
 
 		function applyConfiguration(config) {
@@ -4438,7 +4456,7 @@
 		function beginMeasurement(repeats = REPEAT_COUNT, context = null) {
 			const savedContext = context || {
 				signature: settingsSignature(), desc: configDescription(),
-				experiment: document.getElementById("experimentPlan").value,
+				experiment: experimentKeyOf(settingsSignature()),
 				settings: getSettings().analyzers.map(a => ({ ...a })),
 				pred: state.prediction ? { ...state.prediction } : null
 			};
@@ -4490,8 +4508,7 @@
 				return;
 			}
 			const axis = lastAxisOf(getSettings().analyzers);
-			const plan = document.getElementById("experimentPlan").value;
-			document.getElementById("predictionExpLabel").textContent = experimentLabels[plan] || plan;
+			document.getElementById("predictionExpLabel").textContent = "자유 탐구";
 			ui.predictionConfigDesc.textContent = configDescription();
 			document.getElementById("predictionQuestion").textContent =
 				`검출기에 도달한 입자 중 최종 ${outcomeLabel(axis, "plus")}와 ${outcomeLabel(axis, "minus")}는 각각 몇 %일까요? (중간에 차단된 입자는 빼고 생각해요)`;
@@ -4572,7 +4589,7 @@
 			};
 		}
 
-		// ② 가설 설정의 실험 ①·② 예측. 여기서 정한 값이 곧 ③ 단계 측정 전 예측이 됩니다.
+		// Ⅱ 가설 설정의 미션 1·2 예측. 여기서 정한 값이 곧 Ⅲ 단계 측정 전 예측이 됩니다.
 		const step2Widgets = {};
 		let modalPredWidget = null;
 
@@ -4627,7 +4644,6 @@
 			if (!state.runSettled) return;
 			const p = PRESETS[name];
 			if (!p) return;
-			document.getElementById("experimentPlan").value = name;
 			applyConfiguration({ ...p, shots: TOTAL_SHOTS, speed: EMIT_RATE });
 			setRunStatus("조건 준비됨");
 			updateExperimentGuide();
@@ -4917,11 +4933,12 @@
 			group.position.copy(frame.pos);
 
 			const isZ = axis !== "x";
-			// 극 색: 위쪽 칼날 = N극, 아래쪽 = S극. z축은 슈테른-게를라흐 시뮬레이션처럼 N극 붉은색·S극 파란색, x축은 초록/보라.
-			const northColor = isZ ? 0x9f1239 : 0x14532d;
-			const southColor = isZ ? 0x1e40af : 0x581c87;
-			const northEmissive = isZ ? 0x7f1238 : 0x14532d;
-			const southEmissive = isZ ? 0x1e3a8a : 0x4a1066;
+			// 극 색: 위쪽 칼날 = N극, 아래쪽 = S극. 축과 상관없이 슈테른-게를라흐 시뮬레이션처럼 N극 붉은색·S극 파란색.
+			// (입자 색은 축별로 따로 정합니다: z축 = 빨강/파랑, x축 = 초록/보라)
+			const northColor = 0x9f1239;
+			const southColor = 0x1e40af;
+			const northEmissive = 0x7f1238;
+			const southEmissive = 0x1e3a8a;
 
 			// 자석 모양과 극은 슈테른-게를라흐 시뮬레이션과 같습니다: 위쪽은 칼날(쐐기) 모양 N극, 아래쪽은 평평한 S극.
 			// 자기장은 N극(위) → S극(아래)으로 향하고 칼날 쪽(위)일수록 셉니다. 전자의 작은 자석(자기 모멘트)은 스핀과
@@ -5167,7 +5184,7 @@
 
 				// 색(측정된 방향)은 자석의 정중앙(lenAtAnalyzer)을 지나는 순간 바뀌도록 그립니다.
 				// 이는 보기 쉽게 하려는 모형 표현일 뿐입니다 — 실제 결과는 차단판이나 검출기에서 위치가
-				// 기록될 때 확인되며, 학생 화면의 ③ 단계 모형 안내(model-note)에도 이렇게 적어 두었습니다.
+				// 기록될 때 확인되며, 학생 화면의 Ⅲ 단계 모형 안내(model-note)에도 이렇게 적어 두었습니다.
 				const spinCol = SPIN_COLORS[axis]?.[meas.sign] ?? GRAY_COLOR;
 				colorStops.push({ lenAtStop: lenAtAnalyzer, hexColor: spinCol.cssHex, threeColor: spinCol.hex });
 
@@ -5496,7 +5513,7 @@
 		function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
 		function closeModal(id) {
 			document.getElementById(id).classList.add("hidden");
-			// 결과창을 닫으면 그 결과의 피드백 팝업도 함께 닫습니다(결과창 안 카드와 ④ 표에 그대로 남아 있음).
+			// 결과창을 닫으면 그 결과의 피드백 팝업도 함께 닫습니다(결과창 안 카드와 Ⅳ 표에 그대로 남아 있음).
 			if (id === "resultsModal") document.querySelector(".pf-toast-layer")?.replaceChildren();
 		}
 
@@ -5519,20 +5536,18 @@
 			document.getElementById("previewDiffAxisBtn").disabled = locked || !ready2;
 			if (stepState.step === 2 && !ui.previewStatus.dataset.previewed) {
 				ui.previewStatus.textContent = ready2
-					? "두 버튼을 눌러 분석기 배치를 살펴보세요. 결과는 ③ 자료 수집에서 직접 측정해 확인합니다."
-					: !predsFilled ? "실험 ①·②의 결과를 먼저 예상해 주세요." : "그렇게 예상한 까닭을 적어 주세요.";
+					? "두 버튼을 눌러 분석기 배치를 살펴보세요. 결과는 Ⅲ 자료 수집에서 직접 측정해 확인합니다."
+					: !predsFilled ? "미션 1·2의 결과를 먼저 예상해 주세요." : "그렇게 예상한 까닭을 적어 주세요.";
 			}
 		}
 
-		// ③ → ④: ④ 자료 분석은 실험 ①~③의 결과를 비교하므로, 아직 측정하지 않은 실험이 있으면 화면 안 상자로 한 번 묻습니다.
+		// Ⅲ → Ⅳ: Ⅳ 자료 분석은 미션 1~3의 결과를 비교하므로, 아직 측정하지 않은 실험이 있으면 화면 안 상자로 한 번 묻습니다.
 		function requestNextStep() {
 			if (stepState.step === 3) {
-				const missing = ["sameAxis", "basisChange", "collapse"]
-					.filter(k => !state.runLog.some(r => r.signature === PRESET_SIGS[k] && hasCounts(r)))
-					.map(k => ["①", "②", "③"][["sameAxis", "basisChange", "collapse"].indexOf(k)]);
+				const missing = CHALLENGES.map((c, i) => (state.challengesDone || {})[c.id] ? null : i + 1).filter(Boolean);
 				if (missing.length) {
 					document.getElementById("skipConfirmMsg").textContent =
-						`아직 측정하지 않은 실험이 있어요(실험 ${missing.join("·")}). ④ 자료 분석에서는 실험 ①~③의 결과를 비교해요. 그래도 넘어갈까요?`;
+						`아직 해결하지 않은 미션이 있어요(미션 ${missing.join("·")}). Ⅳ 자료 분석에서는 미션 1~3의 결과를 비교해요. 그래도 넘어갈까요?`;
 					document.getElementById("skipConfirm").hidden = false;
 					document.getElementById("skipStayBtn").focus();
 					return;
@@ -5568,17 +5583,20 @@
 				const choice = firstChoiceValue();
 				const note = document.getElementById("firstHypothesisNote").value.trim();
 				document.getElementById("recapFirstHypothesis").textContent =
-					(choice.when || choice.spin) ? `${answerSentence(choice)}${note ? " · " + note : ""}` : "(① 문제 인식에서 고르지 않음)";
+					(choice.when || choice.spin) ? `${answerSentence(choice)}${note ? " · " + note : ""}` : "(Ⅰ 문제 인식에서 고르지 않음)";
 				renderEvidence();
 				updatePrincipleLock();
 			}
 		}
 
-		// ③ 자료 수집에 들어오면 이전 단계와 상관없이 실험 ①부터 시작 (측정 기록은 유지, 진행 중인 정식 측정은 건드리지 않음)
+		// Ⅲ 자료 수집에 들어오면 분석기 하나(z축·전체 통과)만 켠 기본 배치에서 자유 탐구를 시작합니다
+		// (측정 기록·미션 진행은 유지, 진행 중인 정식 측정은 건드리지 않음).
 		function startCollectionFromFirst() {
 			if (state.runKind === "measure" && !state.runSettled) return;
 			clearRunState();
-			applyPreset("sameAxis");
+			applyConfiguration({ src: "mixed", aA: "z", fA: "both", aB: "none", fB: "both", aC: "none", fC: "both" });
+			setRunStatus("조건 준비됨");
+			updateExperimentGuide();
 			updateCollectionAction();
 		}
 
@@ -5602,9 +5620,9 @@
 		// 보여 주고, 효과는 짧고 은은하게(적중: 작은 점이 퍼졌다 사라짐 / 발견: 전구가 은은하게 빛남) 둡니다.
 		// '동작 줄이기' 설정을 켠 기기에서는 효과 없이 카드만 보여 줍니다.
 		const FEEDBACK_TEXT = {
-			hit: { icon: "🎯", title: "예측 적중!", msg: "예측이 잘 맞았어요. 그렇게 예측한 근거를 결론에 써 보세요." },
-			challenge: { icon: "🏆", title: "도전 성공!", msg: "" },
-			almost: { icon: "🧩", title: "도전 과제, 거의 다 왔어요!", msg: "" },
+			hit: { icon: "🎯", title: "예측 적중!", msg: "예측이 잘 맞았어요. 이 결과는 Ⅴ 결론 도출에서 내 판단의 근거로 쓸 수 있으니 기억해 두세요." },
+			challenge: { icon: "🏆", title: "미션 성공!", msg: "" },
+			almost: { icon: "🧩", title: "미션, 거의 다 왔어요!", msg: "" },
 			near: { icon: "👍", title: "거의 맞았어요!", msg: "방향을 잘 잡았어요. 어느 부분에서 차이가 났는지 살펴보세요." },
 			discover: { icon: "💡", title: "새로운 발견!", msg: "예측과 다른 결과가 바로 탐구의 출발점이에요. 왜 달랐을지 생각해 보세요." },
 			none: { icon: "🔍", title: "검출된 입자가 없어요", msg: "발사한 입자가 모두 분석기에서 차단되어 검출기에 하나도 도달하지 못했어요. 이것도 하나의 결과예요. 어느 분석기에서 모두 막혔는지 분석기의 ‘차단’ 수를 살펴보고, 왜 그렇게 되었는지 생각해 보세요." }
@@ -5612,14 +5630,14 @@
 		const feedbackTier = diff => diff <= 5 ? "hit" : diff <= 15 ? "near" : "discover";
 		const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-		// ── 실험 ①~③의 예측 내용별 피드백 ──
+		// ── 미션 1~3의 예측 내용별 피드백 ──
 		// 차이 크기(아이콘)와 별개로, 학생이 예측한 비율 p(마지막 축의 + 결과 %)가 어느 구간인지 보고
 		// 그 예측에 깔린 생각을 짚어 주는 메시지를 고릅니다. 결과 비율만으로는 '입자마다 값이 미리 정해져 있다'는
 		// 생각을 반박할 수 없으므로, 판정 대신 "미리 알 수 있었을까요?"처럼 실험이 실제로 보여 주는 것만 묻습니다.
 		const predictionBand = p => p >= 85 ? "plusHeavy" : p <= 15 ? "minusHeavy" : (p >= 35 && p <= 65) ? "even" : "leaning";
 		const PATTERN_FEEDBACK = {
 			sameAxis: {
-				plusHeavy: "z↑ 입자를 z축으로 다시 측정하면 z↑가 다시 나올 거라고 예상했군요. 실제로도 모두 z↑였어요. 실험 ②에서는 두 번째 분석기의 축만 x축으로 바뀌어요. 그때 결과가 어떻게 나올지, 내 예측과 비교하며 확인해 보세요.",
+				plusHeavy: "z↑ 입자를 z축으로 다시 측정하면 z↑가 다시 나올 거라고 예상했군요. 실제로도 모두 z↑였어요. 이 결과는 Ⅴ 결론 도출에서 내 판단의 근거로 쓸 수 있으니 기억해 두세요.",
 				even: "두 번째 측정에서는 z↑와 z↓가 각각 약 50% 나올 거라고 예상했군요. 실제로는 모두 z↑였어요. 첫 번째 측정 결과가 두 번째 측정에서도 그대로 나온 이유는 무엇일까요?",
 				other: "실제로는 모두 z↑였어요. z↑ 입자를 z축으로 다시 측정하면 결과가 어떻게 되는지 규칙을 찾아보세요."
 			},
@@ -5630,9 +5648,9 @@
 				other: "실제로는 x+와 x−가 각각 약 50%였어요. 어느 한쪽이 더 많을 거라고 생각한 근거를 다시 살펴보세요."
 			},
 			collapse: {
-				plusHeavy: "처음에 z↑였으니 마지막에도 z↑일 거라고 예상했군요. 실제로는 z↑와 z↓가 각각 약 50%였어요. 실험 ①과 다른 조건은 중간의 x축 측정 하나뿐이에요. 중간에 x축으로 측정하면 마지막 z축 측정값이 어떻게 달라지는지 정리해 보세요.",
-				even: "z↑와 z↓가 각각 약 50%일 거라고 예상했군요! 실험 ①에서는 모두 z↑였는데, 중간에 x축으로 측정하자 각각 약 50%로 나뉘었어요. 그렇게 예상한 근거를 결론에 써 보세요.",
-				other: "실제로는 z↑와 z↓가 각각 약 50%였어요. 실험 ①의 마지막 z축 측정 결과와 비교해 보세요."
+				plusHeavy: "처음에 z↑였으니 마지막에도 z↑일 거라고 예상했군요. 실제로는 z↑와 z↓가 각각 약 50%였어요. 미션 1과 다른 조건은 중간의 x축 측정 하나뿐이에요. 중간에 x축으로 측정하면 마지막 z축 측정값이 어떻게 달라지는지 정리해 보세요.",
+				even: "z↑와 z↓가 각각 약 50%일 거라고 예상했군요! 실제로도 그랬어요. 이 결과는 Ⅴ 결론 도출에서 내 판단의 근거로 쓸 수 있으니 기억해 두세요.",
+				other: "실제로는 z↑와 z↓가 각각 약 50%였어요. 미션 1의 마지막 z축 측정 결과와 비교해 보세요."
 			}
 		};
 
@@ -5642,19 +5660,21 @@
 			return set[predictionBand(predictedPlus)] || set.other;
 		}
 
-		// 실험 ②·③ 뒤에는 앞 실험과 측정값을 나란히 놓고 비교하도록 묻습니다.
+				// 미션 2·3 뒤에는 미션 1과 측정값을 비교하도록 묻습니다. 미션은 순서 없이 풀 수 있으므로,
+		// 미션 1을 이미 측정한 경우에만 묻고, 미션 1의 결과는 말하지 않습니다(학생이 직접 결과표에서 비교).
 		// (학생들은 스핀의 '상태'를 아직 배우지 않았으므로 상태가 아니라 측정값만 다룹니다.)
 		function firstHypothesisRecall(presetKey) {
+			if (!summarizeSig(PRESET_SIGS.sameAxis)) return "";
 			if (presetKey === "basisChange")
-				return "실험 ①에서는 z↑ 입자를 z축으로 다시 측정하자 모두 z↑였고, ②에서는 z↑ 입자를 x축으로 측정하자 x+와 x−가 각각 약 50%였어요. 두 경우의 결과가 어떻게 다른지 정리해 보세요.";
+				return "미션 1(z↑ 입자를 z축으로 다시 측정)의 결과와 비교해 보세요. 두 경우 검출기에 나타난 값이 어떻게 다른지 정리해 보세요.";
 			if (presetKey === "collapse")
-				return "실험 ①과 ③은 마지막 측정이 모두 z축이에요. 중간에 x축 측정을 거치면 마지막 z축 측정값이 어떻게 달라졌나요?";
+				return "미션 1과 3은 마지막 분석기가 모두 z축이에요. 두 미션에서 검출기에 나타난 값을 비교해 보세요.";
 			return "";
 		}
 
-		// 한 조건(signature)의 예측 피드백을 예측·누적 결과로부터 계산합니다. 팝업, ④ 자료 분석 표, 결과 팝업이
+		// 한 조건(signature)의 예측 피드백을 예측·누적 결과로부터 계산합니다. 팝업, Ⅳ 자료 분석 표, 결과 팝업이
 		// 모두 이 함수를 써서, 팝업이 사라진 뒤에도 같은 피드백을 다시 볼 수 있습니다.
-		// 정해진 실험 ①~③이면 예측 내용별 메시지와 비교 질문을, ④ 자유 탐구면 공통 메시지를 씁니다.
+		// 정해진 미션 1~3이면 예측 내용별 메시지와 비교 질문을, 그 밖의 자유 탐구 조건이면 공통 메시지를 씁니다.
 		function predictionFeedbackFor(sig) {
 			const pred = state.predictions[sig], actual = summarizeSig(sig);
 			let axis = "z";
@@ -5663,7 +5683,7 @@
 				const pk = Object.keys(PRESET_SIGS).find(k => PRESET_SIGS[k] === sig);
 				return {
 					tier: "none", msg: "", recall: "",
-					context: pk ? "③ 측정 결과 · " + experimentLabels[pk] : "③ 자유 탐구 · " + configDescription(),
+					context: pk ? "Ⅲ 측정 결과 · " + experimentLabels[pk] : "Ⅲ 자유 탐구 · " + configDescription(),
 					detail: `내 예측 ${outcomeLabel(axis, "plus")} ${Number(pred.plus) || 0}% · 실제 검출 0개`
 				};
 			}
@@ -5675,7 +5695,7 @@
 				tier: feedbackTier(diff),
 				msg: presetKey ? patternFeedbackMessage(presetKey, predPlus) : "",
 				recall: presetKey ? firstHypothesisRecall(presetKey) : "",
-				context: presetKey ? "③ 측정 결과 · " + experimentLabels[presetKey] : "③ 자유 탐구 · " + configDescription(),
+				context: presetKey ? "Ⅲ 측정 결과 · " + experimentLabels[presetKey] : "Ⅲ 자유 탐구 · " + configDescription(),
 				detail: `내 예측 ${outcomeLabel(axis, "plus")} ${predPlus}% · 실제 ${outcomeLabel(axis, "plus")} ${actual.plusPct.toFixed(1)}% (차이 ${diff.toFixed(1)}%p)`
 			};
 		}
@@ -5719,59 +5739,45 @@
 		}
 
 
-		// ── ④ 자유 탐구 도전 과제 ──
-		// 모두 마지막 분석기를 ‘전체 통과’로 둔 채 달성해야 합니다(마지막 필터로 결과를 억지로 만들 수 없도록).
+		// ── Ⅲ 자유 탐구 미션 ──
+		// 안내 없이 학생이 분석기를 직접 설정해 미션 1~3의 조건을 스스로 만들어 봅니다. 순서는 자유이며,
+		// 미션 배치로 측정을 마친 뒤 결과를 확인하면 체크됩니다.
 		const CHALLENGES = [
-			{ id: "c1", text: "검출기에 <b>z↓만</b> 오게 만들어 보세요.",
-				success: "z↓로 측정된 입자는 다시 z축으로 측정해도 z↓만 나와요.",
-				goal: (act, last, s) => last.axis === "z" && s.minusPct >= 99 },
-			{ id: "c2", text: "첫 분석기는 <b>z축</b>으로 두고, 검출기에 <b>x+만</b> 오게 만들어 보세요.",
-				success: "처음에 z축으로 측정했더라도, x+로 측정된 입자는 다시 x축으로 측정하면 x+만 나와요.",
-				goal: (act, last, s) => act[0].axis === "z" && last.axis === "x" && s.plusPct >= 99 },
-			{ id: "c3", text: "실험 ③에서 중간 필터를 <b>x−만</b>으로 바꾸면 마지막 z축 측정 결과는 어떻게 될까요? 예측하고 확인해 보세요.",
-				success: "x+를 고르든 x−를 고르든, 마지막 z축 측정에서는 z↑와 z↓가 각각 약 50%의 비율로 나와요.",
-				goal: (act, last) => act.length === 3 && act[0].axis === "z" && act[0].filter === "plus"
-					&& act[1].axis === "x" && act[1].filter === "minus" && last.axis === "z" }
+			{ id: "m1", key: "sameAxis", text: "z↑로 측정된 입자만 골라, <b>z축으로 다시 측정</b>해 보세요." },
+			{ id: "m2", key: "basisChange", text: "z↑로 측정된 입자만 골라, <b>x축으로 측정</b>해 보세요." },
+			{ id: "m3", key: "collapse", text: "z↑로 측정된 입자를 x축으로 측정해 <b>x+만</b> 골라낸 뒤, 마지막에 다시 <b>z축으로 측정</b>해 보세요." }
 		];
-		// 성공 = 목표를 이루면서 마지막 분석기를 ‘전체 통과’로 둔 경우(마지막 필터로 결과를 억지로 만들 수 없도록).
-		// 목표는 이뤘지만 마지막 필터로 한쪽을 막은 경우는 '거의 성공'으로 알려 줍니다.
-		const ALMOST_MSG = "아직 체크되지 않았어요. 검출기에는 원하는 결과만 왔지만, 마지막 분석기의 필터가 다른 쪽을 막아서 생긴 결과예요. 마지막 분석기는 ‘전체 통과’로 두고, 그 앞의 분석기 설정만으로 다시 도전해 보세요.";
+		const missionsLeft = () => CHALLENGES.filter(c => !(state.challengesDone || {})[c.id]).length;
+		// 지금 배치가 아직 해결하지 않은 미션의 배치이면 그 미션의 번호(0부터)를 돌려줍니다.
+		const pendingMissionHere = () => CHALLENGES.findIndex(c => !(state.challengesDone || {})[c.id] && settingsSignature() === PRESET_SIGS[c.key]);
 
 		function renderChallenges() {
 			const done = state.challengesDone || {};
 			const list = document.getElementById("challengeList");
 			if (!list) return;
-			// '거의 성공'(목표는 이뤘지만 마지막 필터로 한쪽을 막음)은 팝업이 닫힌 뒤에도 미해결임을 알 수 있게 목록에 남깁니다.
-			const almost = state.challengesAlmost || {};
-			list.innerHTML = CHALLENGES.map((c, i) => {
-				const isAlmost = !done[c.id] && almost[c.id];
-				return `<li class="${done[c.id] ? "done" : isAlmost ? "almost" : ""}"><span class="mark">${done[c.id] ? "✅" : isAlmost ? "🧩" : "⬜"}</span>` +
-					`<span>${i + 1}. ${c.text}${isAlmost ? `<small class="almost-note">아직 미해결 · 마지막 분석기를 ‘전체 통과’로 두고, 그 앞의 분석기만으로 다시 해 보세요.</small>` : ""}</span></li>`;
-			}).join("");
+			list.innerHTML = CHALLENGES.map((c, i) =>
+				`<li class="${done[c.id] ? "done" : ""}"><span class="mark">${done[c.id] ? "✅" : "⬜"}</span><span>미션 ${i + 1} · ${c.text}</span></li>`
+			).join("");
 			document.getElementById("challengeCount").textContent = CHALLENGES.filter(c => done[c.id]).length + "/" + CHALLENGES.length;
 		}
 
-		// 방금 측정한 조건으로 새로 달성한 도전 과제가 있으면 돌려줍니다.
+		// 방금 측정한 배치로 새로 해결한 미션이 있으면 돌려줍니다.
 		function checkChallenges() {
-			const sig = settingsSignature();
-			const s = summarizeSig(sig);
-			if (!s) return null;
-			const act = getSettings().analyzers.filter(a => a.axis !== "none");
-			if (!act.length) return null;
-			const last = act[act.length - 1];
+			const idx = pendingMissionHere();
+			if (idx < 0) return null;
+			if (!state.runLog.some(r => r.signature === settingsSignature() && hasCounts(r))) return null;
 			state.challengesDone = state.challengesDone || {};
-			const idx = CHALLENGES.findIndex(c => !state.challengesDone[c.id] && c.goal(act, last, s) && last.filter === "both");
-			if (idx < 0) {
-				const near = CHALLENGES.findIndex(c => !state.challengesDone[c.id] && c.goal(act, last, s));
-				if (near < 0) return null;
-				state.challengesAlmost = state.challengesAlmost || {};
-				state.challengesAlmost[CHALLENGES[near].id] = true;
-				renderChallenges();
-				return { almost: true, number: near + 1 };
-			}
 			state.challengesDone[CHALLENGES[idx].id] = true;
 			renderChallenges();
 			return { ...CHALLENGES[idx], number: idx + 1 };
+		}
+
+		// 결과를 확인한 뒤: 분석기 설정을 펼쳐 새 조건을 만들 수 있게 합니다.
+		function focusSettings() {
+			const fold = document.getElementById("analyzerSettingsFold");
+			fold.open = true;
+			fold.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+			setTimeout(() => document.getElementById("axisA").focus({ preventScroll: true }), 400);
 		}
 
 		// ── 탐구 마치기: 탐구 흐름을 다시 따라가며, 오늘의 핵심을 학생 자신의 측정값으로 정리합니다. ──
@@ -5783,7 +5789,7 @@
 			const judged = snap ? snap.choice : conclusionChoiceValue();
 			const conclusion = document.getElementById("conclusion").value.trim();
 			const keys = ["sameAxis", "basisChange", "collapse"];
-			const names = { sameAxis: "① z↑ → z", basisChange: "② z↑ → x", collapse: "③ z↑ → x+ → z" };
+			const names = { sameAxis: "미션 1 · z↑ → z", basisChange: "미션 2 · z↑ → x", collapse: "미션 3 · z↑ → x+ → z" };
 			const res = k => {
 				const pred = state.predictions[PRESET_SIGS[k]], act = summarizeSig(PRESET_SIGS[k]);
 				const lab = outcomeLabel(FINAL_AXIS[k], "plus");
@@ -5796,28 +5802,29 @@
 			}).join("");
 			const step = (no, title, body) => `<li class="fin-step"><span class="fin-no">${no}</span><div><b>${title}</b>${body}</div></li>`;
 			const core = [
-				["z↑로 측정된 입자를 <b>z축으로 다시 측정하면 항상 z↑</b>가 나와요.", "실험 ①: " + res("sameAxis").text],
-				["z↑ 입자를 <b>x축으로 측정하면</b> x+·x−가 <b>각각 50%의 확률</b>로 나와요.", "실험 ②: " + res("basisChange").text],
-				["중간에 x축으로 측정하면, 마지막 z축 측정에서 z↑·z↓가 <b>각각 50%의 확률</b>로 나와요." + (snap ? " <b>측정은 입자의 상태를 바꿔요.</b>" : ""), "실험 ③: " + res("collapse").text]
+				["z↑로 측정된 입자를 <b>z축으로 다시 측정하면 항상 z↑</b>가 나와요.", "미션 1: " + res("sameAxis").text],
+				["z↑ 입자를 <b>x축으로 측정하면</b> x+·x−가 <b>각각 50%의 확률</b>로 나와요.", "미션 2: " + res("basisChange").text],
+				["중간에 x축으로 측정하면, 마지막 z축 측정에서 z↑·z↓가 <b>각각 50%의 확률</b>로 나와요." + (snap ? " <b>측정은 입자의 상태를 바꿔요.</b>" : ""), "미션 3: " + res("collapse").text]
 			];
 			const lbl = v => whenLabels[v] || "고르지 않음";
 			const cell = (v, ans) => `<td class="${v === ans ? "ok" : ""}">${lbl(v)}${v === ans ? " ✓" : ""}</td>`;
 			const change = snap
 				? `<table class="fin-table"><thead><tr><th></th><th>x축 측정 전 스핀</th><th>x축 측정 후 스핀</th></tr></thead><tbody>` +
-					`<tr><td>내 첫 예상</td>${cell(first.when, "z")}${cell(first.spin, "x")}</tr>` +
-					`<tr><td>원리 보기 전 내 판단</td>${cell(judged.when, "z")}${cell(judged.spin, "x")}</tr>` +
-					`<tr><td><b>원리에서 정리한 답</b></td><td class="ok">z축과 나란하다</td><td class="ok">x축과 나란하다</td></tr></tbody></table>`
-				: `<p class="finish-note">⑤의 ‘원리 보기’를 마치면, 내 생각을 원리에서 정리한 답과 비교해 볼 수 있어요.</p>`;
+				`<tr><td>내 첫 예상</td>${cell(first.when, "z")}${cell(first.spin, "x")}</tr>` +
+				`<tr><td>원리 보기 전 내 판단</td>${cell(judged.when, "z")}${cell(judged.spin, "x")}</tr>` +
+				`<tr><td><b>원리에서 정리한 답</b></td><td class="ok">z축과 나란하다</td><td class="ok">x축과 나란하다</td></tr></tbody></table>`
+				: `<p class="finish-note">Ⅴ의 ‘원리 보기’를 마치면, 내 생각을 원리에서 정리한 답과 비교해 볼 수 있어요.</p>`;
 			const doneCount = CHALLENGES.filter(c => (state.challengesDone || {})[c.id]).length;
 			document.getElementById("finishBody").innerHTML =
 				`<h4>1. 내가 걸어온 탐구</h4><ol class="fin-steps">` +
-				step("①", "탐구 질문 · 내 첫 예상", `<p>z↑ 입자를 x축으로 측정하기 전과 후, 입자의 스핀은 각각 어떤 상태일까?\n→ ${E(answerText(first))}</p>`) +
-				step("③", "실험 결과 (검출된 입자 기준)", `<table class="fin-table"><thead><tr><th>실험</th><th>내 예측</th><th>실제</th><th></th></tr></thead><tbody>${expRows}</tbody></table>`) +
-				step("⑤", snap ? "원리 보기 전 내 판단 · 내 결론" : "지금의 판단 · 내 결론", `<p>${E(answerText(judged))}\n\n${E(conclusion || "결론을 아직 쓰지 않았어요")}</p>`) + `</ol>` +
+				step("Ⅰ", "탐구 질문 · 내 첫 예상", `<p>z↑ 입자를 x축으로 측정하기 전과 후, 입자의 스핀은 각각 어느 축과 나란할까?\n→ ${E(answerText(first))}</p>`) +
+				step("Ⅲ", "실험 결과 (검출된 입자 기준)", `<table class="fin-table"><thead><tr><th>미션</th><th>내 예측</th><th>실제</th><th></th></tr></thead><tbody>${expRows}</tbody></table>`) +
+				step("Ⅴ", snap ? "원리 보기 전 내 판단" : "지금의 판단", `<p>${E(answerText(judged))}</p>`) +
+				step("Ⅴ", "원리 보기 후 결론", `<p>${E(conclusion || "결론을 아직 쓰지 않았어요")}</p>`) + `</ol>` +
 				`<h4>2. 오늘의 핵심</h4><table class="fin-table"><thead><tr><th>핵심</th><th>내 실험의 근거</th></tr></thead><tbody>` +
 				core.map(([k, e]) => `<tr><td>${k}</td><td class="ev">${E(e)}</td></tr>`).join("") + `</tbody></table>` +
 				`<h4>3. 생각의 변화</h4>` + change +
-				`<p class="fin-meta">받은 💬 피드백 ${feedbackLog.length}개 · 도전 과제 ${doneCount}/${CHALLENGES.length}</p>`;
+				`<p class="fin-meta">받은 💬 피드백 ${feedbackLog.length}개 · 미션 ${doneCount}/${CHALLENGES.length}</p>`;
 			document.getElementById("finishOverlay").hidden = false;
 			document.getElementById("finishCloseBtn").focus();
 		}
@@ -5891,22 +5898,22 @@
 			feedbackToastTimer = setTimeout(close, 12000);
 		}
 
-		// ⑤ 결론 도출: 내가 측정한 수치로 증거 카드를 만듭니다(결론 문장을 미리 알려 주지 않음).
+		// Ⅴ 결론 도출: 내가 측정한 수치로 증거 카드를 만듭니다(결론 문장을 미리 알려 주지 않음).
 		function renderEvidence() {
 			const el = document.getElementById("evidenceCards");
 			if (!el) return;
 			const card = (label, fact) => '<div class="evidence-card"><span class="evidence-card-label">' + label + '</span><span class="evidence-card-fact">' + fact + '</span></div>';
 			const items = [
-				["sameAxis", "① z축으로 다시 측정 (z↑ → z) · 중간 측정 없음"],
-				["basisChange", "② x축으로 측정 (z↑ → x)"],
-				["collapse", "③ 중간에 x축 측정을 거침 (z↑ → x+ → z)"],
+				["sameAxis", "미션 1 · z축으로 다시 측정 (z↑ → z) · 중간 측정 없음"],
+				["basisChange", "미션 2 · x축으로 측정 (z↑ → x)"],
+				["collapse", "미션 3 · 중간에 x축 측정을 거침 (z↑ → x+ → z)"],
 			];
 			const cards = items.map(([key, label]) => {
 				const s = summarizeSig(PRESET_SIGS[key]);
 				const a = FINAL_AXIS[key];
 				return card(label, s
 					? '검출된 입자 중 <strong>' + outcomeLabel(a, "plus") + ' ' + Math.round(s.plusPct) + '%</strong> · ' + outcomeLabel(a, "minus") + ' ' + Math.round(s.minusPct) + '%'
-					: '아직 측정하지 않음 — ③ 단계에서 측정해 보세요');
+					: '아직 측정하지 않음 — Ⅲ 단계에서 측정해 보세요');
 			});
 			el.innerHTML = cards.join("");
 		}
@@ -5916,13 +5923,12 @@
 		function updatePrincipleLock() {
 			const opened = !!state.judgmentSnapshot;
 			const choice = conclusionChoiceValue();
-			const ready = !!choice.when && !!choice.spin && document.getElementById("reflectionNote").value.trim() !== ""
-				&& document.getElementById("conclusion").value.trim() !== "";
+						const ready = !!choice.when && !!choice.spin && document.getElementById("reflectionNote").value.trim() !== "";
 			document.getElementById("principleBtn").disabled = !opened && !ready;
 			document.getElementById("principleLockNote").textContent = opened
-				? "원리 보기 전의 판단이 기록되었습니다. 원리를 보고 달라진 생각은 아래에 적어 보세요."
-				: ready ? "원리 보기를 열면 지금의 판단·근거·결론이 그대로 기록되고 더 이상 고칠 수 없어요."
-					: "①의 판단과 근거, ②의 결론을 먼저 적으면 열립니다.";
+								? "원리 보기 전의 판단이 기록되었습니다. 원리를 바탕으로 아래 결론 정리를 적어 보세요."
+				: ready ? "원리 보기를 열면 지금의 판단과 근거가 그대로 기록되고 더 이상 고칠 수 없어요."
+					: "1번의 판단과 근거를 먼저 적으면 열립니다.";
 		}
 
 		function openPrinciple() {
@@ -5930,7 +5936,7 @@
 				state.judgmentSnapshot = { choice: conclusionChoiceValue(), note: document.getElementById("reflectionNote").value.trim() };
 				document.querySelectorAll('input[name="conclusionWhen"], input[name="conclusionSpin"]').forEach(el => { el.disabled = true; });
 				document.getElementById("reflectionNote").readOnly = true;
-				document.getElementById("conclusion").readOnly = true;
+				
 				document.getElementById("afterPrincipleBlock").hidden = false;
 				document.getElementById("selfCheck").hidden = false;
 				document.getElementById("nextLesson").hidden = false;
@@ -5952,11 +5958,11 @@
 			const section = (title, qid) => `<h3>${title}</h3><p class="question">${question(qid)}</p><div class="answer">${answer(qid)}</div>`;
 			// 원리 보기 팝업의 그림을 그대로 복사해, 화면과 보고서의 설명이 같도록 합니다.
 			const principleFigs = [...document.querySelectorAll("#principleModal .principle-card svg")].map(el => el.outerHTML);
-			const pfig = (i, title, text) => `<div class="principle-fig"><h4>${title}</h4>${principleFigs[i] || ""}<p>${text}</p></div>`;
+			const pfig = (i, title, text) => `<div class="principle-fig"><h4>${title}</h4>${principleFigs[i] || ""}${text ? `<p>${text}</p>` : ""}</div>`;
 			const selfCheckSummary = [
 				["selfCheck1", "같은 축은 결과 유지, 다른 축은 각각 약 50%가 되는 규칙 찾기"],
 				["selfCheck2", "측정하면 측정 결과에 해당하는 상태가 된다는 근거로 설명하기"],
-				["selfCheck3", "실험 ①·③의 차이를 중간 측정 유무에 의한 상태 변화와 연결하기"],
+				["selfCheck3", "미션 1·3의 차이를 중간 측정 유무에 의한 상태 변화와 연결하기"],
 			].map(([id, label]) => `<li class="${document.getElementById(id).checked ? "checked" : ""}">${label}</li>`).join("");
 			const groups = groupRunLog();
 			const chart = reportChartSVG(groups);
@@ -6023,7 +6029,7 @@ table.log th{background:var(--panel)}
 	<div class="cover-meta">
 		<div><b>작성자</b>${answer("studentName")}</div>
 		<div><b>작성일</b>${escape(dateStr)}</div>
-		<div><b>탐구 질문</b>z↑ 입자를 x축으로 측정하기 전과 후, 입자의 스핀은 각각 어떤 상태일까?</div>
+		<div><b>탐구 질문</b>z↑ 입자를 x축으로 측정하기 전과 후, 입자의 스핀은 각각 어느 축과 나란할까?</div>
 	</div>
 </div>
 
@@ -6034,51 +6040,48 @@ table.log th{background:var(--panel)}
 ${section("그렇게 예상한 까닭", "firstHypothesisNote")}
 
 <h2><span class="num">Ⅱ.</span> 가설 설정</h2>
-<table class="log"><thead><tr><th>실험</th><th>나의 예상 (검출된 입자 기준)</th></tr></thead><tbody>
-<tr><td>① z↑ → z</td><td>${step2Pred("sameAxis")}</td></tr>
-<tr><td>② z↑ → x</td><td>${step2Pred("basisChange")}</td></tr>
+<table class="log"><thead><tr><th>미션</th><th>나의 예상 (검출된 입자 기준)</th></tr></thead><tbody>
+<tr><td>미션 1 · z↑ → z</td><td>${step2Pred("sameAxis")}</td></tr>
+<tr><td>미션 2 · z↑ → x</td><td>${step2Pred("basisChange")}</td></tr>
 </tbody></table>
 ${section("그렇게 예상한 까닭", "hypothesisNote")}
 
 <h2><span class="num">Ⅲ.</span> 실험 방법</h2>
 <div class="theory-box">
 	<p>원자 오븐에서 나온 입자 1,000개를 분석기에 통과시키고, 검출기에 도달한 입자를 두 결과(z축은 ↑/↓, x축은 +/−)별로 세고, 중간에 차단된 입자 수도 셉니다.
-	같은 조건에서 3회 반복 측정해 합산합니다. 모든 실험에서 검출될 입자의 비율을 먼저 예측한 뒤 측정하고, 실험 ④ 자유 탐구에서는 궁금한 조건을 직접 만들어 확인합니다.</p>
+	같은 조건에서 3회 반복 측정해 합산합니다. 모든 실험에서 검출될 입자의 비율을 먼저 예측한 뒤 측정하고, 분석기 설정은 학생이 직접 바꾸며, 미션 1~3을 스스로 해결하며 측정합니다.</p>
 	<ul>
-		<li>① z축으로 다시 측정 — z↑ 입자를 z축으로 다시 측정</li>
-		<li>② x축으로 측정 — z↑ 입자를 x축으로 측정</li>
-		<li>③ 중간에 x축 측정 — z↑ 입자를 x축(x+만 통과)으로 측정한 뒤 z축으로 측정</li>
+		<li>미션 1 · z축으로 다시 측정 — z↑ 입자를 z축으로 다시 측정</li>
+		<li>미션 2 · x축으로 측정 — z↑ 입자를 x축으로 측정</li>
+		<li>미션 3 · 중간에 x축 측정 — z↑ 입자를 x축(x+만 통과)으로 측정한 뒤 z축으로 측정</li>
 	</ul>
 </div>
 
 <h2><span class="num">Ⅳ.</span> 실험 결과</h2>
 ${chart ? `<div class="chart-wrap">${chart}</div>` : '<p class="meta">아직 정식 측정 기록이 없습니다.</p>'}
 <h3>예측과 실제 (검출된 입자 기준)</h3>
-<table class="log"><thead><tr><th>실험</th><th>분석기 배치</th><th>나의 예측</th><th>실제 (합산)</th></tr></thead><tbody>${predVsActual}</tbody></table>
+<table class="log"><thead><tr><th>미션</th><th>분석기 배치</th><th>나의 예측</th><th>실제 (합산)</th></tr></thead><tbody>${predVsActual}</tbody></table>
 <h3>측정 기록 (조건별 상세)</h3>
 ${resultsHTML()}
 
-${section("관찰 기록 — 실험 ①~③의 결과", "observationNote")}
+${section("관찰 기록 — 미션 1~3의 결과", "observationNote")}
 
 <h2><span class="num">Ⅴ.</span> 자료 분석과 토의</h2>
+${section("미션 1·3 비교 — 중간에 x축 측정을 거친 경우", "missionCompareNote")}
 ${section("예측과 실제 결과 비교", "stateExplanationNote")}
-${section("실험 ①·② 비교", "detectedRatioNote")}
-${section("실험 ①·③ 비교 — 중간 측정 유무에 따라 결과가 다른 까닭", "changedConditionNote")}
 
 <h2><span class="num">Ⅵ.</span> 결론</h2>
 <h3>x축 스핀을 측정하기 전과 후 입자의 스핀 — 원리 보기 전 나의 판단</h3>
 <p><strong>${escape(answerText(judgedChoice))}</strong></p>
 <p>첫 예상: ${escape(answerText(firstChoice))}</p>
 <div class="answer">${escape(judgedNote || "미작성")}</div>
-${section("결론 정리", "conclusion")}
-${section("원리를 본 뒤 새로 알게 된 것이나 달라진 생각", "afterPrincipleNote")}
+${section("결론 정리 (원리 보기 후)", "conclusion")}
 
 <h2><span class="num">Ⅶ.</span> 원리 확인</h2>
-${pfig(0, "① 분석기는 입자를 두 갈래로 나눕니다", "불균일한 자기장이 입자를 z↑·z↓ 두 경로로만 나눕니다(스핀의 양자화).")}
-${pfig(1, "② 측정하면 입자는 측정 결과에 해당하는 상태가 됩니다", "입자의 <strong>상태</strong>란, 그 입자를 <strong>어느 축으로 측정하든 각 결과가 나올 확률</strong>을 모두 알려 주는 정보입니다. 상태가 정해 주는 것은 각 결과가 나올 확률입니다. 확률이 100%이면 결과가 하나로 정해집니다. <strong>z↑ 상태</strong>는 z축으로 측정하면 z↑가 <strong>확률 100%로</strong> 나오는 상태입니다. z↑로 측정된 입자는 z↑ 상태가 되어, 다시 z축으로 측정해도 항상 z↑가 나옵니다(실험 ①).")}
-${pfig(2, "③ z↑ 입자를 x축으로 측정하면 x+·x−가 각각 50%의 확률로 나옵니다", "x축 측정 전 입자는 <strong>z축과 나란한(z↑) 상태</strong>입니다. z↑ 상태는 x축 측정 결과를 하나로 정해 주지 않아, x+·x−가 각각 50%의 확률로 나옵니다(실험 ②).")}
-${pfig(3, "④ 중간에 다른 축으로 측정하면 상태가 바뀝니다", "중간의 x축 측정이 상태를 z↑에서 <strong>x+로 바꿨기 때문에</strong>, 마지막 z축 측정에서 z↓도 나왔습니다(실험 ③). 이처럼 <strong>다른 축으로 측정하면 상태가 바뀝니다</strong>.")}
-${pfig(4, "⑤ 정리", "x축 스핀을 측정하기 전 입자의 스핀은 <strong>z축과 나란하고</strong>, x축 스핀을 측정한 후 입자의 스핀은 <strong>x축과 나란합니다</strong>.")}
+${pfig(0, "① 측정하면 입자는 측정값에 해당하는 상태가 됩니다", "z축으로 측정해 z↑가 나온 입자는 <strong>z↑ 상태</strong>가 됩니다. 그래서 다시 z축으로 측정하면 언제나 z↑가 나옵니다(미션 1).")}
+${pfig(1, "② z↑ 입자를 x축으로 측정하면 x+·x−가 각각 50%의 확률로 나옵니다", "z↑ 상태를 z축으로 측정하면 z↑가 <strong>100%의 확률</strong>로 나오므로 결과가 확실합니다. 그러나 x축으로 측정하면 x+와 x−가 <strong>각각 50%의 확률</strong>로 나오므로, 입자 하나하나가 어느 쪽으로 나올지는 미리 알 수 없습니다(미션 2).")}
+${pfig(2, "③ 중간에 x축으로 측정하면 z↑ 상태가 x+ 상태로 바뀝니다", "중간에 x축으로 측정해 x+가 나온 입자는 ①에 따라 <strong>x+ 상태</strong>가 됩니다. x+ 상태를 z축으로 측정하면 z↑와 z↓가 <strong>각각 50%의 확률</strong>로 나옵니다. 그래서 처음에 z↑였던 입자에서도 z↓가 나온 것입니다(미션 3).")}
+${pfig(3, "④ 정리", "")}
 <h2><span class="num">Ⅷ.</span> 스스로 점검</h2>
 <ul class="selfcheck-list">${selfCheckSummary}</ul>
 ${feedbackReportHTML('<table class="log">', '</table>')}
@@ -6086,7 +6089,7 @@ ${typeof window.writingSupportReport === "function" ? window.writingSupportRepor
 
 <h2><span class="num">Ⅸ.</span> 다음 시간 예고 — 양자컴퓨터와 큐비트</h2>
 <p>z↑/z↓는 큐비트의 0/1에 대응합니다. 큐비트도 측정하면 0 또는 1 하나로 정해지고, 그 결과는 확률적으로 나올 수 있습니다.</p>
-${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 나올까?", "qcPredictionNote")}
+${section("오늘 미션처럼 큐비트를 차례로 측정하면, 진짜 양자컴퓨터에서도 오늘 검출기에 나타난 것과 같은 비율로 0과 1이 나올까?", "qcPredictionNote")}
 
 <p class="meta" style="margin-top:32px;padding-top:14px;border-top:1px solid var(--line)">보고서 저장 시각: ${escape(new Date().toLocaleString("ko-KR"))}</p>
 <\/body><\/html>`;
@@ -6112,13 +6115,11 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 
 		function updateControlLocks() {
 			const locked = !state.runSettled;
-			const guided = document.getElementById("experimentPlan").value !== "free";
-			[ui.axisA, ui.axisB, ui.axisC, ui.filterA, ui.filterB, ui.filterC].forEach(el => { el.disabled = locked || guided; });
-			if (!locked && !guided) {
+			[ui.axisA, ui.axisB, ui.axisC, ui.filterA, ui.filterB, ui.filterC].forEach(el => { el.disabled = locked; });
+			if (!locked) {
 				ui.filterB.disabled = ui.axisB.value === "none";
 				ui.filterC.disabled = ui.axisC.value === "none";
 			}
-			document.getElementById("experimentPlan").disabled = locked;
 
 			const ready2 = step2Ready();
 			document.getElementById("previewSameAxisBtn").disabled = locked || !ready2;
@@ -6185,20 +6186,8 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 			document.getElementById("observationReadout").textContent = "관찰 " + o.emitted + "개";
 		}
 		function updateExperimentGuide() {
-			const key = document.getElementById("experimentPlan").value;
-			const questions = {
-				sameAxis: "z↑로 검출된 입자만 골라 z축으로 다시 측정합니다.",
-				basisChange: "①과 비교: 두 번째 분석기만 z축 → x축으로 바꿉니다.",
-				collapse: "①과 비교: 사이에 x축 측정(x+만 통과)을 하나 끼워 넣고, 마지막은 ①처럼 z축으로 측정합니다.",
-				free: "아래 ‘분석기 설정’에서 조건을 직접 만들어 측정해 보세요. 도전 과제에 도전해 봐도 좋아요.",
-			};
-			document.getElementById("experimentQuestion").textContent = questions[key];
-			const fold = document.getElementById("analyzerSettingsFold");
-			fold.hidden = key !== "free";
-			fold.open = key === "free";
 			const records = state.runLog.filter(r => r.signature === settingsSignature() && hasCounts(r));
-			document.getElementById("experimentProgress").textContent = "측정 " + records.length + "/3회" + (records.length >= 3 ? " · 목표 달성" : "");
-			document.getElementById("challengeCard").hidden = key !== "free";
+			document.getElementById("experimentProgress").textContent = "지금 조건 측정 " + records.length + "/3회" + (records.length >= 3 ? " · 목표 달성" : "");
 			renderChallenges();
 		}
 		function hasCounts(r) {
@@ -6207,7 +6196,7 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 				r.counts.plus + r.counts.minus + r.counts.lost === r.shots;
 		}
 
-		const noRunsHTML = '<p class="sb-note">아직 정식 측정 기록이 없습니다. ③ 자료 수집에서 측정을 시작하세요.</p>';
+		const noRunsHTML = '<p class="sb-note">아직 정식 측정 기록이 없습니다. Ⅲ 자료 수집에서 측정을 시작하세요.</p>';
 		function groupRunLog() {
 			const groups = new Map();
 			state.runLog.forEach((r, i) => {
@@ -6230,7 +6219,7 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 		};
 		function predText(pred, axis) {
 			if (!pred) return "예측 기록 없음";
-			return `${outcomeLabel(axis, "plus")} ${pred.plus}% · ${outcomeLabel(axis, "minus")} ${pred.minus}%` + (pred.source === "step2" ? " (② 가설 설정에서 예측)" : "") +
+			return `${outcomeLabel(axis, "plus")} ${pred.plus}% · ${outcomeLabel(axis, "minus")} ${pred.minus}%` + (pred.source === "step2" ? " (Ⅱ 가설 설정에서 예측)" : "") +
 				(pred.reason ? " · 근거: " + escapeHTML(pred.reason) : "");
 		}
 		function resultTableHTML({ rows, counted, sum }) {
@@ -6392,31 +6381,25 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 			const records = currentConditionRecords();
 			if (state.runKind === "measure" && !state.runSettled) return state.paused ? "resume" : "pause";
 			if (!state.runSettled) return "observe";
-			if (records.length && state.reviewedResults[settingsSignature()] !== records.length) return "results";
-			// 자유 탐구에서는 자유 탐구로 직접 측정한 기록이 있어야 자료 분석으로 넘어갈 수 있습니다.
-			const freeDone = state.runLog.some(r => r.experiment === "free" && hasCounts(r));
-			if (records.length && (document.getElementById("experimentPlan").value !== "free" || freeDone)) return "next";
+			// 미션 배치를 이미 측정해 둔 경우에도 결과를 한 번 확인해야 미션이 체크됩니다.
+			if (records.length && (pendingMissionHere() >= 0 || state.reviewedResults[settingsSignature()] !== records.length)) return "results";
+			if (records.length) return "next";
 			return "start";
 		}
 
 		function updateCollectionAction() {
 			const action = collectionAction();
-			const plan = document.getElementById("experimentPlan").value;
 			const repeat = REPEAT_COUNT;
 			const sig = settingsSignature();
 			const pred = state.predictions[sig];
-			const toFree = plan === "collapse";
-			// 자유 탐구에서 결과를 확인한 뒤 남은 도전 과제가 있으면 ‘도전 과제 더 해결하기’ 버튼도 함께 보여 줍니다.
-			const challengesLeft = action === "next" && plan === "free"
-				? CHALLENGES.filter(c => !(state.challengesDone || {})[c.id]).length : 0;
-			document.getElementById("moreChallengeBtn").hidden = challengesLeft === 0;
+			const left = missionsLeft();
 			let label, hint, phase;
 			if (action === "observe") {
 				label = "관찰 마치고 측정하기 →";
 				hint = "입자가 이동 중입니다. 정식 측정은 관찰 집계를 비우고 시작합니다.";
 				phase = "ready";
 			} else if (action === "pause" || action === "resume") {
-				label = action === "pause" ? "Ⅱ 측정 일시정지" : "▶ 측정 계속하기";
+				label = action === "pause" ? "❚❚ 측정 일시정지" : "▶ 측정 계속하기";
 				hint = action === "pause" ? "측정 중입니다. 끝나면 이 버튼이 ‘결과 확인’ 버튼으로 바뀝니다." : "측정이 멈췄습니다. 아래 버튼으로 이어서 진행하세요.";
 				phase = "running";
 			} else if (action === "results") {
@@ -6424,20 +6407,14 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 				hint = "측정이 끝났습니다. 내 예측과 실제 결과의 막대 길이를 비교해 보세요.";
 				phase = "results";
 			} else if (action === "next") {
-				label = plan === "free" ? "자료 분석으로 넘어가기 →" : toFree ? "자유 탐구 해 보기 →" : "다음 실험으로 이동 →";
-				hint = toFree ? "실험 ①~③을 모두 마쳤습니다! 이번에는 궁금한 조건을 직접 만들어 예측하고 확인해 보세요."
-					: plan === "free" && challengesLeft > 0 ? `자유 탐구 결과를 확인했습니다. 도전 과제가 ${challengesLeft}개 남았어요. 더 도전해 보거나, 준비되면 자료 분석으로 넘어가세요.`
-						: plan === "free" ? "자유 탐구 결과를 확인했습니다. 다른 조건을 더 해 봐도 좋고, 준비되면 자료 분석으로 넘어가세요."
-							: "결과를 확인했습니다. 다음 조건으로 바꿔 비교해 보세요.";
+				label = left ? "분석기 설정 바꾸기 ↑" : "자료 분석으로 넘어가기 →";
+				hint = left ? "결과를 확인했습니다. 분석기 설정을 바꿔 새 조건을 측정해 보세요."
+					: "미션 1~3을 모두 해결했어요! 궁금한 조건을 더 측정해 봐도 좋고, 준비되면 자료 분석으로 넘어가세요.";
 				phase = "results";
-			} else if (plan === "free" && currentConditionRecords().length) {
-				label = "이 조건 한 번 더 측정 →";
-				hint = "이미 측정한 조건이에요. 위의 ‘분석기 설정’에서 축이나 필터를 바꿔 궁금한 새 조건을 만들어 보세요.";
-				phase = "ready";
 			} else if (pred) {
 				const axis = lastAxisOf(getSettings().analyzers);
 				label = "1,000개 측정 시작 →";
-				hint = (state.stopNotice ? "측정을 중단하고 이번 기록을 지웠어요. " : "") + "1,000개씩 " + repeat + "회 측정해 " + (pred.source === "step2" ? "② 가설 설정에서 예측한 값" : "입력한 예측") + "(" + outcomeLabel(axis, "plus") + " " + pred.plus + "%)과 비교합니다.";
+				hint = (state.stopNotice ? "측정을 중단하고 이번 기록을 지웠어요. " : "") + "1,000개씩 " + repeat + "회 측정해 " + (pred.source === "step2" ? "Ⅱ 가설 설정에서 예측한 값" : "입력한 예측") + "(" + outcomeLabel(axis, "plus") + " " + pred.plus + "%)과 비교합니다.";
 				phase = "ready";
 			} else {
 				label = "예측하고 측정 시작 →";
@@ -6445,7 +6422,7 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 				phase = "ready";
 			}
 			const setText = (id, text) => { const el = document.getElementById(id); if (el.textContent !== text) el.textContent = text; };
-			setText("collectionActionBtn", label);
+			setText("collectionActionBtn", "① " + label);
 			setText("collectionActionHint", hint);
 			document.getElementById("collectionActionBtn").dataset.action = action;
 			document.getElementById("collectionActionPanel").dataset.phase = phase;
@@ -6467,16 +6444,15 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 		// 측정을 마친 직후 결과 팝업을 열 때만(withFeedback) 방금 측정한 조건의 예측 피드백을 맨 위에 보여 줍니다.
 		// '조건별 측정 결과 보기' 버튼으로 다시 열 때는 보여 주지 않습니다.
 		function openCollectionResults(withFeedback = false) {
-			// 도전 과제는 결과 창을 어느 버튼으로 열든 확인합니다(새로 달성하면 성공 팝업).
-			// 측정 직후(withFeedback)에는 '거의 성공' 안내나 예측 피드백도 띄웁니다(예측 피드백은 결과창 카드에 남음).
+			// 미션은 결과 창을 어느 버튼으로 열든 확인합니다(새로 달성하면 성공 팝업).
+			// 측정 직후(withFeedback)에는 예측 피드백도 띄웁니다(예측 피드백은 결과창 카드에 남음).
 			// 결과창이 열려 있는 동안 팝업은 결과창 왼쪽 빈 곳에 놓여 결과창을 가리지 않습니다.
+			// 측정 직후에는 예측 피드백을 먼저 보여 주고, 미션 성공은 그 피드백에 함께 적습니다.
 			const ch = checkChallenges();
-			if (ch && !ch.almost) showFeedbackToast("challenge", { msg: ch.success, detail: "도전 과제 " + ch.number + " 성공", context: "④ 자유 탐구 · 도전 과제 " + ch.number });
-			else if (withFeedback === true) {
-				const fb = predictionFeedbackFor(settingsSignature());
-				if (ch && ch.almost) showFeedbackToast("almost", { msg: ALMOST_MSG, detail: "도전 과제 " + ch.number + " · 마지막 분석기를 ‘전체 통과’로", context: "④ 자유 탐구 · 도전 과제 " + ch.number });
-				else if (fb) showFeedbackToast(fb.tier, fb);
-			}
+			const fb = withFeedback === true ? predictionFeedbackFor(settingsSignature()) : null;
+			if (ch && fb) showFeedbackToast(fb.tier, { ...fb, detail: fb.detail + " · 🏆 미션 " + ch.number + " 해결!" });
+			else if (ch) showFeedbackToast("challenge", { msg: "미션 " + ch.number + "을 해결했어요!", detail: "미션 " + ch.number + " 해결", context: "Ⅲ 자유 탐구 · 미션 " + ch.number });
+			else if (fb) showFeedbackToast(fb.tier, fb);
 			openModal("resultsModal");
 			document.getElementById("resultsModalClose").focus();
 			document.querySelector("#resultsModal .modal-card").scrollTop = 0;
@@ -6528,18 +6504,53 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 			if (action === "pause" || action === "resume") { togglePause(); return; }
 			if (action === "results") { openCollectionResults(true); return; }
 			if (action === "next") {
-				const select = document.getElementById("experimentPlan");
-				if (select.value === "free") requestNextStep();
-				else {
-					select.selectedIndex++;
-					select.dispatchEvent(new Event("change"));
-					updateCollectionAction();
-					document.getElementById("collectionActionBtn").focus();
-				}
+				if (missionsLeft()) focusSettings();
+				else requestNextStep();
 				return;
 			}
 			requestRun();
 			updateCollectionAction();
+		}
+
+		// ── 글 속 'z축'·'x축' 색 구분 ──
+		// 발문·설명문에서 z축은 보라, x축은 초록으로 칠해 글이 많아도 두 축을 구별해 읽을 수 있게 합니다.
+		// 나중에 바뀌는 글(피드백, 결과표 등)도 MutationObserver로 따라가며 칠합니다.
+		// 입력칸·선택 상자와 3D 화면 위 표시는 건드리지 않습니다.
+		const AXIS_SKIP = "script, style, textarea, input, select, option, title, desc, ax-w, .axis-word, .stage, .stage-hud, .analyzer-stats-layer";
+		const AXIS_TEST = /[zx]축/;
+		function wrapAxisText(node) {
+			const parent = node.parentElement;
+			if (!parent || !AXIS_TEST.test(node.nodeValue) || parent.closest(AXIS_SKIP)) return;
+			const text = node.nodeValue, inSvg = !!parent.closest("svg");
+			const frag = document.createDocumentFragment();
+			let last = 0;
+			for (const m of text.matchAll(/([zx])축/g)) {
+				if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+				const el = inSvg ? document.createElementNS("http://www.w3.org/2000/svg", "tspan") : document.createElement("ax-w");
+				el.setAttribute("class", "axis-word axis-" + m[1]);
+				el.textContent = m[0];
+				frag.appendChild(el);
+				last = m.index + m[0].length;
+			}
+			if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+			node.replaceWith(frag);
+		}
+		function highlightAxisWords(root) {
+			if (root.nodeType === Node.TEXT_NODE) { wrapAxisText(root); return; }
+			if (root.nodeType !== Node.ELEMENT_NODE || root.closest(AXIS_SKIP)) return;
+			const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+			const nodes = [];
+			while (walker.nextNode()) if (AXIS_TEST.test(walker.currentNode.nodeValue)) nodes.push(walker.currentNode);
+			nodes.forEach(wrapAxisText);
+		}
+		function startAxisWordColoring() {
+			highlightAxisWords(document.body);
+			new MutationObserver(muts => {
+				for (const m of muts) {
+					if (m.type === "characterData") wrapAxisText(m.target);
+					else m.addedNodes.forEach(highlightAxisWords);
+				}
+			}).observe(document.body, { childList: true, characterData: true, subtree: true });
 		}
 
 		// ── Init ──
@@ -6611,24 +6622,7 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 				ui.fullscreenBtn.textContent = document.fullscreenElement ? "전체화면 해제" : "전체화면";
 			});
 
-			document.getElementById("experimentPlan").addEventListener("change", () => {
-				if (document.getElementById("experimentPlan").value === "free") {
-					clearRunState(); syncLabels(); updateExperimentGuide();
-				} else applyPreset(document.getElementById("experimentPlan").value);
-
-			});
 			document.getElementById("collectionActionBtn").addEventListener("click", performCollectionAction);
-			// 도전 과제 더 해결하기: 다음 단계로 넘어가지 않고, 분석기 설정을 펼치고 도전 과제 목록을 보여 줍니다.
-			// 분석기 설정을 바꾸면 새 조건이 되어 큰 버튼이 다시 ‘예측하고 측정 시작’으로 바뀝니다.
-			document.getElementById("moreChallengeBtn").addEventListener("click", () => {
-				document.getElementById("analyzerSettingsFold").open = true;
-				const card = document.getElementById("challengeCard");
-				card.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
-				card.classList.remove("flash");
-				void card.offsetWidth;
-				card.classList.add("flash");
-				setTimeout(() => document.getElementById("axisA").focus({ preventScroll: true }), 400);
-			});
 			document.getElementById("stopMeasureBtn").addEventListener("click", askStopMeasurement);
 			document.getElementById("stopCancelBtn").addEventListener("click", cancelStopMeasurement);
 			document.getElementById("stopConfirmBtn").addEventListener("click", stopMeasurement);
@@ -6647,9 +6641,9 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 				ui.previewStatus.textContent = text;
 			};
 			document.getElementById("previewSameAxisBtn").addEventListener("click", () =>
-				preview("sameAxis", "실험 ① · z축 분석기 두 대가 배치되었습니다. 결과는 ③ 자료 수집에서 직접 측정해 확인합니다."));
+				preview("sameAxis", "미션 1 · z축 분석기 두 대가 배치되었습니다. 결과는 Ⅲ 자료 수집에서 직접 측정해 확인합니다."));
 			document.getElementById("previewDiffAxisBtn").addEventListener("click", () =>
-				preview("basisChange", "실험 ② · z축 분석기 뒤에 x축 분석기가 배치되었습니다. 결과는 ③ 자료 수집에서 직접 측정해 확인합니다."));
+				preview("basisChange", "미션 2 · z축 분석기 뒤에 x축 분석기가 배치되었습니다. 결과는 Ⅲ 자료 수집에서 직접 측정해 확인합니다."));
 
 
 			document.getElementById("prevStepBtn").addEventListener("click", () => showStep(stepState.step - 1));
@@ -6686,6 +6680,7 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 		}
 
 		init();
+		startAxisWordColoring();
 	</script>
 	<!-- BEGIN EMBEDDED THREE.JS: no external library files are needed. -->
 	<script>
@@ -6710,11 +6705,38 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 		});
 	</script>
 	<style>
-		.evidence-check { margin: 6px 0 8px; padding: 8px 10px; border: 1px dashed #c7d7f5; border-radius: 10px; background: #f8faff; font-size: 12.5px; line-height: 1.5; color: #52657c; }
-		.evidence-check[hidden] { display: none; }
-		.evidence-check > p { margin: 0 0 4px; font-weight: 700; color: #2157d5; }
-		.evidence-check label { display: flex; gap: 6px; align-items: flex-start; margin-top: 2px; cursor: pointer; }
-		.evidence-check input { margin-top: 3px; }
+		.evidence-check {
+			margin: 6px 0 8px;
+			padding: 8px 10px;
+			border: 1px dashed #c7d7f5;
+			border-radius: 10px;
+			background: #f8faff;
+			font-size: 12.5px;
+			line-height: 1.5;
+			color: #52657c;
+		}
+
+		.evidence-check[hidden] {
+			display: none;
+		}
+
+		.evidence-check>p {
+			margin: 0 0 4px;
+			font-weight: 700;
+			color: #2157d5;
+		}
+
+		.evidence-check label {
+			display: flex;
+			gap: 6px;
+			align-items: flex-start;
+			margin-top: 2px;
+			cursor: pointer;
+		}
+
+		.evidence-check input {
+			margin-top: 3px;
+		}
 	</style>
 	<script>
 		// ── 근거 점검 체크리스트 · 힌트 사용 기록 ──
@@ -6723,11 +6745,10 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 		(() => {
 			const REASON = "‘왜냐하면’처럼 이유를 썼나요?";
 			const CHECKS = {
-				observationNote: ["실험 ①·②·③의 결과를 모두 적었나요?", "측정 결과(z↑·x+ 같은 측정값과 %)를 썼나요?"],
-				detectedRatioNote: ["어느 실험(①·②)의 결과인지 밝혔나요?", "측정 결과(z↑·x+ 같은 측정값과 %)를 근거로 썼나요?", REASON],
-				stateExplanationNote: ["어느 실험(①·②·③)의 결과인지 밝혔나요?", "내 예측과 실제 결과(%)를 비교했나요?", REASON],
-				changedConditionNote: ["어느 실험(①·③)의 결과인지 밝혔나요?", "측정 결과(z↑·z↓ 같은 측정값과 %)를 근거로 썼나요?", REASON],
-				conclusion: ["어느 실험의 결과를 근거로 했는지 밝혔나요?", "측정 결과(측정값과 %)를 근거로 썼나요?", REASON]
+				observationNote: ["미션 1·2·3의 결과를 모두 적었나요?", "측정 결과(z↑·x+ 같은 측정값과 %)를 썼나요?"],
+								missionCompareNote: ["미션 1과 3의 결과를 모두 적었나요?", "측정값(z↑·z↓)과 %를 썼나요?"],
+				stateExplanationNote: ["어느 미션(1·2·3)의 결과인지 밝혔나요?", "내 예측과 실제 결과(%)를 비교했나요?", REASON],
+				conclusion: ["어느 미션의 결과를 근거로 했는지 밝혔나요?", "측정 결과(측정값과 %)를 근거로 썼나요?", REASON]
 			};
 
 			// 힌트 칸은 바로 앞의 글쓰기 칸과 짝을 짓습니다(체크리스트를 끼워 넣기 전에 먼저 짝을 정합니다).
@@ -6780,7 +6801,7 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 	<script>
 		// ── 용어 풀이: 단계마다 용어가 처음 나오는 곳에 점선 밑줄을 긋고, 누르면 한 줄 풀이를 보여 줍니다. ──
 		(() => {
-			const TERMS = [{"term": "+ħ/2", "tip": "스핀을 한 축으로 측정했을 때 나오는 두 값 중 위쪽 값이에요(아래쪽은 −ħ/2). ħ(에이치 바)는 아주 작은 물리 상수예요.", "scopes": ["[data-step=\"1\"]"]}, {"term": "z↑", "tip": "z↑·z↓는 z축으로 측정한 위·아래 결과, x+·x−는 x축으로 측정한 +쪽·−쪽 결과예요.", "scopes": ["[data-step=\"1\"]"]}, {"term": "분석기", "tip": "한 축(z축 또는 x축)으로 스핀을 측정해, 결과에 따라 입자를 두 경로로 나누는 장치(슈테른-게를라흐 자석)예요.", "scopes": ["[data-step=\"1\"]"]}, {"term": "필터", "tip": "분석기에서 나뉜 두 경로 중 한쪽만 통과시키고, 다른 쪽은 차단판으로 막는 것이에요.", "scopes": ["[data-step=\"3\"]"]}, {"term": "불균일한 자기장", "tip": "위치에 따라 세기가 달라지는 자기장이에요. 작은 자석이 이런 자기장을 지나면 위나 아래로 힘을 받아요.", "scopes": ["#principleModal"]}, {"term": "양자화", "tip": "측정값이 연속적이지 않고 몇 가지 값으로만 나오는 것이에요.", "scopes": ["#principleModal"]}];
+			const TERMS = [{ "term": "+ħ/2", "tip": "스핀을 한 축으로 측정했을 때 나오는 두 값 중 위쪽 값이에요(아래쪽은 −ħ/2). ħ(에이치 바)는 아주 작은 물리 상수예요.", "scopes": ["[data-step=\"1\"]"] }, { "term": "z↑", "tip": "z↑·z↓는 z축으로 측정한 위·아래 결과, x+·x−는 x축으로 측정한 +쪽·−쪽 결과예요.", "scopes": ["[data-step=\"1\"]"] }, { "term": "분석기", "tip": "한 축(z축 또는 x축)으로 스핀을 측정해, 결과에 따라 입자를 두 경로로 나누는 장치(슈테른-게를라흐 자석)예요.", "scopes": ["[data-step=\"1\"]"] }, { "term": "필터", "tip": "분석기에서 나뉜 두 경로 중 한쪽만 통과시키고, 다른 쪽은 차단판으로 막는 것이에요.", "scopes": ["[data-step=\"3\"]"] }, { "term": "불균일한 자기장", "tip": "위치에 따라 세기가 달라지는 자기장이에요. 작은 자석이 이런 자기장을 지나면 위나 아래로 힘을 받아요.", "scopes": ["#principleModal"] }, { "term": "양자화", "tip": "측정값이 연속적이지 않고 몇 가지 값으로만 나오는 것이에요.", "scopes": ["#principleModal"] }];
 			const SKIP = "TEXTAREA,INPUT,SELECT,OPTION,BUTTON,SCRIPT,STYLE,SVG,TEXT";
 			TERMS.forEach(({ term, tip, scopes }) => {
 				scopes.forEach(sel => {
@@ -6838,9 +6859,9 @@ ${section("오늘 실험의 결과가 진짜 양자컴퓨터에서도 똑같이 
 				tipEl.style.top = top + "px";
 			}, true);
 			document.addEventListener("keydown", e => {
-        if (e.key === "Escape") closeTip();
-        else if ((e.key === "Enter" || e.key === " ") && e.target.classList?.contains("term")) { e.preventDefault(); e.target.click(); }
-      });
+				if (e.key === "Escape") closeTip();
+				else if ((e.key === "Enter" || e.key === " ") && e.target.classList?.contains("term")) { e.preventDefault(); e.target.click(); }
+			});
 			document.addEventListener("scroll", closeTip, true);
 		})();
 	</script>
