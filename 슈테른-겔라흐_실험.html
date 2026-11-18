@@ -350,6 +350,8 @@
       width: auto;
       padding: 10px 14px;
       margin: 0;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
     @media (max-width: 768px) and (orientation: portrait) {
@@ -1327,6 +1329,172 @@
       color: #94a3b8;
     }
 
+    /* ── ⑤ 결론 도출 · 실제 실험 사진(엽서)과 시뮬레이션 결과 비교 ── */
+    .compare-lead {
+      margin-top: 14px;
+      font-weight: 700;
+      color: #1e293b !important;
+    }
+
+    .sg-compare {
+      margin: 8px 0 12px;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .sg-compare-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .sg-compare-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #475569;
+      text-align: center;
+    }
+
+    .sg-compare-frame {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+    }
+
+    .sg-photo-btn {
+      display: block;
+      padding: 0;
+      margin: 0;
+      background: #f3efe6;
+      cursor: zoom-in;
+    }
+
+    .sg-photo-btn img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .sg-sim-frame {
+      aspect-ratio: 1 / 1;
+      background: #f8fafc;
+    }
+
+    .sg-sim-frame canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      transition: transform .35s ease;
+    }
+
+    .sg-compare.rotated .sg-sim-frame canvas,
+    .postcard-compare.rotated .sg-sim-frame canvas {
+      transform: rotate(90deg);
+    }
+
+    .sg-compare-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .sg-compare-tools .btn-sub {
+      width: auto;
+      flex: 1 1 auto;
+      margin: 0;
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+
+    .sg-compare-tools .btn-sub[aria-pressed="true"] {
+      background: #e0e9ff;
+      border-color: #2157d5;
+      color: #1e40af;
+    }
+
+    .postcard-card {
+      width: min(1100px, 100%);
+    }
+
+    .postcard-compare {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .postcard-compare figure {
+      margin: 0;
+    }
+
+    .postcard-compare img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .postcard-compare .sg-sim-frame {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+    }
+
+    .postcard-compare figcaption {
+      margin-top: 6px;
+      font-size: 12.5px;
+      color: #475569;
+      text-align: center;
+    }
+
+    @media (max-width: 700px) {
+      .postcard-compare {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .section-rule {
+      border: none;
+      border-top: 1px solid #cbd5e1;
+      margin: 14px 0;
+    }
+
+    /* ② 먼저 해 보기 · 스핀 방향에 따른 힘의 방향 설명(현재 슬라이더 방향을 강조) */
+    .moment-explain ul {
+      margin: 4px 0 0;
+      padding-left: 18px;
+      font-size: 13px;
+      line-height: 1.65;
+      color: #52657c;
+    }
+
+    .moment-explain li {
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background .2s ease, color .2s ease;
+    }
+
+    .moment-explain li.current {
+      background: #e0e9ff;
+      color: #1e293b;
+      font-weight: 700;
+    }
+
+    .curiosity-list {
+      margin: 6px 0 0;
+      padding-left: 20px;
+      font-weight: 400;
+    }
+
     .model-fold {
       position: relative;
       font-size: 12px;
@@ -1410,22 +1578,17 @@
           <h2 class="section-title">① 문제 인식</h2>
           <label for="studentName">보고서 작성자 · 학번 / 이름</label>
           <input id="studentName" type="text" maxlength="80" placeholder="예: 10305 김민수" />
-          <p class="key-question">은 원자는 검출면에 어떤 무늬를 만들까?</p>
-          <p>원자 오븐에서 나온 은 원자 빔을 슬릿으로 가늘게 만들어 불균일한 자기장을
-            지나가게 한 뒤, 원자가 검출면에 도착한 위치를 기록합니다. 지금 화면은 자석이 꺼져 있을 때의 모습이에요.</p>
-          <label class="writing-prompt" for="problemNote">자석을 켜면, 검출면에 도착하는 원자들의 위치는
-
-            어떻게 달라질까요?</label>
-          <textarea id="problemNote" placeholder="예시 형식: 내 생각에는 ~. 그렇게 생각한 까닭은 ~"></textarea>
+          <p class="key-question" id="problemQuestion">은 원자의 스핀은 어떤 방향으로 향해 있는가?</p>
+          <textarea id="problemNote" aria-labelledby="problemQuestion" placeholder="예: 스핀은 ~ 방향일 것이다."></textarea>
         </section>
 
         <section class="panel inquiry-card" data-step="2" hidden>
           <h2 class="section-title">② 가설 설정</h2>
-          <button class="btn-sub" id="openMomentOverlayBtn" type="button" aria-haspopup="dialog">먼저 해 보기 · 은 원자의 스핀 방향이
-            여러가지라면?</button>
+          <button class="btn-sub" id="openMomentOverlayBtn" type="button" aria-haspopup="dialog">먼저 해 보기 · 은 원자에 작용하는 힘의
+            방향은 스핀 방향에 따라 어떻게 달라질까?</button>
 
           <h3 class="section-title">예측 · 어떤 무늬가 나타날까?</h3>
-          <p>은 원자는 검출면에 어떤 무늬를 만들까요? ‘예상해 보기’ 버튼을 눌러 내가 예상하는 무늬를 직접 그려 보세요.</p>
+          <p>검출면에 어떤 무늬가 나타날까요? ‘예상해 보기’ 버튼을 눌러 내가 예상하는 무늬를 그려 보세요.</p>
           <div class="draw-entry">
             <button class="draw-entry-thumb" id="drawThumbBtn" type="button" aria-haspopup="dialog" aria-label="예상해 보기">
               <img id="drawPreviewImg" alt="내가 그린 예상 무늬" hidden />
@@ -1435,73 +1598,99 @@
               <button class="btn-main" id="openDrawBtn" type="button" aria-haspopup="dialog">예상해 보기</button>
             </div>
           </div>
-          <label class="writing-prompt" for="hypothesisNote"><span class="q-tag">글쓰기</span>그렇게 그린 이유는 무엇인가요?</label>
-          <textarea id="hypothesisNote" placeholder="예시 형식: 내가 그린 무늬는 ~ 모양이다. 그렇게 그린 까닭은 ~"></textarea>
+          <label class="writing-prompt" for="hypothesisNote"><span class="q-tag">글쓰기</span>그렇게 그린 이유는 무엇인가요? 스핀의 방향에 따른
+            원자에 작용하는 힘의 방향을 포함하여 이유를 써 보세요.</label>
+          <textarea id="hypothesisNote" placeholder="예: 검출면에 나타난 무늬는 ~ 모양일 것이다. 그 이유는 ~"></textarea>
         </section>
 
         <section class="panel inquiry-card" data-step="3" hidden>
           <h2 class="section-title">③ 자료 수집</h2>
-          <p>실제 슈테른-게를라흐가 수행했던 실험 결과를 시뮬레이션으로 확인해보자.</p>
-          <p>자기장의 세기를 다르게 하여 은원자가 검출면에 만드는 무늬를 관찰하세요.</p>
+          <p>자기장의 세기를 다르게 하여 검출면에 형성된 무늬의 변화를 관찰하세요.</p>
           <div class="row field-row">
             <label for="fieldStrength">자기장의 세기</label>
             <input type="range" id="fieldStrength" min="0" max="100" step="1" value="0" />
             <span class="value" id="fieldStrengthValue">0</span>
           </div>
-          <label class="writing-prompt" for="collectionNote">관찰 결과를 줄 글로 작성하세요.</label>
-          <textarea id="collectionNote"></textarea>
+          <label class="writing-prompt" for="collectionNote">관찰 결과를 글로 작성하세요</label>
+          <textarea id="collectionNote" placeholder="예: 자기장의 세기가 커지면 무늬는 ~."></textarea>
 
           <h3 class="section-title">두 갈래 무늬를 본 뒤 · 관찰 정리</h3>
           <img class="pattern-thumb" id="myPatternImg" alt="내가 그린 예상 무늬" hidden />
           <fieldset class="model-options pattern-judge" id="patternJudgeChoices">
-            <legend><span class="q-tag">질문</span>내가 예상한 무늬와 실제 무늬를 비교하면 어떤가요?</legend>
-            <label><input type="radio" name="patternJudge" value="similar" />비슷하다 · 위·아래 두 갈래로 나뉘었다</label>
-            <label><input type="radio" name="patternJudge" value="partial" />일부만 비슷하다 · 퍼지거나 갈라지긴 했지만 모양이 다르다</label>
-            <label><input type="radio" name="patternJudge" value="different" />다르다</label>
+            <legend><span class="q-tag">질문</span>내가 예상한 무늬와 시뮬레이션을 통해 관찰한 무늬를 비교해보자.</legend>
+            <label><input type="radio" name="patternJudge" value="similar" />1. 무늬가 두 갈래로 나뉘어져 대체로 비슷하다.</label>
+            <label><input type="radio" name="patternJudge" value="partial" />2. 무늬가 퍼지거나 갈라지나 모양이 달라 일부만 비슷하다.</label>
+            <label><input type="radio" name="patternJudge" value="different" />3. 무늬에 비슷한 점이 없어 완전히 다르다.</label>
           </fieldset>
         </section>
 
         <section class="panel inquiry-card" data-step="4" hidden>
           <h2 class="section-title">④ 자료 분석</h2>
-          <p class="key-question"><span>추론</span>왜 실제 무늬는 그렇게 나타났을까요?</p>
-          <label class="writing-prompt" for="reason1">1. 스핀이 한 가지 방향이라면, 검출면의 무늬는 어떤 모양일까요?</label>
-          <textarea id="reason1"></textarea>
-          <label class="writing-prompt" for="reason2">2. 스핀이 두 가지 방향이라면, 검출면의 무늬는 어떤 모양일까요?</label>
-          <textarea id="reason2"></textarea>
-          <label class="writing-prompt" for="reason3">3. 스핀이 여러가지 방향이 될 수 있다면, 검출면의 무늬는 어떤 모양일까요?</label>
-          <textarea id="reason3"></textarea>
+          <label class="writing-prompt" for="reason1">1. 모든 은 원자의 스핀 방향이 같다면, 검출면에 어떤 무늬가 나타날까요?</label>
+          <textarea id="reason1" placeholder="예: ~ 무늬가 나타날 것이다."></textarea>
+          <label class="writing-prompt" for="reason2">2. 절반의 은 원자와 나머지 은 원자의 스핀 방향이 각각 같다면, 검출면에 어떤 무늬가 나타날까요?</label>
+          <textarea id="reason2" placeholder="예: ~ 무늬가 나타날 것이다."></textarea>
+          <label class="writing-prompt" for="reason3">3. 은 원자의 스핀 방향이 제각각이라면, 검출면에 어떤 무늬가 나타날까요?</label>
+          <textarea id="reason3" placeholder="예: ~ 무늬가 나타날 것이다."></textarea>
 
-          <label class="writing-prompt" for="analysisNote">4. 실제 무늬가 이렇게 나타난 이유를 스핀의 방향과 연결하여 자신만의 말로 표현해 봅시다.</label>
-          <textarea id="analysisNote"></textarea>
+          <label class="writing-prompt" for="analysisNote"><b>시뮬레이션에서 나타난 무늬를 스핀과 원자에 작용하는 힘으로 설명해 봅시다.</b></label>
+          <textarea id="analysisNote" placeholder="예: 원자에 작용하는 힘이 ~ 때문이다."></textarea>
         </section>
 
         <section class="panel inquiry-card" data-step="5" hidden>
           <h2 class="section-title">⑤ 결론 도출</h2>
-          <p class="conclusion-blank">SG 실험 결과, 은 원자의 스핀을 z축으로 측정하면 (<input type="text" id="spinDirectionBlank"
-              maxlength="40" aria-label="SG 실험 결과, 은 원자의 스핀을 z축으로 측정하면 ( ) 나온다. 빈칸" />) 나온다.</p>
+          <p class="conclusion-blank">슈테른-게를라흐 실험의 결과로부터 은 원자의 스핀의 방향은 (<input type="text" id="spinDirectionBlank"
+              maxlength="40" aria-label="슈테른-게를라흐 실험의 결과로부터 은 원자의 스핀의 방향은 ( )임을 알 수 있다. 빈칸" />)임을 알 수 있다.</p>
+
+          <p class="compare-lead">실제 슈테른-게를라흐가 수행했던 실험 결과를 시뮬레이션의 결과와 비교해보자.</p>
+          <figure class="sg-compare" id="sgCompare">
+            <div class="sg-compare-grid">
+              <div class="sg-compare-item">
+                <button class="sg-compare-frame sg-photo-btn" id="postcardBtn" type="button" aria-haspopup="dialog"
+                  aria-label="실제 실험 결과 사진 크게 보기">
+                  <img id="postcardImg" src="엽서.png"
+                    alt="게를라흐가 1922년 보어에게 보낸 엽서 · 왼쪽은 자기장이 없을 때, 오른쪽은 자기장이 있을 때의 검출 무늬" />
+                </button>
+                <span>실제 실험 결과</span>
+              </div>
+              <div class="sg-compare-item">
+                <div class="sg-compare-frame sg-sim-frame">
+                  <canvas id="simResultCanvas" width="360" height="360" role="img"
+                    aria-label="시뮬레이션 결과 · 자기장을 켰을 때 검출면의 무늬"></canvas>
+                </div>
+                <span>시뮬레이션 결과</span>
+              </div>
+            </div>
+            <div class="sg-compare-tools">
+              <button class="btn-sub" id="simRotateBtn" type="button" aria-pressed="false">↻ 시뮬레이션 결과를 사진 방향으로
+                돌리기</button>
+              <button class="btn-sub" id="postcardZoomBtn" type="button" aria-haspopup="dialog">크게 보기</button>
+            </div>
+          </figure>
 
           <div class="promise-box">
-            <p class="promise-title">[우리의 약속: 스핀의 업(Up)과 다운(Down)]</p>
+            <p class="promise-title"><b>[우리의 약속: 스핀의 업(Up)과 다운(Down)]</b></p>
             <ul>
-              <li>측정 기준: 자기장을 걸어준 방향을 z축이라고 하자.</li>
-              <li>z방향 스핀 측정: z축 자기장을 통과한 은 원자가 위·아래 두 무늬로 갈라지는 현상은 z방향의 스핀 성분을 측정한 결과라고 한다.</li>
-              <li>업(Up)과 다운(Down)의 정의:
+              <li><b>자석의 축:</b> 자석의 축을 <b>z축</b>이라고 하자.</li>
+              <li><b>스핀의 z성분 측정:</b> 스핀의 <b>z성분</b>을 측정하기 위해 은 원자를 자석 사이로 통과시켰더니 두 갈래로 갈라졌다.</li>
+              <li><b>업(Up)과 다운(Down)의 정의:</b>
                 <ul>
-                  <li>위쪽 무늬(z↑): 스핀의 z성분이 업(Up, ↑)인 상태</li>
-                  <li>아래쪽 무늬(z↓): 스핀의 z성분이 다운(Down,↓)인 상태</li>
+                  <li><b>위쪽 무늬(+z):</b> 위로 갈라진 은 원자의 스핀 상태를 <b>z방향 업(Up, ↑) 상태</b>라고 하자</li>
+                  <li><b>아래쪽 무늬(-z):</b> 아래로 갈라진 은 원자의 스핀 상태를 <b>z방향 다운(Down,↓) 상태</b>라고 하자.</li>
                 </ul>
               </li>
             </ul>
           </div>
+          <hr class="section-rule" />
 
-          <p><span class="q-tag">고전 물리학의 예측</span>고전 물리학에서는 스핀 방향이 여러 방향이라고 봅니다. 그러면 자기장 속에서 원자들이 받는 힘의 방향이 제각각이므로, 고전
-            물리학은 검출면에 꽉 찬 띠 모양의 무늬가 나타날 것이라고 예측하였습니다.</p>
+          <p><span class="q-tag">고전 물리학의 예측</span>고전 물리학에서는 은 원자의 스핀 방향이 제각각이라고 봅니다. 자기장 속에서 원자들이 받는 힘의 방향이 제각각이므로, 검출면에
+            퍼진 무늬가 나타날 것입니다.</p>
 
           <figure class="classical-vs-real" aria-label="고전물리학의 예측 VS 실제 무늬">
             <figcaption class="cvr-title">고전물리학의 예측 VS 실제 무늬</figcaption>
             <div class="cvr-grid">
               <div>
-                <svg viewBox="0 0 90 110" role="img" aria-label="고전물리학의 예측: 꽉 찬 띠 모양의 무늬">
+                <svg viewBox="0 0 90 110" role="img" aria-label="고전물리학의 예측: 퍼진 무늬">
                   <rect x="1" y="1" width="88" height="108" rx="8" fill="#f8fafc" stroke="#cbd5e1" />
                   <path d="M15 55 Q45 18 75 55 Q45 92 15 55 Z" fill="#1b8fd6" opacity="0.75" />
                 </svg>
@@ -1520,9 +1709,13 @@
           </figure>
 
           <h3 class="section-title">2차시 시뮬레이션</h3>
-          <p class="key-question" id="curiosityQuestion"><span>궁금해!</span>그렇다면, z↑로 측정된 은 원자를 x축 방향 자기장에 통과시키면 검출면에는 어떤
-            무늬가 나타날까?</p>
-          <textarea id="curiosityNote" aria-labelledby="curiosityQuestion"></textarea>
+          <div class="key-question curiosity-box" id="curiosityQuestion"><span>궁금해!</span>
+            <ol class="curiosity-list">
+              <li>스핀의 x성분은 어떻게 측정할 수 있을까?</li>
+              <li><b>z방향 업 상태에 있는 입자의 스핀의 x성분을 측정하면 검출면에 어떤 무늬가 나타나는가?</b></li>
+            </ol>
+          </div>
+          <textarea id="curiosityNote" aria-labelledby="curiosityQuestion" placeholder="예: ~ 무늬가 나타날 것이다."></textarea>
         </section>
       </div>
       <nav class="step-navigation" aria-label="탐구 단계 이동">
@@ -1542,7 +1735,7 @@
           <strong>실험 장치</strong>
           <details class="model-fold">
             <summary>참고 · 화면 속 움직임은 모형이에요</summary>
-            <p>화면 속 원자의 이동 경로는 이해를 돕기 위한 모형입니다. 실제로 확인할 수 있는 것은 스크린의 검출점(측정 결과)뿐이며, 검출점이 측정 전 원자의 상태를 보여 주는 것은 아니에요.</p>
+            <p>화면 속 원자의 이동 경로는 이해를 돕기 위한 <b>모형</b>입니다. 실제로 확인할 수 있는 것은 스크린의 검출점(측정 결과)뿐입니다.</p>
           </details>
           <div class="view-mode-toggle" role="group" aria-label="보기 모드 선택">
             <button class="btn-sub mode-btn" id="viewModeSimBtn" type="button" aria-pressed="true">시뮬레이션</button>
@@ -1559,11 +1752,10 @@
   <div class="overlay" id="momentOverlay" aria-hidden="true">
     <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="momentOverlayTitle">
       <div class="overlay-top">
-        <h3 id="momentOverlayTitle">먼저 해 보기 · 은 원자의 스핀 방향이 여러가지라면?</h3>
+        <h3 id="momentOverlayTitle">먼저 해 보기 · 은 원자에 작용하는 힘의 방향은 스핀 방향에 따라 어떻게 달라질까?</h3>
         <button class="btn-sub overlay-close" id="closeMomentOverlayBtn" type="button">닫기</button>
       </div>
-      <p class="inquiry-note">은 원자는 스핀 때문에 자기장 속에서 힘을 받습니다. 시뮬레이션에서 은 원자의 스핀 방향을 다양하게 설정하여 검출면에 도달하는 은 원자의 위치를 살펴보세요.
-      </p>
+      <p class="inquiry-note">은 원자는 스핀 때문에 자석처럼 행동합니다. 시뮬레이션에서 은 원자의 스핀 방향을 다양하게 설정하여 검출면에 도달하는 은 원자의 위치를 살펴보세요.</p>
       <div id="momentCanvas" class="moment-canvas-wrap" role="img" aria-label="은 원자의 스핀 방향에 따라 힘을 받는 모습을 보여 주는 그림">
       </div>
       <div class="row" style="grid-template-columns:120px 1fr 56px">
@@ -1571,7 +1763,34 @@
         <input type="range" id="momentAngle" min="-90" max="90" step="1" value="0" />
         <span class="value" id="momentAngleValue">0°</span>
       </div>
-      <p class="inquiry-note" id="momentNote"></p>
+      <div class="moment-explain" id="momentNote">
+        <p class="inquiry-note">스핀 방향에 따른 원자에 작용하는 힘의 방향에 대한 설명:</p>
+        <ul>
+          <li data-dir="flat">(수평) 스핀은 수평 방향과 나란하여 원자에 작용하는 힘의 연직 성분은 0입니다.</li>
+          <li data-dir="up">(위쪽) 스핀은 연직 위 방향을 향하므로 원자에 작용하는 힘의 방향은 연직 위 방향입니다.</li>
+          <li data-dir="down">(아래쪽) 스핀은 연직 아래 방향을 향하므로 원자에 작용하는 힘의 방향은 연직 아래 방향입니다.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="postcardOverlay" aria-hidden="true">
+    <div class="overlay-card postcard-card" role="dialog" aria-modal="true" aria-labelledby="postcardOverlayTitle">
+      <div class="overlay-top">
+        <h3 id="postcardOverlayTitle">실제 실험 결과 VS 시뮬레이션 결과</h3>
+        <button class="btn-sub overlay-close" id="closePostcardOverlayBtn" type="button">닫기</button>
+      </div>
+      <div class="postcard-compare">
+        <figure>
+          <img src="엽서.png" alt="게를라흐가 1922년 보어에게 보낸 엽서 · 왼쪽은 자기장이 없을 때, 오른쪽은 자기장이 있을 때의 검출 무늬" />
+          <figcaption>실제 실험 결과 · 1922년 게를라흐가 보어에게 보낸 엽서 (왼쪽: 자기장이 없을 때, 오른쪽: 자기장이 있을 때)</figcaption>
+        </figure>
+        <figure>
+          <div class="sg-sim-frame"><canvas id="simResultCanvasLarge" width="480" height="480" role="img"
+              aria-label="시뮬레이션 결과 · 자기장을 켰을 때 검출면의 무늬"></canvas></div>
+          <figcaption>시뮬레이션 결과</figcaption>
+        </figure>
+      </div>
     </div>
   </div>
 
@@ -1826,17 +2045,14 @@
 
     function updateMomentNote() {
       document.getElementById("momentAngleValue").textContent = `${momentAngle}°`;
-      const note = document.getElementById("momentNote");
-      const abs = Math.abs(momentAngle);
-      if (abs < 15) {
-        note.textContent = "스핀이 거의 옆을 향하고 있어, 은 원자가 위아래로 힘을 거의 받지 않습니다.";
-      } else if (momentAngle > 0) {
-        // 자석의 자기장은 위(N) → 아래(S)이고 위쪽일수록 셉니다. 전자는 음(−)전하라 자기 모멘트가 스핀과 반대이므로,
-        // 스핀이 위를 향하면 자기 모멘트는 아래(자기장과 같은 방향)를 향해 자기장이 센 위쪽으로 힘을 받습니다.
-        note.textContent = abs > 60 ? "스핀이 거의 위쪽을 향하고 있어, 은 원자가 위로 큰 힘을 받습니다." : "스핀이 위쪽을 향하고 있어, 은 원자가 위로 힘을 받습니다.";
-      } else {
-        note.textContent = abs > 60 ? "스핀이 거의 아래쪽을 향하고 있어, 은 원자가 아래로 큰 힘을 받습니다." : "스핀이 아래쪽을 향하고 있어, 은 원자가 아래로 힘을 받습니다.";
-      }
+      // 설명 세 줄(수평·위쪽·아래쪽) 가운데 지금 슬라이더의 스핀 방향에 해당하는 줄을 강조합니다.
+      // 자석의 자기장은 위(N) → 아래(S)이고 위쪽일수록 셉니다. 전자는 음(−)전하라 자기 모멘트가 스핀과 반대이므로,
+      // 스핀이 위를 향하면 자기 모멘트는 아래(자기장과 같은 방향)를 향해 자기장이 센 위쪽으로 힘을 받습니다.
+      // (수평)은 스핀이 정확히 수평(0°)일 때만 강조합니다(그때만 힘의 연직 성분이 0이므로).
+      const dir = momentAngle === 0 ? "flat" : (momentAngle > 0 ? "up" : "down");
+      document.querySelectorAll("#momentNote li").forEach(li => {
+        li.classList.toggle("current", li.dataset.dir === dir);
+      });
     }
 
     function launchMoment() {
@@ -1919,7 +2135,13 @@
       const isLine = state.step === 1;
       const strength = isLine ? 0 : state.field / 100;
       const color = isLine ? [100, 116, 139] : [226, 58, 92];
+      paintPatternDensity(ctx, w, h, zSpan, ySpan, strength, color);
+      texture.needsUpdate = true;
+    }
 
+    // 검출면 무늬의 밀도를 캔버스에 칠합니다. 가로 = 빔과 수직인 수평 방향, 세로 = 자석의 방향(위·아래).
+    // ③ 원자 흐름·실전 모드·⑤ 비교 그림이 모두 이 식 하나를 씁니다.
+    function paintPatternDensity(ctx, w, h, zSpan, ySpan, strength, color) {
       const img = ctx.createImageData(w, h);
       for (let py = 0; py < h; py++) {
         const y = ySpan - (py / (h - 1)) * (2 * ySpan);
@@ -1944,7 +2166,78 @@
         }
       }
       ctx.putImageData(img, 0, 0);
-      texture.needsUpdate = true;
+    }
+
+    // ⑤ 결론 도출: 사진(엽서)과 나란히 놓을 시뮬레이션 결과는 ③의 조작과 상관없이
+    // 항상 자기장의 세기 100(가장 셀 때)의 무늬로 고정합니다.
+    function simResultStrength() {
+      return 1;
+    }
+
+    function drawSimResult(canvas) {
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width, h = canvas.height;
+      const span = 0.62;
+      ctx.clearRect(0, 0, w, h);
+      // 검출면(유리판) 바탕
+      ctx.fillStyle = "#f1f5f9";
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, w * 0.47, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.lineWidth = Math.max(1, w / 180);
+      ctx.stroke();
+      const off = document.createElement("canvas");
+      off.width = w;
+      off.height = h;
+      paintPatternDensity(off.getContext("2d"), w, h, span, span, simResultStrength(), [226, 58, 92]);
+      ctx.drawImage(off, 0, 0);
+    }
+
+    function refreshSimResults() {
+      drawSimResult(document.getElementById("simResultCanvas"));
+      drawSimResult(document.getElementById("simResultCanvasLarge"));
+    }
+
+    function setSimRotated(rotated) {
+      document.getElementById("sgCompare").classList.toggle("rotated", rotated);
+      document.querySelector(".postcard-compare").classList.toggle("rotated", rotated);
+      document.getElementById("simRotateBtn").setAttribute("aria-pressed", String(rotated));
+    }
+
+    // 저장한 보고서를 다른 곳으로 옮겨도 사진이 보이도록, 엽서 사진을 줄인 이미지로 보고서에 넣습니다.
+    // (파일을 바로 연 file:// 환경에서는 브라우저 보안 때문에 변환이 막힐 수 있어, 그때는 같은 폴더의 엽서.png를 가리킵니다.)
+    let postcardDataURL = "";
+    function preparePostcardDataURL() {
+      const img = document.getElementById("postcardImg");
+      const convert = () => {
+        try {
+          const scale = Math.min(1, 1000 / img.naturalWidth);
+          const c = document.createElement("canvas");
+          c.width = Math.round(img.naturalWidth * scale);
+          c.height = Math.round(img.naturalHeight * scale);
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          postcardDataURL = c.toDataURL("image/jpeg", 0.85);
+        } catch (err) {
+          postcardDataURL = "";
+        }
+      };
+      if (img.complete && img.naturalWidth) convert();
+      else img.addEventListener("load", convert, { once: true });
+    }
+
+    function openPostcardOverlay() {
+      refreshSimResults();
+      const overlay = document.getElementById("postcardOverlay");
+      overlay.classList.add("open");
+      overlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closePostcardOverlay() {
+      const overlay = document.getElementById("postcardOverlay");
+      overlay.classList.remove("open");
+      overlay.setAttribute("aria-hidden", "true");
     }
 
     function setZoom(nextZoom) {
@@ -2530,6 +2823,7 @@
       document.getElementById("stepLabel").textContent = `${state.step} / 5 · ${labels[state.step - 1]}`;
       document.getElementById("nextStepBtn").textContent = state.step === 5 ? "마지막 단계" : `다음 · ${labels[state.step]}`;
       document.getElementById("stepContent").scrollTop = 0;
+      if (state.step === 5) refreshSimResults();
       updateHypothesisFlow();
     }
 
@@ -2877,7 +3171,7 @@
       const step = n => document.querySelector(`[data-step="${n}"]`);
       const answer = id => escape(document.getElementById(id).value.trim() || "미작성");
       const qa = id => `<p class="question">${escape(textOf(document.querySelector(`label[for="${id}"]`)))}</p><div class="answer">${answer(id)}</div>`;
-      const paras = n => [...step(n).querySelectorAll(":scope > p:not(.key-question):not(.conclusion-blank)")].map(el => `<p>${escape(textOf(el))}</p>`).join("");
+      const paras = n => [...step(n).querySelectorAll(":scope > p:not(.key-question):not(.conclusion-blank):not(.compare-lead)")].map(el => `<p>${escape(textOf(el))}</p>`).join("");
       const predictionReportImage = state.predictionImage || (predictionDrawing.hasInk ? predictionImageURL() : "");
       const blank = document.getElementById("spinDirectionBlank").value.trim();
       const judge = document.querySelector('input[name="patternJudge"]:checked');
@@ -2910,13 +3204,17 @@
           `<path d="M15 55 Q45 ${down} 75 55" fill="none" stroke="#e23a5c" stroke-width="7" stroke-linecap="round"/></svg><span>${label}</span></div>`;
       };
       const actualSVG = document.querySelector(".classical-vs-real .cvr-grid > div:last-child svg")?.outerHTML || "";
-      const spinRows = [
-        ["거의 옆", "스핀이 거의 옆을 향하고 있어, 은 원자가 위아래로 힘을 거의 받지 않습니다."],
-        ["위쪽", "스핀이 위쪽을 향하고 있어, 은 원자가 위로 힘을 받습니다."],
-        ["거의 위쪽", "스핀이 거의 위쪽을 향하고 있어, 은 원자가 위로 큰 힘을 받습니다."],
-        ["아래쪽", "스핀이 아래쪽을 향하고 있어, 은 원자가 아래로 힘을 받습니다."],
-        ["거의 아래쪽", "스핀이 거의 아래쪽을 향하고 있어, 은 원자가 아래로 큰 힘을 받습니다."]
-      ].map(([dir, text]) => `<tr><th>${dir}</th><td>${text}</td></tr>`).join("");
+      // ② 먼저 해 보기의 설명 세 줄을 화면에서 그대로 가져옵니다.
+      const spinItems = [...document.querySelectorAll("#momentNote li")].map(li => `<li>${escape(textOf(li))}</li>`).join("");
+      // ⑤ 비교 그림: 시뮬레이션 결과는 지금 화면의 캔버스를, 사진은 미리 만들어 둔 이미지(없으면 같은 폴더의 엽서.png)를 씁니다.
+      let simResultURL = "";
+      try {
+        const simCanvas = document.createElement("canvas");
+        simCanvas.width = simCanvas.height = 360;
+        drawSimResult(simCanvas);
+        simResultURL = simCanvas.toDataURL("image/png");
+      } catch (err) { simResultURL = ""; }
+      const postcardSrc = postcardDataURL || "엽서.png";
 
       return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>슈테른-게를라흐 실험 보고서</title>
 <style>
@@ -2949,6 +3247,9 @@ th{background:var(--panel);white-space:nowrap}
 .promise-box{margin:12px 0;padding:12px 16px;border:1px solid #c7d7f5;border-radius:10px;background:#f8faff;font-size:14px}
 .promise-box .promise-title{margin:0 0 4px;color:var(--accent);font-weight:700}
 .promise-box ul{margin:0;padding-left:20px}
+.compare{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;align-items:end;font-size:12.5px;color:var(--sub);text-align:center}
+.compare img{width:100%;height:auto;display:block;margin:0 auto 4px;border:1px solid #cbd5e1;border-radius:8px}
+hr{border:none;border-top:1px solid var(--line);margin:18px 0}
 .note{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 14px;font-size:13.5px}
 .cvr-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center;font-size:12.5px;color:var(--sub);max-width:340px;margin:0 auto}
 .cvr-grid svg{width:100%;max-width:110px;display:block;margin:0 auto 4px}
@@ -2970,13 +3271,13 @@ th{background:var(--panel);white-space:nowrap}
 <p class="key">${escape(textOf(step(1).querySelector(".key-question")))}</p>
 ${paras(1)}
 <figure class="fig">${apparatusSVG(false)}<figcaption>실험 장치 · 자석이 꺼져 있을 때 · 원자의 이동 방향이 y축, 자석의 방향(위아래)이 z축입니다.</figcaption></figure>
-${qa("problemNote")}
+<div class="answer">${answer("problemNote")}</div>
 
 <h2><span class="num">②</span> 가설 설정</h2>
 <h3>${escape(textOf(document.getElementById("openMomentOverlayBtn")))}</h3>
 <p>${escape(textOf(document.querySelector("#momentOverlay .inquiry-note")))}</p>
-<p class="meta">자석은 위가 N극, 아래가 S극입니다. 스핀 방향에 따라 은 원자가 받는 힘은 다음과 같습니다.</p>
-<table><thead><tr><th>스핀 방향</th><th>은 원자가 받는 힘</th></tr></thead><tbody>${spinRows}</tbody></table>
+<p>${escape(textOf(document.querySelector("#momentNote .inquiry-note")))}</p>
+<ul>${spinItems}</ul>
 <h3>예측 · 어떤 무늬가 나타날까?</h3>
 <div class="pair"><div>${predictionReportImage ? `<img src="${predictionReportImage}" alt="내가 그린 예상 무늬">` : '<span class="empty">그리지 않음</span>'}<span>내가 그린 예상 무늬<br>(점선: 자석을 껐을 때)</span></div></div>
 ${qa("hypothesisNote")}
@@ -2994,7 +3295,6 @@ ${qa("collectionNote")}
 <div class="answer">${escape(judge ? textOf(judge.parentElement) : "미선택")}</div>
 
 <h2><span class="num">④</span> 자료 분석</h2>
-<p class="key">${escape(textOf(step(4).querySelector(".key-question")))}</p>
 ${qa("reason1")}
 ${qa("reason2")}
 ${qa("reason3")}
@@ -3002,13 +3302,16 @@ ${qa("analysisNote")}
 
 <h2><span class="num">⑤</span> 결론 도출</h2>
 <div class="answer">${escape(textOf(step(5).querySelector(".conclusion-blank")).replace(/\(\s*\)/, `(${blank || "미작성"} )`))}</div>
+<p>${escape(textOf(step(5).querySelector(".compare-lead")))}</p>
+<figure class="fig"><div class="compare"><div><img src="${postcardSrc}" alt="실제 실험 결과 · 게를라흐가 1922년 보어에게 보낸 엽서"><span>실제 실험 결과<br>(왼쪽: 자기장이 없을 때, 오른쪽: 자기장이 있을 때)</span></div>${simResultURL ? `<div><img src="${simResultURL}" alt="시뮬레이션 결과"><span>시뮬레이션 결과</span></div>` : ""}</div></figure>
 ${step(5).querySelector(".promise-box")?.outerHTML || ""}
+<hr>
 <h3>고전 물리학의 예측</h3>
 ${paras(5)}
 <figure class="fig">${step(5).querySelector(".classical-vs-real")?.innerHTML || ""}</figure>
 <p class="note">참고 · ${escape(textOf(document.querySelector(".model-fold p")))}</p>
 <h3>2차시 시뮬레이션 · 궁금해!</h3>
-<p class="question">${escape(textOf(document.getElementById("curiosityQuestion")).replace(/^궁금해!\s*/, ""))}</p>
+<ol class="question">${[...document.querySelectorAll("#curiosityQuestion li")].map(li => `<li>${li.querySelector("b") ? `<b>${escape(textOf(li))}</b>` : escape(textOf(li))}</li>`).join("")}</ol>
 <div class="answer">${answer("curiosityNote")}</div>
 
 <p class="meta" style="margin-top:32px;padding-top:14px;border-top:1px solid var(--line)">저장 시각: ${escape(new Date().toLocaleString("ko-KR"))}<br>작성 위치: ${escape(document.getElementById("stepLabel").textContent)}<br>브라우저의 인쇄 기능으로 PDF로 저장할 수 있습니다.</p>
@@ -3057,6 +3360,17 @@ ${paras(5)}
       document.getElementById("momentOverlay").addEventListener("click", (event) => {
         if (event.target.id === "momentOverlay") closeMomentOverlay();
       });
+      // ⑤ 실제 실험 사진(엽서)과 시뮬레이션 결과 비교
+      preparePostcardDataURL();
+      document.getElementById("postcardBtn").addEventListener("click", openPostcardOverlay);
+      document.getElementById("postcardZoomBtn").addEventListener("click", openPostcardOverlay);
+      document.getElementById("closePostcardOverlayBtn").addEventListener("click", closePostcardOverlay);
+      document.getElementById("postcardOverlay").addEventListener("click", (event) => {
+        if (event.target.id === "postcardOverlay") closePostcardOverlay();
+      });
+      document.getElementById("simRotateBtn").addEventListener("click", (event) => {
+        setSimRotated(event.currentTarget.getAttribute("aria-pressed") !== "true");
+      });
       document.getElementById("downloadReportBtn").addEventListener("click", downloadReport);
       document.getElementById("viewModeSimBtn").addEventListener("click", () => setViewMode("simulation"));
       document.getElementById("viewModeRealBtn").addEventListener("click", () => setViewMode("real"));
@@ -3087,7 +3401,10 @@ ${paras(5)}
         event.returnValue = "";
       });
       window.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") closeMomentOverlay();
+        if (event.key === "Escape") {
+          closeMomentOverlay();
+          closePostcardOverlay();
+        }
       });
       ui.scene.addEventListener("wheel", (event) => {
         event.preventDefault();
