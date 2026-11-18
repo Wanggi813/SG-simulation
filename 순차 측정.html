@@ -2019,10 +2019,10 @@
 								style="background:#3c82f6"></i>아래 -z</span><span><i style="background:#22c55e"></i>오른쪽
 							+x</span><span><i style="background:#a855f7"></i>왼쪽 -x</span></p>
 					<label class="writing-prompt" for="hypothesisNote">그렇게 생각한 이유를 글로 작성하세요.</label>
-					<textarea id="hypothesisNote"></textarea>
+					<textarea id="hypothesisNote" placeholder="예: ~ 때문에 ~ 무늬가 나타날 것이다."></textarea>
 				</section>
 
-				<!-- Ⅲ 자료 수집: 자석의 자기장 방향을 바꿔 가며 검출면의 무늬를 관찰합니다. -->
+				<!-- Ⅲ 자료 수집: 자석의 축 방향을 바꿔 가며 검출면의 무늬를 관찰합니다. -->
 				<section class="ctrl-block" data-step="3" hidden>
 					<!-- 입자원은 항상 원자 오븐(방향 없음)으로 고정합니다. -->
 					<select id="sourcePreset" style="display:none">
@@ -2037,7 +2037,7 @@
 								<p class="sb-note">자석 A → B → C 순서로 측정합니다. 중간 자석의 가림막은 한쪽 성분만 통과시킬 수 있어요.</p>
 								<div class="ctrl-block" style="margin:10px 0">
 									<div class="ctrl-head">자석 설정<span>A → B → C</span></div>
-									<div class="ctrl-row"><label for="axisA">자석 A, 자기장의 방향</label>
+									<div class="ctrl-row"><label for="axisA">자석 A의 축 방향</label>
 										<select id="axisA">
 											<option value="z">z축</option>
 											<option value="x">x축</option>
@@ -2050,7 +2050,7 @@
 											<option value="minus">-만 보내기</option>
 										</select>
 									</div>
-									<div class="ctrl-row"><label for="axisB">자석 B, 자기장의 방향</label>
+									<div class="ctrl-row"><label for="axisB">자석 B의 축 방향</label>
 										<select id="axisB">
 											<option value="none">꺼짐</option>
 											<option value="z">z축</option>
@@ -2064,7 +2064,7 @@
 											<option value="minus">-만 보내기</option>
 										</select>
 									</div>
-									<div class="ctrl-row"><label for="axisC">자석 C, 자기장의 방향</label>
+									<div class="ctrl-row"><label for="axisC">자석 C의 축 방향</label>
 										<select id="axisC">
 											<option value="none">꺼짐</option>
 											<option value="z">z축</option>
