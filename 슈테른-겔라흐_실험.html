@@ -1489,10 +1489,22 @@
       font-weight: 700;
     }
 
-    .curiosity-list {
-      margin: 6px 0 0;
-      padding-left: 20px;
-      font-weight: 400;
+
+    /* ② 먼저 해 보기 버튼과 아래 '예측' 사이 간격 */
+    #openMomentOverlayBtn {
+      margin-bottom: 14px;
+    }
+
+    /* ⑤ 끝: 보고서 저장 안내 */
+    .save-reminder {
+      margin-top: 12px;
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #9a3412;
     }
 
     .model-fold {
@@ -1584,7 +1596,8 @@
 
         <section class="panel inquiry-card" data-step="2" hidden>
           <h2 class="section-title">② 가설 설정</h2>
-          <button class="btn-sub" id="openMomentOverlayBtn" type="button" aria-haspopup="dialog">먼저 해 보기 · 은 원자에 작용하는 힘의
+          <button class="btn-main" id="openMomentOverlayBtn" type="button" aria-haspopup="dialog">먼저 해 보기 · 은 원자에 작용하는
+            힘의
             방향은 스핀 방향에 따라 어떻게 달라질까?</button>
 
           <h3 class="section-title">예측 · 어떤 무늬가 나타날까?</h3>
@@ -1628,7 +1641,8 @@
           <h2 class="section-title">④ 자료 분석</h2>
           <label class="writing-prompt" for="reason1">1. 모든 은 원자의 스핀 방향이 같다면, 검출면에 어떤 무늬가 나타날까요?</label>
           <textarea id="reason1" placeholder="예: ~ 무늬가 나타날 것이다."></textarea>
-          <label class="writing-prompt" for="reason2">2. 절반의 은 원자와 나머지 은 원자의 스핀 방향이 각각 같다면, 검출면에 어떤 무늬가 나타날까요?</label>
+          <label class="writing-prompt" for="reason2">2. 은 원자 중 절반은 스핀 방향이 같고, 나머지는 다른 방향으로 같다면, 검출면에 어떤 무늬가
+            나타날까요?</label>
           <textarea id="reason2" placeholder="예: ~ 무늬가 나타날 것이다."></textarea>
           <label class="writing-prompt" for="reason3">3. 은 원자의 스핀 방향이 제각각이라면, 검출면에 어떤 무늬가 나타날까요?</label>
           <textarea id="reason3" placeholder="예: ~ 무늬가 나타날 것이다."></textarea>
@@ -1709,20 +1723,21 @@
           </figure>
 
           <h3 class="section-title">2차시 시뮬레이션</h3>
-          <div class="key-question curiosity-box" id="curiosityQuestion"><span>궁금해!</span>
-            <ol class="curiosity-list">
-              <li>스핀의 x성분은 어떻게 측정할 수 있을까?</li>
-              <li><b>+z 상태에 있는 입자의 스핀의 x성분을 측정하면 검출면에 어떤 무늬가 나타나는가?</b></li>
-            </ol>
+          <div class="key-question curiosity-box" id="curiosityQuestion"><span>궁금해!</span>2차시에 알아볼 질문에 내 생각을 적어 보세요.
           </div>
-          <textarea id="curiosityNote" aria-labelledby="curiosityQuestion" placeholder="예: ~ 무늬가 나타날 것이다."></textarea>
+          <label class="writing-prompt" for="curiosityNote1">1. 스핀의 x성분은 어떻게 측정할 수 있을까?</label>
+          <textarea id="curiosityNote1" placeholder="예: ~ 방법으로 측정할 수 있을 것이다."></textarea>
+          <label class="writing-prompt" for="curiosityNote2"><b>2. +z 상태에 있는 입자의 스핀의 x성분을 측정하면 검출면에 어떤 무늬가
+              나타나는가?</b></label>
+          <textarea id="curiosityNote2" placeholder="예: ~ 무늬가 나타날 것이다."></textarea>
+          <p class="save-reminder">수업이 끝나기 전에 아래 <strong>보고서 저장</strong>을 꼭 눌러 주세요. 페이지를 닫으면 기록이 사라집니다.</p>
         </section>
       </div>
       <nav class="step-navigation" aria-label="탐구 단계 이동">
         <button class="btn-sub" id="prevStepBtn" disabled>이전 단계</button>
         <button class="btn-main" id="nextStepBtn">다음 · 가설 설정</button>
       </nav>
-      <button class="btn-sub" id="downloadReportBtn">내 실험 보고서 저장 (.html)</button>
+      <button class="btn-sub" id="downloadReportBtn">내 실험 보고서 저장</button>
     </aside>
 
     <button class="scene-toggle-btn" id="sceneToggleBtn" type="button" aria-expanded="true">
@@ -3272,8 +3287,8 @@ ${qa("analysisNote")}
 <figure class="fig"><div class="compare"><div><img src="${postcardSrc}" alt="실제 실험 결과 · 게를라흐가 1922년 보어에게 보낸 엽서"><span>실제 실험 결과<br>(왼쪽: 자기장이 없을 때, 오른쪽: 자기장이 있을 때)</span></div>${simResultURL ? `<div><img src="${simResultURL}" alt="시뮬레이션 결과"><span>시뮬레이션 결과</span></div>` : ""}</div></figure>
 ${step(5).querySelector(".promise-box")?.outerHTML || ""}
 <p class="question">2차시 시뮬레이션 · 궁금해!</p>
-<ol class="guide">${[...document.querySelectorAll("#curiosityQuestion li")].map(li => `<li>${li.querySelector("b") ? `<b>${escape(textOf(li))}</b>` : escape(textOf(li))}</li>`).join("")}</ol>
-${written("curiosityNote")}
+${qa("curiosityNote1")}
+${qa("curiosityNote2")}
 
 <p class="guide" style="margin-top:28px;padding-top:12px;border-top:1px solid var(--line)">저장 시각: ${escape(new Date().toLocaleString("ko-KR"))} · 브라우저의 인쇄 기능으로 PDF로 저장할 수 있습니다.</p>
 <\/body><\/html>`;

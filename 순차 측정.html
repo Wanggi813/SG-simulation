@@ -2111,12 +2111,12 @@
 				<section class="ctrl-block" data-step="4" hidden>
 					<div class="ctrl-head">Ⅳ 자료 분석</div>
 					<p class="sb-note">상황 1~3에서 검출면에 나타나는 무늬를 알아보기 위해 시뮬레이션을 통해 실험 1~3을 해 보고, 기록창에 실험의 결과를 기록하세요.</p>
-					<div id="controlsSlot4"></div>
 					<div class="challenge-card">
 						<div class="challenge-head">🧪 실험 <span id="challengeCount">0/3</span></div>
 						<ol class="challenge-list" id="challengeList"></ol>
 						<p class="challenge-note">실험의 자석 설정으로 측정을 마치면 자동으로 체크돼요.</p>
 					</div>
+					<div id="controlsSlot4"></div>
 
 					<p class="question-label">기록창</p>
 					<p class="sb-note">검출면에 무늬가 나타난 위치의 점을 눌러 켜 보세요. 다시 누르면 꺼집니다.</p>
@@ -2170,7 +2170,8 @@
 						<label><input type="radio" name="conc3" value="yes" /><span>영향을 미친다.</span></label>
 						<label><input type="radio" name="conc3" value="no" /><span>영향을 미치지 않는다.</span></label>
 					</fieldset>
-					<p class="save-reminder">수업이 끝나기 전에 아래 <strong>보고서 저장</strong>을 꼭 눌러 주세요. 페이지를 닫으면 기록이 사라집니다.</p>
+					<p class="save-reminder">수업이 끝나기 전에 아래 <strong>내 실험 보고서 저장</strong>을 꼭 눌러 주세요. 페이지를 닫으면 기록이 사라집니다.
+					</p>
 				</section>
 			</div>
 
@@ -2380,6 +2381,7 @@
 			lost: 0,
 			activeParticles: [],
 			puffs3D: [],
+			hitMarks: [],
 			emissionAccumulator: 0,
 			lastTime: 0,
 			runSettled: true,
@@ -2511,6 +2513,7 @@
 			state.activeParticles = [];
 			for (const puff of state.puffs3D) { scene.remove(puff.mesh); puff.mesh.geometry.dispose(); puff.mesh.material.dispose(); }
 			state.puffs3D = [];
+			clearHitMarks();
 
 			state.emitted = 0;
 			state.detectedPlus = 0;
@@ -2518,7 +2521,6 @@
 			state.lost = 0;
 			state.emissionAccumulator = 0;
 			state.runSettled = true;
-			resetDetectorPads();
 			syncLabels();
 			updateReadouts();
 		}
@@ -2749,27 +2751,6 @@
 			return labelMaterialCache.get(key);
 		}
 		let detectorShownSign = null;
-		// 검출면 패드: 아직 입자가 오지 않은 자리는 흐리게, 입자가 도착한 자리는 밝게 켜서 무늬를 남깁니다.
-		const PAD_DIM = { opacity: 0.12, glow: 0.05 };
-		const PAD_LIT = { opacity: 0.95, glow: 0.9 };
-		let detectorPads = {};
-		// 입자가 도착할 때마다 그 자리의 점이 조금씩 진해집니다(PAD_FULL_HITS개쯤 쌓이면 가장 진함).
-		const PAD_FULL_HITS = 12;
-		const padHits = { plus: 0, minus: 0 };
-		function paintDetectorPad(sign) {
-			const m = detectorPads[sign];
-			if (!m) return;
-			const k = Math.min(1, padHits[sign] / PAD_FULL_HITS);
-			const level = padHits[sign] ? 0.25 + 0.75 * k : 0;
-			m.opacity = PAD_DIM.opacity + (PAD_LIT.opacity - PAD_DIM.opacity) * level;
-			m.emissiveIntensity = PAD_DIM.glow + (PAD_LIT.glow - PAD_DIM.glow) * level;
-		}
-		function setDetectorPad(sign, lit) {
-			if (!(sign in padHits)) return;
-			padHits[sign] = lit ? padHits[sign] + 1 : 0;
-			paintDetectorPad(sign);
-		}
-		function resetDetectorPads() { setDetectorPad("plus", false); setDetectorPad("minus", false); }
 
 		function updateDetectorArrow(axis, sign) {
 			if (!detectorArrowGroup || axis !== detectorArrowAxis || sign === detectorShownSign) return;
@@ -2793,7 +2774,7 @@
 		// (ArrowHelper의 선·원뿔 지오메트리는 three.js가 모든 화살표에 공유하므로 건드리지 않습니다.)
 		function disposeObject3D(root) {
 			root.traverse(obj => {
-				if (obj.geometry && obj.parent?.type !== "ArrowHelper") obj.geometry.dispose();
+				if (obj.geometry && obj.parent?.type !== "ArrowHelper" && !obj.userData.sharedGeometry) obj.geometry.dispose();
 				const materials = Array.isArray(obj.material) ? obj.material : obj.material ? [obj.material] : [];
 				materials.forEach(m => {
 					if (m.userData?.cached) return;
@@ -2803,8 +2784,8 @@
 			});
 		}
 
-		// 검출면는 마지막 활성 분석기의 빔 좌표(frame)를 그대로 따릅니다: 그 분석기 중심에서 빔 방향으로
-		// detZ만큼 떨어진 곳에 빔과 수직으로 놓이고, 두 갈래가 도착하는 자리(±spread)에 패드를 둡니다.
+		// 검출면은 마지막 활성 분석기의 빔 좌표(frame)를 그대로 따릅니다: 그 분석기 중심에서 빔 방향으로
+		// detZ만큼 떨어진 곳에 빔과 수직으로 놓이고, 두 갈래는 ±spread 자리에 도착합니다.
 		function buildDetector3D(frame, detZ, spread, axis = "z") {
 			const group = new THREE.Group();
 			group.position.copy(frame.pos);
@@ -2825,31 +2806,7 @@
 			detLbl.position.set(0, detSize / 2 + 0.3, detZ);
 			group.add(detLbl);
 
-			// Detector pads — 마지막 분석기에서 ↑/↓로 편향된 입자가 실제로 도착하는 자리(중심 기준 ±편향 거리)
 			const isZ = axis !== "x";
-			const padPositions = isZ
-				? [
-					{ x: 0, y: spread, color: 0xd9485f, label: "Z↑" },
-					{ x: 0, y: -spread, color: 0x3c82f6, label: "Z↓" },
-				]
-				: [
-					{ x: spread, y: 0, color: 0x22c55e, label: "X+" },
-					{ x: -spread, y: 0, color: 0xa855f7, label: "X−" },
-				];
-			detectorPads = {}; padHits.plus = 0; padHits.minus = 0;
-			padPositions.forEach((p, i) => {
-				const padMesh = new THREE.Mesh(
-					new THREE.PlaneGeometry(0.7, 0.7),
-					new THREE.MeshStandardMaterial({ color: p.color, transparent: true, opacity: PAD_DIM.opacity, side: THREE.DoubleSide, emissive: p.color, emissiveIntensity: PAD_DIM.glow })
-				);
-				detectorPads[i === 0 ? "plus" : "minus"] = padMesh.material;
-				padMesh.position.set(p.x, p.y, detZ + 0.01);
-				padMesh.rotation.y = Math.PI;
-				group.add(padMesh);
-				const padLight = new THREE.PointLight(p.color, 0.3, 1.5);
-				padLight.position.set(p.x, p.y, detZ - 0.5);
-				group.add(padLight);
-			});
 
 			// 축 화살표 — z축이면 위/아래(±y), x축이면 좌/우(±x)를 향하며, 입자가 검출면에 도달해
 			// 실제로 측정된 결과(+ 혹은 −)에 따라 updateDetectorArrow()가 방향과 색을 갱신합니다.
@@ -3038,7 +2995,7 @@
 			// Remove old analyzer groups & detector
 			for (const g of analyzerGroups) { scene.remove(g); disposeObject3D(g); }
 			analyzerGroups = [];
-			if (detectorGroup) { scene.remove(detectorGroup); disposeObject3D(detectorGroup); }
+			if (detectorGroup) { clearHitMarks(); scene.remove(detectorGroup); disposeObject3D(detectorGroup); }
 
 			const s = getSettings();
 			const layout = computeBeamLayout(s.analyzers);
@@ -3057,7 +3014,7 @@
 				new THREE.Vector3(0, 0, firstFrame ? firstFrame.pos.z : GEO.detectorZ - 0.5)
 			]);
 
-			// 검출면는 마지막 활성 분석기의 빔 축 위에 놓고, 화살표도 그 분석기의 축(z 또는 x)에 맞춰
+			// 검출면은 마지막 활성 분석기의 빔 축 위에 놓고, 화살표도 그 분석기의 축(z 또는 x)에 맞춰
 			// 표시합니다. 화살표의 +/− 방향은 입자가 도달할 때 updateDetectorArrow()가 갱신합니다.
 			const lastAxis = layout.lastIdx < 0 ? "z" : s.analyzers[layout.lastIdx].axis;
 			detectorGroup = buildDetector3D(layout.last, layout.detLocalZ, layout.detSpread, lastAxis);
@@ -3098,6 +3055,7 @@
 			let ended = false;
 			let result = "lost";
 			let puffPos = null;
+			let markLocal = null; // 검출면에 닿는 자리(검출면 좌표). 막히면 null
 			let puffColor = LOST_COLOR.hex;
 			let lastSign = null;
 			const stateSeqRaw = [{ lenAtStop: 0, angle: stateAngle }];
@@ -3167,6 +3125,7 @@
 					? new THREE.Vector3(0, 0, layout.detLocalZ)
 					: deflectDir(settings.analyzers[layout.lastIdx].axis, lastSign).multiplyScalar(layout.detSpread).setZ(layout.detLocalZ);
 				puffPos = pushLocal(last, endLocal);
+				markLocal = endLocal.clone();
 				if (lastSign === "plus") {
 					result = "plus";
 					puffColor = axis_color_for_result(settings, "plus");
@@ -3221,6 +3180,7 @@
 				result,
 				resultAxis,
 				puffPos,
+				markLocal,
 				puffColor,
 				duration,
 				birth: null,
@@ -3313,6 +3273,41 @@
 			state.puffs3D.push({ mesh, birth: state.simTime, duration: 800 });
 		}
 
+		// 검출면 흔적: 입자가 닿은 자리에 진한 점을 남겨, 점들이 모여 무늬가 되게 합니다(슈테른-게를라흐 시뮬레이션과 같은 방식).
+		// 점은 다음 측정을 시작하거나 자석 배치를 바꿔 검출면을 다시 그릴 때 지워집니다(검출면 그룹 안에 둠).
+		// 처음 화면처럼 계속 발사할 때는 가장 오래된 점부터 지워 최대 HIT_MARK_MAX개만 남깁니다.
+		const HIT_MARK_MAX = TOTAL_SHOTS;
+		const HIT_MARK_SPREAD = 0.2;
+		const HIT_MARK_GEO = new THREE.CircleGeometry(0.08, 18);
+		const hitMarkMaterials = new Map(); // 색마다 재질 하나를 함께 씁니다.
+		function hitMarkMaterial(color) {
+			if (!hitMarkMaterials.has(color)) {
+				const m = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide });
+				m.userData.cached = true;
+				hitMarkMaterials.set(color, m);
+			}
+			return hitMarkMaterials.get(color);
+		}
+		function spawnHitMark(local, color) {
+			if (!detectorGroup) return;
+			const jitter = () => HIT_MARK_SPREAD * (Math.random() + Math.random() + Math.random() - 1.5);
+			// 검출면 앞·뒤 어느 쪽에서 봐도 무늬가 보이도록 같은 자리의 양면에 점을 하나씩 찍습니다.
+			const x = local.x + jitter(), y = local.y + jitter();
+			const pair = [0.03, -0.03].map(dz => {
+				const mesh = new THREE.Mesh(HIT_MARK_GEO, hitMarkMaterial(color));
+				mesh.userData.sharedGeometry = true;
+				mesh.position.set(x, y, local.z + dz);
+				detectorGroup.add(mesh);
+				return mesh;
+			});
+			state.hitMarks.push(pair);
+			while (state.hitMarks.length > HIT_MARK_MAX) state.hitMarks.shift().forEach(m => m.parent?.remove(m));
+		}
+		function clearHitMarks() {
+			state.hitMarks.forEach(pair => pair.forEach(m => m.parent?.remove(m)));
+			state.hitMarks = [];
+		}
+
 		function updateParticles(now) {
 			const toRemove = [];
 			for (const p of state.activeParticles) {
@@ -3342,9 +3337,9 @@
 						else state.lost += 1;
 					}
 					if (p.puffPos) spawnPuff3D(p.puffPos, p.puffColor);
+					if (p.markLocal) spawnHitMark(p.markLocal, p.puffColor);
 					if (p.result === "plus" || p.result === "minus") {
 						updateDetectorArrow(p.resultAxis, p.result);
-						setDetectorPad(p.result, true);
 					}
 					updateReadouts();
 				}
