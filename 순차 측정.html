@@ -1591,6 +1591,13 @@
 		}
 
 		/* ── Ⅲ 자유 탐구 실험 ── */
+		.pf-filterRule {
+			--pf-accent: #c2410c;
+			--pf-tint: #fff7ed;
+			--pf-line: #fed7aa;
+			--pf-ink: #9a3412;
+		}
+
 		.pf-challenge {
 			--pf-accent: #7c3aed;
 			--pf-tint: #f5f3ff;
@@ -3585,7 +3592,8 @@
 
 		// ── 알림 팝업 ──
 		const FEEDBACK_TEXT = {
-			challenge: { icon: "🧪", title: "실험 완료!", msg: "" }
+			challenge: { icon: "🧪", title: "실험 완료!", msg: "" },
+			filterRule: { icon: "🚧", title: "가림막을 먼저 설정하세요", badge: "⚠️ 경고", msg: "" }
 		};
 		const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
@@ -3638,7 +3646,7 @@
 			el.className = `pf pf-${tier}${animate ? " pf-play" : ""}`;
 			el.setAttribute("role", "status");
 			el.innerHTML = `<div class="pf-head"><span class="pf-icon" aria-hidden="true">${t.icon}</span>` +
-				`<div><span class="pf-badge">💬 피드백</span><div class="pf-title">${t.title}</div></div></div>` +
+				`<div><span class="pf-badge">${t.badge || "💬 피드백"}</span><div class="pf-title">${t.title}</div></div></div>` +
 				`<div class="pf-msg">${msg || t.msg}</div>`;
 			if (animate && tier === "challenge" && !prefersReducedMotion()) {
 				const colors = ["#86efac", "#fcd34d", "#93c5fd", "#f9a8d4"];
@@ -4156,9 +4164,29 @@ ${chosen("conc3")}
 			renderRunLog();
 
 			const inputs = [ui.axisA, ui.axisB, ui.axisC, ui.filterA, ui.filterB, ui.filterC];
+			// 앞 자석의 가림막이 '전체 통과'인 채로 뒤 자석의 축을 정하려 하면 막고 경고합니다
+			// (가림막은 자동으로 바꾸지 않고 학생이 직접 '+만 보내기'나 '-만 보내기'를 고르게 합니다).
+			const axisSelects = [ui.axisA, ui.axisB, ui.axisC];
+			const filterSelects = [ui.filterA, ui.filterB, ui.filterC];
+			const onSettingsInput = event => {
+				const k = axisSelects.indexOf(event.target);
+				if (k > 0 && event.target.value !== "none") {
+					let j = k - 1;
+					while (j >= 0 && axisSelects[j].value === "none") j--;
+					if (j >= 0 && filterSelects[j].value === "both") {
+						event.target.value = "none";
+						showFeedbackToast("filterRule", {
+							msg: `자석 ${"ABC"[k]}의 축 방향을 설정하기 위해서는 가림막 ${"abc"[j]}를 먼저 설정해야 합니다.`
+						});
+						filterSelects[j].focus();
+						return;
+					}
+				}
+				syncAfterSettingsChange();
+			};
 			inputs.forEach(el => {
-				el.addEventListener("change", () => syncAfterSettingsChange());
-				el.addEventListener("input", () => syncAfterSettingsChange());
+				el.addEventListener("change", onSettingsInput);
+				el.addEventListener("input", onSettingsInput);
 			});
 
 
