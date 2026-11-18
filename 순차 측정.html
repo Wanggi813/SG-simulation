@@ -3699,71 +3699,111 @@
 		}
 
 		// ── 보고서 저장 ──
+		// 보고서: 단계마다 질문·안내와 학생이 직접 고르고 쓰고 표시한 내용을 담습니다.
+		// 학생의 내용은 '✏️ 내가 쓴 답' 같은 꼬리표가 붙은 상자로 크게, 안내 글은 작고 흐리게 보여 줍니다.
 		function buildReportHTML() {
 			const escape = escapeHTML;
-			const answer = id => escape(document.getElementById(id).value.trim() || "미작성");
 			const textOf = el => el ? el.textContent.replace(/\s+/g, " ").trim() : "";
-			const choiceText = name => {
-				const r = document.querySelector(`input[name="${name}"]:checked`);
-				return r ? escape(textOf(r.parentElement)) : "미선택";
+			const noteOf = sel => escape(textOf(document.querySelector(sel)));
+			// 줄바꿈(<br>)과 굵은 이름표(<b>)를 살려 옮깁니다.
+			const linesOf = el => {
+				const copy = el.cloneNode(true);
+				copy.querySelectorAll("br").forEach(br => br.replaceWith("\n"));
+				copy.querySelectorAll("b").forEach(b => b.replaceWith(`[[b]]${b.textContent}[[/b]]`));
+				return escape(copy.textContent.replace(/[ \t\r]+/g, " ").replace(/ ?\n ?/g, "\n").trim())
+					.replace(/\n/g, "<br>").replace(/\[\[b\]\]/g, "<b>").replace(/\[\[\/b\]\]/g, "</b>");
 			};
 			const legend = id => escape(textOf(document.querySelector(`#${id} legend`)));
+			// 학생의 답 상자: 비어 있으면 '미작성/미선택'을 흐린 점선 상자로 보여 줍니다.
+			const mine = (html, label, emptyText = "미작성") => html
+				? `<div class="answer" data-label="${label}">${html}</div>`
+				: `<div class="answer empty" data-label="${label}">${emptyText}</div>`;
+			const written = id => mine(escape(document.getElementById(id).value.trim()), "✏️ 내가 쓴 답");
+			const choiceText = name => {
+				const r = document.querySelector(`input[name="${name}"]:checked`);
+				return r ? escape(textOf(r.parentElement)) : "";
+			};
+			const chosen = name => mine(choiceText(name), "✔ 내가 고른 답", "미선택");
+			const checked = name => mine([...document.querySelectorAll(`input[name="${name}"]:checked`)].map(r => escape(textOf(r.parentElement))).join(", "), "✔ 내가 고른 답", "미선택");
+			const padOf = id => { const sp = recordedSpots(id); return sp.length ? recPadHTML(sp) : '<span class="miss">미표시</span>'; };
 			const today = new Date();
 			const dateStr = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}.`;
 			const doneMap = state.challengesDone || {};
-			const missionRows = CHALLENGES.map((c, i) => {
-				const spots = recordedSpots(c.id);
-				return `<tr><td>실험 ${i + 1}</td><td style="text-align:left">${c.text}</td><td>${doneMap[c.id] ? "완료" : "미완료"}</td><td>${spots.length ? recPadHTML(spots) : '<span class="meta">미기록</span>'}</td></tr>`;
-			}).join("");
 			const outer = sel => document.querySelector(sel)?.outerHTML || "";
-			const situations = outer("#stepContent .situation-list");
-			const reviewBox = outer("#stepContent [data-step='1'] .review-box").replace("<details class=\"review-box\">", "<details class=\"review-box\" open>");
-			const checks = name => {
-				const list = [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(r => escape(textOf(r.parentElement)));
-				return list.length ? list.join(", ") : "미선택";
-			};
-			const noteOf = sel => escape(textOf(document.querySelector(sel)));
-			const hypoSpots = recordedSpots("hypo");
+			const reviewBox = outer("#stepContent [data-step='1'] .review-box").replace("<details class=\"review-box\">", "<details class=\"review-box\" open>").replace("(복습)</span>", "(복습)</span> ");
 			const axisFig = outer("#stepContent .axis-figure");
+			const situations = [...document.querySelectorAll("#stepContent .situation-list li")].map(li => textOf(li));
+			const hypoPick = choiceText("hypoEffect");
+			const hypoSentence = hypoPick ? `${noteOf("#hypoEffectStem")} <mark>${hypoPick}</mark>` : "";
+			// Ⅲ: 내가 측정한 자석 배치(같은 배치는 한 줄로 묶고 횟수를 붙입니다).
+			const measured = new Map();
+			state.runLog.filter(hasCounts).forEach(r => measured.set(r.desc, (measured.get(r.desc) || 0) + 1));
+			const measuredList = measured.size
+				? `<ol>${[...measured].map(([d, n]) => `<li>${escape(d)}${n > 1 ? ` <span class="guide">· ${n}회</span>` : ""}</li>`).join("")}</ol>`
+				: "";
+			// Ⅳ: 상황별 내 예상과 실험 결과를 한 줄씩 나란히 놓습니다(상황 1·2는 Ⅰ, 상황 3은 Ⅱ에서 표시한 무늬).
+			const PRED_IDS = ["s1", "s2", "hypo"];
+			const compareRows = CHALLENGES.map((c, i) => `<tr>
+<td class="sit"><b>상황 ${i + 1} · 실험 ${i + 1}</b><br><span class="guide">${escape(c.text.replace(/^\(실험 \d\)\s*/, ""))}</span></td>
+<td class="pad mine-cell">${padOf(PRED_IDS[i])}</td>
+<td class="pad mine-cell">${padOf(c.id)}</td>
+<td>${doneMap[c.id] ? "완료" : '<span class="miss">미완료</span>'}</td></tr>`).join("");
+			const legendLine = '<p class="guide legend"><i style="background:#d9485f"></i>위 +z <i style="background:#3c82f6"></i>아래 -z <i style="background:#22c55e"></i>오른쪽 +x <i style="background:#a855f7"></i>왼쪽 -x</p>';
 			return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>순차 측정 실험 보고서</title>
 <style>
-:root{--ink:#17212f;--sub:#52657c;--line:#dce4ef;--panel:#f4f7fb;--accent:#2157d5}
+:root{--ink:#17212f;--sub:#64748b;--line:#dce4ef;--panel:#f4f7fb;--accent:#2157d5;--mine:#1e3a8a;--mine-line:#f59e0b;--mine-bg:#fffbeb}
 *{box-sizing:border-box}
-body{font:15px/1.7 -apple-system,"Malgun Gothic",system-ui,sans-serif;color:var(--ink);max-width:880px;margin:0 auto;padding:0 28px 60px;background:#fff}
-.cover{padding:64px 0 40px;text-align:center;border-bottom:3px solid var(--ink);margin-bottom:32px}
-.cover .kicker{font-size:13px;letter-spacing:0.12em;color:var(--sub);font-weight:700;margin-bottom:14px}
-.cover h1{font-size:30px;font-weight:900;letter-spacing:-0.02em;margin-bottom:22px}
-.cover-meta{display:inline-flex;flex-direction:column;gap:6px;font-size:14px;color:var(--sub);text-align:left}
-.cover-meta b{color:var(--ink);display:inline-block;width:76px}
-h2{font-size:20px;font-weight:800;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--ink);display:flex;align-items:baseline;gap:8px}
+body{font:15px/1.7 -apple-system,"Malgun Gothic",system-ui,sans-serif;color:var(--ink);max-width:860px;margin:0 auto;padding:0 28px 60px;background:#fff}
+.cover{padding:48px 0 28px;text-align:center;border-bottom:3px solid var(--ink);margin-bottom:24px}
+.cover .kicker{font-size:13px;letter-spacing:0.12em;color:var(--sub);font-weight:700;margin-bottom:10px}
+.cover h1{font-size:28px;font-weight:900;letter-spacing:-0.02em;margin:0 0 16px}
+.cover-meta{display:inline-flex;flex-direction:column;gap:4px;font-size:14px;color:var(--sub);text-align:left}
+.cover-meta b{color:var(--ink);display:inline-block;width:60px}
+.cover-meta .who{color:var(--mine);font-weight:800}
+h2{font-size:19px;font-weight:800;margin:34px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--ink);display:flex;align-items:baseline;gap:8px}
 h2 .num{color:var(--accent)}
-h3{font-size:14.5px;font-weight:700;color:var(--ink);margin:18px 0 6px}
-p{margin:0 0 10px}
-.question{color:var(--sub);font-size:13px}
-.answer{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:10px 14px;min-height:22px;font-size:14px;margin-bottom:10px}
-.meta{color:var(--sub);font-size:13px}
-.review-box{margin:10px 0;padding:12px 16px;border:1px solid #c7d7f5;border-radius:10px;background:#f8faff;font-size:14px}
+h3{font-size:14.5px;font-weight:800;margin:16px 0 6px}
+p{margin:0 0 8px}
+.key{background:#eef4ff;border-left:3px solid var(--accent);border-radius:8px;padding:8px 12px;font-weight:700;font-size:14.5px}
+.question{color:#334155;font-size:14px;font-weight:700;margin:14px 0 4px}
+.guide{color:var(--sub);font-size:13px}
+.answer{position:relative;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--mine-bg);border:2px solid var(--mine-line);border-radius:10px;padding:26px 16px 12px;min-height:22px;font-size:15.5px;font-weight:600;color:var(--mine);margin:4px 0 14px}
+.answer::before{content:attr(data-label);position:absolute;top:5px;left:12px;font-size:11.5px;font-weight:800;color:#b45309;letter-spacing:.03em;white-space:nowrap}
+.answer.empty{background:#fafafa;border:2px dashed #d1d5db;color:#9ca3af;font-weight:400;font-style:italic}
+.answer.empty::before{color:#9ca3af}
+.answer.sentence{font-weight:500;color:var(--ink)}
+mark{background:#fde68a;color:var(--mine);font-weight:800;padding:0 4px;border-radius:4px}
+.miss{color:#9ca3af;font-style:italic;font-size:13px}
+.review-box{margin:10px 0;padding:10px 14px;border:1px solid #c7d7f5;border-radius:10px;background:#f8faff;font-size:13.5px;color:#334155}
 .review-box p{margin:0 0 4px}.review-box ul{margin:0;padding-left:20px}
+details.review-box>summary{font-weight:700;color:#1d4ed8;list-style:none}
 .review-tag{color:var(--sub);font-size:12.5px}
-.situation-list {padding-left:20px}
-table.log{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 12px}
+.ctx{font-size:13.5px;color:#334155}
+ul.sits{margin:4px 0 8px;padding-left:20px;font-size:13.5px;color:#334155}
+.pads{display:flex;gap:28px;flex-wrap:wrap}
+.pads>div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12.5px}
+table.log{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 8px}
 table.log th,table.log td{border:1px solid var(--line);padding:6px 8px;text-align:center;vertical-align:middle}
-table.log th{background:var(--panel)}
-.rec-pad{position:relative;width:64px;height:64px;margin:0 auto;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}
-.rec-dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#d1d5db;border:2px solid #d1d5db}
+table.log th{background:var(--panel);font-size:12.5px}
+table.log th.mine-head{background:var(--mine-bg);color:#b45309}
+table.log td.sit{text-align:left;width:46%}
+table.log td.mine-cell{background:var(--mine-bg)}
+.rec-pad{position:relative;width:64px;height:64px;margin:0 auto;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+.rec-dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#e5e7eb;border:2px solid #e5e7eb}
 .rec-up{left:50%;top:6px;transform:translateX(-50%)}.rec-down{left:50%;bottom:6px;transform:translateX(-50%)}
 .rec-left{top:50%;left:6px;transform:translateY(-50%)}.rec-right{top:50%;right:6px;transform:translateY(-50%)}
-
-.axis-figure{margin:8px 0}.axis-fig-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;max-width:520px;margin:0 auto}.axis-fig-cell{display:flex;flex-direction:column;align-items:center;gap:4px}.axis-fig-cell img{width:100%;border-radius:8px;border:1px solid #e2e8f0}.axis-cap{font-size:12.5px;font-weight:800}.axis-cap-z{color:#d9485f}.axis-cap-x{color:#16a34a}.axis-fig-turn{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#475569;text-align:center}.axis-turn-icon{font-size:22px}details.review-box>summary{font-weight:700;color:#1d4ed8}
-
-@media print{.cover{padding-top:20px}}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px 0 10px;vertical-align:-1px}
+.legend i:first-child{margin-left:0}
+.axis-figure{margin:8px 0}.axis-fig-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;max-width:460px;margin:0 auto}.axis-fig-cell{display:flex;flex-direction:column;align-items:center;gap:4px}.axis-fig-cell img{width:100%;border-radius:8px;border:1px solid #e2e8f0}.axis-cap{font-size:12.5px;font-weight:800}.axis-cap-z{color:#d9485f}.axis-cap-x{color:#16a34a}.axis-fig-turn{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#475569;text-align:center}.axis-turn-icon{font-size:22px}
+.answer ol{margin:0;padding-left:20px;white-space:normal}
+@media print{.cover{padding-top:16px}body{margin:0;max-width:none;padding:0 24px;font-size:11pt}h2{break-after:avoid}.answer,table.log,.review-box{break-inside:avoid}.answer,mark,.rec-dot,td.mine-cell,th.mine-head,.legend i{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style></head><body>
 
 <div class="cover">
 	<div class="kicker">과학 탐구 실험 보고서 · 양자와 미시세계</div>
 	<h1>순차 측정 시뮬레이션</h1>
 	<div class="cover-meta">
-		<div><b>작성자</b>${answer("studentName")}</div>
+		<div><b>작성자</b><span class="who">${escape(document.getElementById("studentName").value.trim() || "미작성")}</span></div>
 		<div><b>작성일</b>${escape(dateStr)}</div>
 	</div>
 </div>
@@ -3771,33 +3811,48 @@ table.log th{background:var(--panel)}
 <h2><span class="num">Ⅰ.</span> 문제 인식</h2>
 ${reviewBox}
 <h3>스핀의 x성분 측정</h3>
-${[...document.querySelectorAll("#xMeasureBox > .sb-note")].map((p, k) => `<p>${escape(textOf(p))}</p>` + (k === 0 ? axisFig : "")).join("")}
-<p><strong>${escape(textOf(document.querySelector("[data-step='1'] .key-question")).replace(/^생각해 보기\s*/, ""))}</strong></p>
-${situations}
-<table class="log"><thead><tr><th>상황 1 · 내 예상</th><th>상황 2 · 내 예상</th></tr></thead><tbody><tr>${["s1", "s2"].map(id => { const sp = recordedSpots(id); return `<td>${sp.length ? recPadHTML(sp) : '<span class="meta">미기록</span>'}</td>`; }).join("")}</tr></tbody></table>
+${[...document.querySelectorAll("#xMeasureBox > .sb-note")].map((p, k) => `<p class="ctx">${linesOf(p)}</p>` + (k === 0 ? axisFig : "")).join("")}
+<p class="key">${escape(textOf(document.querySelector("[data-step='1'] .key-question")).replace(/^생각해 보기\s*/, ""))}</p>
+<ul class="sits">${situations.map(t => `<li>${escape(t)}</li>`).join("")}</ul>
+${mine(`<div class="pads">${["s1", "s2"].map((id, i) => `<div>${padOf(id)}<span>상황 ${i + 1}</span></div>`).join("")}</div>`, "✏️ 내가 표시한 예상 무늬")}
+${legendLine}
 
 <h2><span class="num">Ⅱ.</span> 가설 설정</h2>
-<p class="question">${legend("hypoEffectChoices")} — ${noteOf("#hypoEffectStem")}</p><div class="answer">${choiceText("hypoEffect")}</div>
-<p class="question">${noteOf("#hypoPatternQ")}</p><div class="answer">${hypoSpots.length ? recPadHTML(hypoSpots) : "미기록"}</div>
-<p class="question">${escape(textOf(document.querySelector('label[for="hypothesisNote"]')))}</p><div class="answer">${answer("hypothesisNote")}</div>
+<p class="question">${legend("hypoEffectChoices")}</p>
+${hypoSentence ? `<div class="answer sentence" data-label="✔ 내가 고른 생각">${hypoSentence}</div>` : mine("", "✔ 내가 고른 생각", "미선택")}
+<p class="question">${noteOf("#hypoPatternQ")}</p>
+${mine(recordedSpots("hypo").length ? `<div class="pads"><div>${padOf("hypo")}<span>상황 3</span></div></div>` : "", "✏️ 내가 표시한 예상 무늬", "미표시")}
+<p class="question">${escape(textOf(document.querySelector('label[for="hypothesisNote"]')))}</p>
+${written("hypothesisNote")}
 
 <h2><span class="num">Ⅲ.</span> 자료 수집</h2>
-<p>${escape(textOf(document.querySelector("[data-step='3'] .key-question")))}</p>
-<p class="meta">원자 오븐에서 나온 원자를 자석 A → B → C에 차례로 통과시키며, 자석의 축(z축·x축)과 가림막을 바꿔 검출면에 나타나는 무늬를 관찰했습니다.</p>
+<p class="key">${escape(textOf(document.querySelector("[data-step='3'] .key-question")))}</p>
+<p class="question">내가 측정한 자석 배치 (측정한 순서대로)</p>
+${mine(measuredList, "🧪 내 측정 기록", "측정 기록 없음")}
 
 <h2><span class="num">Ⅳ.</span> 자료 분석</h2>
-<h3>기록창 · 실험의 결과</h3>
-<table class="log"><thead><tr><th>실험</th><th>내용</th><th>측정</th><th>기록한 무늬</th></tr></thead><tbody>${missionRows}</tbody></table>
-<p class="meta">기록창: 위 = 빨강(+z), 아래 = 파랑(-z), 오른쪽 = 초록(+x), 왼쪽 = 보라(-x)</p>
-<p class="question">${legend("compareExpChoices")}</p><div class="answer">${checks("compareExp")}</div>
-<p class="question">${legend("hypoSupportChoices")}</p><div class="answer">${choiceText("hypoSupport")}</div>
+<p class="question">내 예상과 실험 결과 비교</p>
+<table class="log"><thead><tr><th>상황 · 실험</th><th class="mine-head">✏️ 내 예상</th><th class="mine-head">✏️ 기록한 실험 결과</th><th>실험</th></tr></thead><tbody>${compareRows}</tbody></table>
+${legendLine}
+<p class="question">Ⅱ 가설 설정에서 고른 내 생각</p>
+<p class="ctx">${hypoSentence || '<span class="miss">미선택</span>'}</p>
+<p class="question">${legend("compareExpChoices")}</p>
+${checked("compareExp")}
+<p class="question">${legend("hypoSupportChoices")}</p>
+${chosen("hypoSupport")}
 
 <h2><span class="num">Ⅴ.</span> 결론 도출</h2>
-<p class="question">${legend("conc1Choices")} — ${noteOf("#conc1Choices .recap-box")}</p><div class="answer">${checks("conc1")}</div>
-<p class="question">${legend("conc2Choices")} — ${noteOf("#conc2Choices .sb-note")}</p><div class="answer">${choiceText("conc2")}</div>
-<p class="question">${legend("conc3Choices")} — ${noteOf("#conc3Choices .sb-note")}</p><div class="answer">${choiceText("conc3")}</div>
+<p class="question">${legend("conc1Choices")}</p>
+<p class="ctx">${noteOf("#conc1Choices .recap-box")}</p>
+${checked("conc1")}
+<p class="question">${legend("conc2Choices")}</p>
+<p class="ctx">${noteOf("#conc2Choices .sb-note")} …</p>
+${chosen("conc2")}
+<p class="question">${legend("conc3Choices")}</p>
+<p class="ctx">${noteOf("#conc3Choices .sb-note")} …</p>
+${chosen("conc3")}
 
-<p class="meta" style="margin-top:32px;padding-top:14px;border-top:1px solid var(--line)">보고서 저장 시각: ${escape(new Date().toLocaleString("ko-KR"))}</p>
+<p class="guide" style="margin-top:28px;padding-top:12px;border-top:1px solid var(--line)">저장 시각: ${escape(new Date().toLocaleString("ko-KR"))} · 브라우저의 인쇄 기능으로 PDF로 저장할 수 있습니다.</p>
 <\/body><\/html>`;
 		}
 
