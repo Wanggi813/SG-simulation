@@ -2493,8 +2493,7 @@
 		function updateReadouts() {
 			updateAnalyzerCards();
 			// 아래 안내줄: 측정 전에는 측정 시작을, 측정한 뒤에는 무늬 관찰을 안내합니다.
-			const sig = settingsSignature();
-			const measured = state.runLog.some(r => r.signature === sig);
+			const measured = sameAsLastMeasurement();
 			ui.captionBox.textContent = `${configDescription()} · ${measured ? "측정 완료 — 검출면에 나타난 무늬를 살펴보세요" : "‘측정 시작’을 눌러 측정해 보세요"}`;
 		}
 
@@ -3946,15 +3945,18 @@ ${chosen("conc3")}
 				r.counts.plus + r.counts.minus + r.counts.lost === r.shots;
 		}
 
-		function currentConditionRecords() {
-			const signature = settingsSignature();
-			return state.runLog.filter(r => r.signature === signature && hasCounts(r));
+		// 직전 측정과 같은 배치인지: 같으면 '자석 설정 바꾸기'를, 다르면(이전에 해 본 배치라도) 다시 측정할 수 있게 합니다.
+		// Ⅳ에서 아직 마치지 않은 실험의 배치라면 직전과 같아도 측정할 수 있습니다.
+		function sameAsLastMeasurement() {
+			const last = [...state.runLog].reverse().find(hasCounts);
+			if (!last || last.signature !== settingsSignature()) return false;
+			return !(stepState.step === 4 && pendingMissionHere() >= 0);
 		}
 
 		function collectionAction() {
 			if (state.runKind === "measure" && !state.runSettled) return state.paused ? "resume" : "pause";
 			if (!state.runSettled) return "observe";
-			if (currentConditionRecords().length) return "next";
+			if (sameAsLastMeasurement()) return "next";
 			return "start";
 		}
 
