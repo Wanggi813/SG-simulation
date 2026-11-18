@@ -366,6 +366,46 @@
 			margin-top: 3px;
 		}
 
+		/* Ⅴ 1번: ㄱ·ㄴ 짝을 표처럼 한 줄씩 보여 줍니다. */
+		.choice-table {
+			margin: 8px 0 2px;
+			border: 1px solid var(--line, #dbe3ee);
+			border-radius: 10px;
+			overflow: hidden;
+			background: #fff;
+		}
+
+		.choice-table-head,
+		.model-options .choice-table label {
+			display: grid;
+			grid-template-columns: 36px 1fr 1fr;
+			align-items: center;
+			margin: 0;
+			text-align: center;
+		}
+
+		.choice-table-head {
+			background: #eef3fa;
+			font-size: 12px;
+			font-weight: 800;
+			color: var(--muted);
+			padding: 5px 0;
+		}
+
+		.model-options .choice-table label {
+			padding: 6px 0;
+			border-top: 1px solid #e5ebf3;
+			font-size: 13px;
+		}
+
+		.model-options .choice-table label:hover {
+			background: #f5f8fd;
+		}
+
+		.model-options .choice-table input {
+			margin: 0 auto;
+		}
+
 		.model-options label small {
 			display: block;
 			font-size: 11.5px;
@@ -2151,10 +2191,13 @@
 							<p>스핀의 <strong>( ㄱ )</strong> 성분을 측정하기 위해 원자를 자석 사이로 통과시켰더니 <strong>( ㄴ )</strong>축과 나란하게 두
 								갈래로 갈라졌다.</p>
 						</div>
-						<label><input type="checkbox" name="conc1" value="1" /><span>x, z</span></label>
-						<label><input type="checkbox" name="conc1" value="2" /><span>x, x</span></label>
-						<label><input type="checkbox" name="conc1" value="3" /><span>z, x</span></label>
-						<label><input type="checkbox" name="conc1" value="4" /><span>z, z</span></label>
+						<div class="choice-table" role="group" aria-label="ㄱ, ㄴ에 들어갈 말">
+							<div class="choice-table-head"><span></span><span>ㄱ</span><span>ㄴ</span></div>
+							<label data-answer="ㄱ: x, ㄴ: z"><input type="checkbox" name="conc1" value="1" /><span>x</span><span>z</span></label>
+							<label data-answer="ㄱ: x, ㄴ: x"><input type="checkbox" name="conc1" value="2" /><span>x</span><span>x</span></label>
+							<label data-answer="ㄱ: z, ㄴ: x"><input type="checkbox" name="conc1" value="3" /><span>z</span><span>x</span></label>
+							<label data-answer="ㄱ: z, ㄴ: z"><input type="checkbox" name="conc1" value="4" /><span>z</span><span>z</span></label>
+						</div>
 					</fieldset>
 					<fieldset class="model-options" id="conc2Choices">
 						<legend>2) 다음 중 옳은 것을 고르시오.</legend>
@@ -3717,7 +3760,7 @@
 				return r ? escape(textOf(r.parentElement)) : "";
 			};
 			const chosen = name => mine(choiceText(name), "✔ 내가 고른 답", "미선택");
-			const checked = name => mine([...document.querySelectorAll(`input[name="${name}"]:checked`)].map(r => escape(textOf(r.parentElement))).join(", "), "✔ 내가 고른 답", "미선택");
+			const checked = name => mine([...document.querySelectorAll(`input[name="${name}"]:checked`)].map(r => escape(r.parentElement.dataset.answer || textOf(r.parentElement))).join(" / "), "✔ 내가 고른 답", "미선택");
 			const padOf = id => { const sp = recordedSpots(id); return sp.length ? recPadHTML(sp) : '<span class="miss">미표시</span>'; };
 			const today = new Date();
 			const dateStr = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}.`;
